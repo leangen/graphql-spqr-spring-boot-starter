@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+io.leangen.graphql.spqr.spring.autoconfigure.SpqrAutoConfiguration,io.leangen.graphql.spqr.spring.autoconfigure.SpqrMvcAutoConfiguration
