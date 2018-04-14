@@ -7,3 +7,7 @@ Spring Boot 2 starter powered by GraphQL SPQR
 [![Build Status](https://travis-ci.org/leangen/graphql-spqr.svg?branch=master)](https://travis-ci.org/leangen/graphql-spqr-spring-boot-starter)
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg?maxAge=2592000)](https://raw.githubusercontent.com/leangen/graphql-spqr-spring-boot-starter/master/LICENSE)
 [![Semver](http://img.shields.io/SemVer/2.0.0.png)](http://semver.org/spec/v2.0.0.html)
+
+## A friendly warning
+
+This project is still in early development and, while fairly well tested, should be considered as ALPHA stage as long as the version is 0.0.X.
