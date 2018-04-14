@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.leangen.graphql.spqr</groupId>
+        <groupId>io.leangen.graphql</groupId>
         <artifactId>graphql-spqr-spring-boot-starter-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -18,7 +18,7 @@
         </dependency>
 
         <dependency>
-            <groupId>io.leangen.graphql.spqr</groupId>
+            <groupId>io.leangen.graphql</groupId>
             <artifactId>graphql-spqr-spring-boot-autoconfigure</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
