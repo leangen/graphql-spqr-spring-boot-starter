@@ -32,4 +32,10 @@ public class GraphiQLController {
                 .replace("${pageTitle}", pageTitle)
                 .replace("${graphqlEndpoint}", endpointUrl);
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/client", produces = "text/html; charset=utf-8")
+    public String subscriptions() throws IOException {
+        return StreamUtils.copyToString(new ClassPathResource("subscription.html").getInputStream(), StandardCharsets.UTF_8);
+    }
 }
