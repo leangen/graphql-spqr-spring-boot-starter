@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>graphql-spqr-spring-boot-starter</artifactId>
-    <packaging>pom</packaging>
 
     <dependencies>
 
