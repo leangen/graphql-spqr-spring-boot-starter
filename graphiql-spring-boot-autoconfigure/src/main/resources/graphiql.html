@@ -12,7 +12,73 @@
             overflow: hidden;
         }
         #graphiql {
-            height: 100vh;
+            height: calc(100vh - 30px);
+        }
+        .graphiql-addition {
+            color: #141823;
+            font-family: system,-apple-system,'San Francisco','.SFNSDisplay-Regular','Segoe UI',Segoe,'Segoe WP','Helvetica Neue',helvetica,'Lucida Grande',arial,sans-serif;
+            font-size: 14px;
+        }
+        .graphiql-addition .web-socket-test-title {
+            cursor: pointer;
+            background: #eee;
+            border-bottom: 1px solid #d6d6d6;
+            border-top: 1px solid #e0e0e0;
+            color: #777;
+            font-variant: small-caps;
+            font-weight: 700;
+            letter-spacing: 1px;
+            line-height: 14px;
+            padding: 6px 0 8px 43px;
+            text-transform: lowercase;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .graphiql-addition pre {
+            margin: 0 10px;
+        }
+        .graphiql-addition .error {
+            color: red;
+        }
+        .graphiql-addition .response {
+            color: #141823;
+        }
+        #graphiql-addition-text {
+            overflow-y: scroll;
+            float: left;
+            width: 50%;
+        }
+        #graphiql-addition-input {
+            float: right;
+            width: calc(50% - 2px);
+            background-color: #eee;
+            border-left: 1px solid #e0e0e0;
+        }
+        #graphiql-addition-input textarea {
+            width: calc(100% - 15px);
+            height: calc(100% - 50px);
+            border: 1px solid #e0e0e0;
+            margin: 5px;
+            font-size: 13px;
+            font-family: Consolas,Inconsolata,'Droid Sans Mono',Monaco,monospace;
+        }
+        #graphiql-addition-input .toolbar-button {
+            background: #fdfdfd;
+            background: -webkit-linear-gradient(#f9f9f9,#ececec);
+            background: linear-gradient(#f9f9f9,#ececec);
+            border-radius: 3px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,.2), 0 1px 0 rgba(255,255,255,.7), inset 0 1px #fff;
+            color: #555;
+            cursor: pointer;
+            display: inline-block;
+            margin: 0 5px;
+            padding: 3px 11px 5px;
+            text-decoration: none;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 150px;
         }
     </style>
 
@@ -108,6 +174,97 @@
         }),
         document.getElementById('graphiql')
     );
+
+
+    var Subscription = function (selector) {
+      var wsUri = "ws://localhost:8989/graphql/websocket";
+      var websocket;
+
+      function onOpen(evt) {
+        writeToScreen('CONNECTED');
+      }
+
+      function onClose(evt) {
+        writeToScreen('DISCONNECTED');
+      }
+
+      function onMessage(evt) {
+        writeToScreen('RESPONSE:\n' + JSON.stringify(JSON.parse(evt.data), null, 2));
+      }
+
+      function onError(evt) {
+        writeToScreen('ERROR:\n' + JSON.stringify(evt.data, null, 2), true);
+      }
+
+      function doSend(message) {
+        writeToScreen('SENT:\n' + message);
+        websocket.send(message);
+      }
+
+      function writeToScreen(message, isError) {
+        selector.innerHTML += isError ?
+          '<pre class="error">' + message + '</pre>' :
+          '<pre class="response">' + message + '</pre>';
+      }
+
+      return {
+        init: function() {
+          websocket = new WebSocket(wsUri);
+          websocket.onopen = onOpen;
+          websocket.onclose = onClose;
+          websocket.onmessage = onMessage;
+          websocket.onerror = onError;
+        },
+
+        send: doSend
+      };
+    };
+
+    document.addEventListener('DOMContentLoaded', function(event) {
+      var webSocketTestTitle = document.getElementsByClassName('web-socket-test-title')[0];
+      var webSocketTestButton = document.getElementsByClassName('web-socket-test-button')[0];
+      var graphiql = document.getElementById('graphiql');
+      var graphiqlText = document.getElementById('graphiql-addition-text');
+      var graphiqlInput = document.getElementById('graphiql-addition-input');
+      var graphiqlTextArea = document.getElementById('graphiql-addition-textarea');
+
+      var titleHeight = 30, panelHeight = 200, isOpened = false;
+
+      graphiqlTextArea.value = "subscription followIssue {\n" +
+        "  issueStatusChanged(code: \"COOF-1\") {\n" +
+        "    code\n" +
+        "    description\n" +
+        "    status\n" +
+        "  }\n" +
+        "}";
+
+      var subscription = new Subscription(graphiqlText);
+
+      webSocketTestTitle.addEventListener('click', expandPanel, false);
+      webSocketTestButton.addEventListener('click', sendText, false);
+
+      function expandPanel() {
+        graphiql.style.height = "calc(100vh - " + (isOpened ? titleHeight : panelHeight) + "px)";
+        graphiqlText.style.height = graphiqlInput.style.height = (isOpened ? 0 : panelHeight - titleHeight) + "px";
+        isOpened = !isOpened;
+      }
+
+      function sendText() {
+        subscription.send(graphiqlTextArea.value);
+      }
+
+      subscription.init();
+    });
 </script>
+<div class="graphiql-addition">
+    <div class="web-socket-test-title">Web Socket Test</div>
+    <div id="graphiql-addition-text"></div>
+    <div id="graphiql-addition-input">
+        <textarea id="graphiql-addition-textarea"></textarea>
+        <div class="toolbar">
+            <a class="toolbar-button web-socket-test-button" title="Send">Send</a>
+        </div>
+    </div>
+</div>
 </body>
 </html>
