@@ -11,3 +11,8 @@ Spring Boot 2 starter powered by GraphQL SPQR
 ## A friendly warning
 
 This project is still in early development and, while fairly well tested, should be considered as ALPHA stage as long as the version is 0.0.X.
+
+## Module naming hint
+
+If you are confused when first looking at the module names pay attention that some are named prefixed by graphql and others grahiql 
+(with an 'i')
