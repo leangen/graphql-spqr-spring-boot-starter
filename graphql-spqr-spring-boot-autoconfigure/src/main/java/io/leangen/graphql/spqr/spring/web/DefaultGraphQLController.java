@@ -31,7 +31,7 @@ public class DefaultGraphQLController {
     }
 
     @PostMapping(
-            value = "/${graphql.spqr.default-endpoint.mapping:graphql}",
+            value = "${graphql.spqr.default-endpoint.mapping:/graphql}",
             consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE},
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
@@ -53,7 +53,7 @@ public class DefaultGraphQLController {
     }
 
     @PostMapping(
-            value = "/${graphql.spqr.default-endpoint.mapping:graphql}",
+            value = "${graphql.spqr.default-endpoint.mapping:/graphql}",
             consumes = {"application/graphql", "application/graphql;charset=UTF-8"},
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
@@ -74,7 +74,7 @@ public class DefaultGraphQLController {
 
     @RequestMapping(
             method = RequestMethod.POST,
-            value = "/${graphql.spqr.default-endpoint.mapping:graphql}",
+            value = "${graphql.spqr.default-endpoint.mapping:/graphql}",
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, "application/x-www-form-urlencoded;charset=UTF-8"},
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
@@ -98,7 +98,7 @@ public class DefaultGraphQLController {
     }
 
     @GetMapping(
-            value = "/${graphql.spqr.default-endpoint.mapping:graphql}",
+            value = "${graphql.spqr.default-endpoint.mapping:/graphql}",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
     @ResponseBody

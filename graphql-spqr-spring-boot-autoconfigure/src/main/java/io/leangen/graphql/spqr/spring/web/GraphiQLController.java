@@ -1,4 +1,4 @@
-package io.leangen.graphql.spqr.spring.graphiql;
+package io.leangen.graphql.spqr.spring.web;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -16,7 +16,13 @@ public class GraphiQLController {
     @Value("${graphiql.endpoint:#{null}}")
     private String graphqlEndpoint;
 
-    @Value("${graphql.spqr.default-endpoint.mapping:graphql}")
+    @Value("${graphiql.websocket-endpoint:#{null}}")
+    private String webSocketEndpoint;
+
+    @Value("${graphql.spqr.websocket.mapping:#{null}}")
+    private String webSocketDefaultEndpoint;
+
+    @Value("${graphql.spqr.default-endpoint.mapping:/graphql}")
     private String graphqlDefaultEndpoint;
 
     @Value("${graphiql.pageTitle:GraphiQL}")
@@ -26,16 +32,11 @@ public class GraphiQLController {
     @RequestMapping(value = "${graphiql.mapping:/graphiql}", produces = "text/html; charset=utf-8")
     public String graphiql() throws IOException {
         String template = StreamUtils.copyToString(new ClassPathResource("graphiql.html").getInputStream(), StandardCharsets.UTF_8);
-        String endpointUrl = graphqlEndpoint == null ? graphqlDefaultEndpoint : graphqlEndpoint;
-        endpointUrl = endpointUrl.startsWith("/") ? endpointUrl : "/" + endpointUrl;
+        String graphQLEndpointUrl = graphqlEndpoint != null ? graphqlEndpoint : graphqlDefaultEndpoint;
+        String webSocketEndpointUrl = webSocketEndpoint != null ? webSocketEndpoint : (webSocketDefaultEndpoint != null ? webSocketDefaultEndpoint : graphqlDefaultEndpoint);
         return template
                 .replace("${pageTitle}", pageTitle)
-                .replace("${graphqlEndpoint}", endpointUrl);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/client", produces = "text/html; charset=utf-8")
-    public String subscriptions() throws IOException {
-        return StreamUtils.copyToString(new ClassPathResource("subscription.html").getInputStream(), StandardCharsets.UTF_8);
+                .replace("${graphQLEndpoint}", graphQLEndpointUrl)
+                .replace("${webSocketEndpoint}", webSocketEndpointUrl);
     }
 }

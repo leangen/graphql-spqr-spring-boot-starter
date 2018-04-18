@@ -47,8 +47,6 @@
     <modules>
         <module>graphql-spqr-spring-boot-autoconfigure</module>
         <module>graphql-spqr-spring-boot-starter</module>
-        <module>graphiql-spring-boot-autoconfigure</module>
-        <module>graphiql-spring-boot-starter</module>
     </modules>
 
     <dependencyManagement>

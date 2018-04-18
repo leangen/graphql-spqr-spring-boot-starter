@@ -19,6 +19,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SubscriptionWebSocketHandler extends TextWebSocketHandler {
 
     @Autowired
+    private ObjectMapper mapper;
+
+    @Autowired
     private GraphQLSchema graphQLSchema;
 
     private final AtomicReference<Subscription> subscriptionRef = new AtomicReference<>();
@@ -51,7 +54,6 @@ public class SubscriptionWebSocketHandler extends TextWebSocketHandler {
             @Override
             public void onNext(ExecutionResult result) {
                 try {
-                    ObjectMapper mapper = new ObjectMapper();
                     session.sendMessage(new TextMessage(mapper.writeValueAsString(result.toSpecification())));
                 } catch (IOException exception) {
                     exception.printStackTrace();
