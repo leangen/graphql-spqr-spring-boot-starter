@@ -176,10 +176,7 @@
     );
 
 
-    var Subscription = function (selector) {
-        var url = new URL("${webSocketEndpoint}", window.location.href);
-        var wsUri = ((url.protocol === "https:") ? "wss://" : "ws://") + url.host + url.pathname
-            + (url.pathname === "/" ? "" : "/") + "websocket";
+    var Subscription = function (wsUri, selector) {
         var websocket;
 
         function onOpen(evt) {
@@ -223,16 +220,27 @@
     };
 
     document.addEventListener('DOMContentLoaded', function(event) {
+        var webSocketEndpoint = "${webSocketEndpoint}";
+        var graphiql = document.getElementById('graphiql');
+        var subscriptionsPanel = document.getElementsByClassName('graphiql-addition')[0];
+        if (!webSocketEndpoint) {
+            graphiql.style.height = "100vh";
+            document.getElementsByTagName("body")[0].removeChild(subscriptionsPanel);
+            return;
+        }
+        var url = new URL(webSocketEndpoint, window.location.href);
+        var wsUri = ((url.protocol === "https:") ? "wss://" : "ws://") + url.host + url.pathname
+            + (url.pathname === "/" ? "" : "/") + "websocket";
+
         var webSocketTestTitle = document.getElementsByClassName('subscriptions-title')[0];
         var webSocketTestButton = document.getElementsByClassName('subscriptions-button')[0];
-        var graphiql = document.getElementById('graphiql');
         var graphiqlText = document.getElementById('graphiql-addition-text');
         var graphiqlInput = document.getElementById('graphiql-addition-input');
         var graphiqlTextArea = document.getElementById('graphiql-addition-textarea');
 
         var titleHeight = 30, panelHeight = 200, isOpened = false;
 
-        var subscription = new Subscription(graphiqlText);
+        var subscription = new Subscription(wsUri, graphiqlText);
 
         webSocketTestTitle.addEventListener('click', expandPanel, false);
         webSocketTestButton.addEventListener('click', sendText, false);

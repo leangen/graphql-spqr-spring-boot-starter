@@ -25,6 +25,9 @@ public class GraphiQLController {
     @Value("${graphql.spqr.default-endpoint.mapping:/graphql}")
     private String graphqlDefaultEndpoint;
 
+    @Value("${graphql.spqr.websocket.enabled:true}")
+    private boolean webSocketEnabled;
+
     @Value("${graphiql.pageTitle:GraphiQL}")
     private String pageTitle;
 
@@ -37,6 +40,6 @@ public class GraphiQLController {
         return template
                 .replace("${pageTitle}", pageTitle)
                 .replace("${graphQLEndpoint}", graphQLEndpointUrl)
-                .replace("${webSocketEndpoint}", webSocketEndpointUrl);
+                .replace("${webSocketEndpoint}", webSocketEnabled ? webSocketEndpointUrl : "");
     }
 }
