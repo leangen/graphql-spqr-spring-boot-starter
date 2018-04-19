@@ -149,7 +149,7 @@
                         <useReleaseProfile>false</useReleaseProfile>
                         <releaseProfiles>release</releaseProfiles>
                         <pushChanges>false</pushChanges>
-                        <tagNameFormat>@{project.artifactId}-v@{project.version}</tagNameFormat>
+                        <tagNameFormat>graphql-spqr-spring-boot-starter-v@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
             </plugins>
