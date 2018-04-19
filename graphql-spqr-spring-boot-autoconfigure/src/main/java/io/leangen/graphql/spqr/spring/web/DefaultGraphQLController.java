@@ -3,8 +3,12 @@ package io.leangen.graphql.spqr.spring.web;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
 import graphql.schema.GraphQLSchema;
+import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
+import io.leangen.graphql.spqr.spring.autoconfigure.DefaultGlobalContext;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
+import org.dataloader.DataLoaderRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
@@ -24,10 +28,12 @@ import java.util.Map;
 public class DefaultGraphQLController {
 
     private final GraphQL graphQL;
+    private final DataLoaderRegistryFactory dataLoaderRegistryFactory;
 
     @Autowired
-    public DefaultGraphQLController(GraphQLSchema schema) {
+    public DefaultGraphQLController(GraphQLSchema schema, DataLoaderRegistryFactory dataLoaderRegistryFactory) {
         graphQL = GraphQL.newGraphQL(schema).build();
+        this.dataLoaderRegistryFactory = dataLoaderRegistryFactory == null ? () -> null : dataLoaderRegistryFactory;
     }
 
     @PostMapping(
@@ -43,11 +49,12 @@ public class DefaultGraphQLController {
         String operationName = requestParams.getOperationName() == null ? requestBody.getOperationName() : requestParams.getOperationName();
         Map<String, Object> variables = requestParams.getVariables() == null ? requestBody.getVariables() : requestParams.getVariables();
 
-        ExecutionResult executionResult = graphQL.execute(ExecutionInput.newExecutionInput()
+        DataLoaderRegistry dataLoaders = dataLoaderRegistryFactory.createDataLoaderRegistry();
+        ExecutionResult executionResult = graphQL(dataLoaders).execute(ExecutionInput.newExecutionInput()
                 .query(query)
                 .operationName(operationName)
                 .variables(variables)
-                .context(raw)
+                .context(new DefaultGlobalContext(raw, dataLoaders))
                 .build());
         return executionResult.toSpecification();
     }
@@ -63,11 +70,12 @@ public class DefaultGraphQLController {
                                                   HttpServletRequest raw) {
         String query = requestParams.getQuery() == null ? queryBody : requestParams.getQuery();
 
-        ExecutionResult executionResult = graphQL.execute(ExecutionInput.newExecutionInput()
+        DataLoaderRegistry dataLoaders = dataLoaderRegistryFactory.createDataLoaderRegistry();
+        ExecutionResult executionResult = graphQL(dataLoaders).execute(ExecutionInput.newExecutionInput()
                 .query(query)
                 .operationName(requestParams.getOperationName())
                 .variables(requestParams.getVariables())
-                .context(raw)
+                .context(new DefaultGlobalContext(raw, dataLoaders))
                 .build());
         return executionResult.toSpecification();
     }
@@ -88,11 +96,12 @@ public class DefaultGraphQLController {
         String query = StringUtils.isEmpty(queryParam) ? request.getQuery() : queryParam;
         String operationName = StringUtils.isEmpty(operationNameParam) ? request.getOperationName() : operationNameParam;
 
-        ExecutionResult executionResult = graphQL.execute(ExecutionInput.newExecutionInput()
+        DataLoaderRegistry dataLoaders = dataLoaderRegistryFactory.createDataLoaderRegistry();
+        ExecutionResult executionResult = graphQL(dataLoaders).execute(ExecutionInput.newExecutionInput()
                 .query(query)
                 .operationName(operationName)
                 .variables(request.getVariables())
-                .context(raw)
+                .context(new DefaultGlobalContext(raw, dataLoaders))
                 .build());
         return executionResult.toSpecification();
     }
@@ -104,13 +113,21 @@ public class DefaultGraphQLController {
     @ResponseBody
     public Map<String, Object> executeGet(GraphQLRequest request,
                                           HttpServletRequest raw) {
-        ExecutionResult executionResult = graphQL.execute(ExecutionInput.newExecutionInput()
+
+        DataLoaderRegistry dataLoaders = dataLoaderRegistryFactory.createDataLoaderRegistry();
+        ExecutionResult executionResult = graphQL(dataLoaders).execute(ExecutionInput.newExecutionInput()
                 .query(request.getQuery())
                 .operationName(request.getOperationName())
                 .variables(request.getVariables())
-                .context(raw)
+                .context(new DefaultGlobalContext(raw, dataLoaders))
                 .build());
         return executionResult.toSpecification();
     }
 
+    private GraphQL graphQL(DataLoaderRegistry dataLoaders) {
+        if (dataLoaders == null) {
+            return graphQL;
+        }
+        return graphQL.transform(builder -> builder.instrumentation(new DataLoaderDispatcherInstrumentation(dataLoaders)));
+    }
 }
