@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @Controller
-public class GraphiQLController {
+public class DefaultGraphiQLController {
 
     @Value("${graphiql.endpoint:#{null}}")
     private String graphqlEndpoint;

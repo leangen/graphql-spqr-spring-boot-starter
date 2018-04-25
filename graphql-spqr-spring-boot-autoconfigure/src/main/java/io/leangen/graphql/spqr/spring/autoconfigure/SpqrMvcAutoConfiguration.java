@@ -2,7 +2,7 @@ package io.leangen.graphql.spqr.spring.autoconfigure;
 
 import graphql.schema.GraphQLSchema;
 import io.leangen.graphql.spqr.spring.web.DefaultGraphQLController;
-import io.leangen.graphql.spqr.spring.web.GraphiQLController;
+import io.leangen.graphql.spqr.spring.web.DefaultGraphiQLController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,7 +27,7 @@ public class SpqrMvcAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(value = "graphiql.enabled", havingValue = "true")
-    public GraphiQLController graphiQLController() {
-        return new GraphiQLController();
+    public DefaultGraphiQLController graphiQLController() {
+        return new DefaultGraphiQLController();
     }
 }
