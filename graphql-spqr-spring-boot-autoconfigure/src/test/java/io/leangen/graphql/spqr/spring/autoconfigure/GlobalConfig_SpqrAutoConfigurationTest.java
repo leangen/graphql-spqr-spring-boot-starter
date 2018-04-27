@@ -45,8 +45,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {SpqrAutoConfiguration.class, GlobalConfig_SpqrAutoConfigurationTest.TypeMapper_TestConfig.class})
@@ -272,18 +270,20 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         @Bean
         public ExtensionProvider<ResolverBuilder> testResolverBuilderExtensionProvider() {
-            return (config, defaults) -> Stream
-                                         .concat(
-                                            Stream.of(new AnnotatedResolverBuilder()),
-                                            Stream.of(new PublicResolverBuilder() {
-                                               @Override
-                                               protected boolean isQuery(Method method) {
-                                                   return super.isQuery(method) && method.getName().equals("getGreeting");
-                                               }
-                                            })
-                                         )
-                                         .collect(Collectors.toList())
-            ;
+            return (config, defaults) -> {
+                List<ResolverBuilder> resolverBuilders = new ArrayList<>();
+
+                resolverBuilders.add(new PublicResolverBuilder() {
+                    @Override
+                    protected boolean isQuery(Method method) {
+                        return super.isQuery(method) && method.getName().equals("getGreeting");
+                    }
+                });
+
+                resolverBuilders.add(new AnnotatedResolverBuilder());
+
+                return resolverBuilders;
+            };
         }
 
         @Bean
