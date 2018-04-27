@@ -46,11 +46,11 @@ If you want to use this starter in your project you'll need the following depend
 ```
 Of course analogous for Gradle project.
 
-The plan is that in following 0.0.2 alpha release `spring-boot-starter-websocket` won't be necessary if you're not using autoconfig for graphql subscriptions.
+The plan is that in 0.0.2 alpha release `spring-boot-starter-websocket` dependency won't be necessary if you're not using autoconfig for graphql subscriptions.
 
 ## Defining operation sources for the API
 
-All beans in spring context annotated with `@GraphqlApi` will be considered to be operation sources.
+All beans in spring context annotated with `@GraphqlApi` are considered to be operation sources (concept similar to `Controller` class in SpringMVC).
 
 This annotation can be used in combination with `@Context` or `@Bean` annotations, e.g.
 
@@ -71,7 +71,7 @@ or
 ``` 
 
 ### Which methods of operation source get exposed through the API
-To deduce which methods of the operation source class will be exposed as a query or a mutation SPQR uses a concept of a `ResolverBuilder`. To cover the basic approaches `SpqrAutoConfiguration` will add beans three basic resolver builder implementations.
+To deduce which methods of the operation source class will be exposed as a query or a mutation SPQR uses a concept of a `ResolverBuilder`. To cover the basic approaches `SpqrAutoConfiguration` will add beans for all three basic resolver builder implementations.
 * `AnnotatedResolverBuilder` which detects usage of annotations from `io.leangen.graphql.annotations` package to decide if a method should be exposed through GraphQL API
 * `PublicResolverBuilder` which exposes all `public` methods from the operations source class
 * `BeanResolverBuilder` which exposes all getters as queries and setters as mutations
@@ -80,8 +80,9 @@ It is also possible to implement custom resolver builders by implementing the `R
 
 Resolver builders can be declared on both global and operation source specific level. Generally we consider it a better idea to declare explicitly on operation source level unless rules are absolutely the same on all operation sources. Mixing will work but could prove tricky to controll as your API grows.
 
+At the moment SPQR's (v0.9.7) default resolver builder is `AnnotatedResolverBuilder`, this starter follows that convention and will continue to do so if at some point SPQR's default changes.
+
 #### Global resolver builder configuration
-At the moment SPQR's (v0.9.7) default resolver builder is `AnnotatedResolverBuilder` so this starter follows in that convention and will continue to do so if at some point SPQR's default changes.
 
 To change the global default configuration you need to implement a bean of type `ExtensionProvider<ResolverBuilder>` and add it to the application context.
 A simplified example of this could be:
@@ -159,4 +160,4 @@ Also it is completely normal to use more than one resolver builder on the same o
         }
     }
 ```
-this way we would expose both queries discovered in a different way. And same would worki if we were using `@Bean` annotation.
+this way we would expose both queries discovered in a different way. And same would also work if we were using it with `@Bean` annotation.
