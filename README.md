@@ -2,8 +2,8 @@
 Spring Boot 2 starter powered by GraphQL SPQR
 
 [![Join the chat at https://gitter.im/leangen/graphql-spqr](https://badges.gitter.im/leangen/graphql-spqr.svg)](https://gitter.im/leangen/graphql-spqr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.leangen.graphql/spqr/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.leangen.graphql/graphql-spqr-spring-boot-starter)
-[![Javadoc](http://javadoc-badge.appspot.com/io.leangen.graphql/spqr.svg?label=javadoc)](http://www.javadoc.io/doc/io.leangen.graphql/graphql-spqr-spring-boot-starter)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.leangen.graphql/graphql-spqr-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.leangen.graphql/graphql-spqr-spring-boot-starter)
+[![Javadoc](http://javadoc-badge.appspot.com/io.leangen.graphql/graphql-spqr-spring-boot-starter.svg?label=javadoc)](http://www.javadoc.io/doc/io.leangen.graphql/graphql-spqr-spring-boot-starter)
 [![Build Status](https://travis-ci.org/leangen/graphql-spqr.svg?branch=master)](https://travis-ci.org/leangen/graphql-spqr-spring-boot-starter)
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg?maxAge=2592000)](https://raw.githubusercontent.com/leangen/graphql-spqr-spring-boot-starter/master/LICENSE)
 [![Semver](http://img.shields.io/SemVer/2.0.0.png)](http://semver.org/spec/v2.0.0.html)
@@ -12,22 +12,17 @@ Spring Boot 2 starter powered by GraphQL SPQR
 
 This project is still in early development and, while fairly well tested, should be considered as ALPHA stage as long as the version is 0.0.X.
 
-## Dependencies
+## Project setup / Dependencies
 
-If you want to use this starter in your project you'll need the following dependencies on your classpath in a typical spring boot project.
+To use this starter in a typical Spring Boot project, add the following dependencies:
 
 ```xml
-<parent>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-parent</artifactId>
-  <version>2.0.1.RELEASE</version>
-</parent>
-
 <dependencies>
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
   </dependency>
+  <!--Will be optional as of 0.0.2-->
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-websocket</artifactId>
@@ -37,6 +32,7 @@ If you want to use this starter in your project you'll need the following depend
     <artifactId>graphiql-spring-boot-starter</artifactId>
     <version>0.0.1</version>
   </dependency>
+  <!--Will be implicit as of 0.0.2-->
   <dependency>
     <groupId>io.leangen.graphql</groupId>
     <artifactId>spqr</artifactId>
@@ -44,20 +40,21 @@ If you want to use this starter in your project you'll need the following depend
   </dependency>
 </dependencies>
 ```
-Of course analogous for Gradle project.
 
-The plan is that in 0.0.2 alpha release `spring-boot-starter-websocket` dependency won't be necessary if you're not using autoconfig for graphql subscriptions.
+### Note
 
-## Defining operation sources for the API
+The plan is that in 0.0.2 alpha release `spring-boot-starter-websocket` dependency won't be necessary if you're not using autoconfig for GraphQL subscriptions over WebSockets. Additionally, an implementations using server-sent-events will be added.
 
-All beans in spring application context annotated with `@GraphqlApi` are considered to be operation sources (concept similar to `Controller` class in SpringMVC).
+## Defining the operation sources (the beans that get exposed via the API)
 
-This annotation can be used in combination with `@Component` or `@Bean` annotations, e.g.
+All beans in Spring's application context annotated with `@GraphqlApi` are considered to be operation sources (a concept similar to `Controller` beans in Spring MVC).
+This annotation can be used in combination with `@Component/@Service/@Repository` or `@Bean` annotations, e.g.
 
 ```java
     @Component
     @GraphQLApi
-    private class MyOperationSource {
+    private class UserService {
+        //Query/mutation/subscription methods
         ...
     }
 ```
@@ -65,101 +62,120 @@ or
 ```java
     @Bean
     @GraphQLApi
-    public MyOperationSource() {
-        ...
+    public userService() {
+        return new UserService(...);
     }
-``` 
+```
 
-### Which methods of operation source get exposed through the API
-To deduce which methods of the operation source class will be exposed as a query or a mutation SPQR uses a concept of a `ResolverBuilder`. To cover the basic approaches `SpqrAutoConfiguration` will add beans for all three basic resolver builder implementations.
-* `AnnotatedResolverBuilder` which detects usage of annotations from `io.leangen.graphql.annotations` package to decide if a method should be exposed through GraphQL API
-* `PublicResolverBuilder` which exposes all `public` methods from the operations source class
-* `BeanResolverBuilder` which exposes all getters as queries and setters as mutations
+## Choosing which methods get exposed through the API
+
+To deduce which methods of each operation source class should be exposed as GraphQL queries/mutations/subscriptions, SPQR uses the concept of a `ResolverBuilder` (since each exposed method acts as a resolver function for a GraphQL operation).
+To cover the basic approaches `SpqrAutoConfiguration` registers a bean for each of the three built-in `ResolverBuilder` implementations:
+
+* `AnnotatedResolverBuilder` - exposes only the methods annotated by `@GraphQLQuery`, `@GraphQLMutation` or `@GraphQLSubscription`
+* `PublicResolverBuilder` - exposes all `public` methods from the operations source class (methods returning `void` are considered mutations)
+* `BeanResolverBuilder` - exposes all getters as queries and setters as mutations (getters returning `Publisher<...>` are considered subscriptions)
 
 It is also possible to implement custom resolver builders by implementing the `ResolverBuilder` interface.
 
-Resolver builders can be declared on both global and operation source specific level. Generally we consider it a better idea to declare explicitly on operation source level unless rules are absolutely the same on all operation sources. Mixing will work but could prove tricky to controll as your API grows.
+Resolver builders can be declared on both global and operation source specific level. Generally we consider it a better idea to declare them explicitly on the operation source level, unless the rules are absolutely the same across all operation sources. Mixing will work but could prove tricky to control as your API grows.
 
-At the moment SPQR's (v0.9.7) default resolver builder is `AnnotatedResolverBuilder`, this starter follows that convention and will continue to do so if at some point SPQR's default changes.
+At the moment SPQR's (v0.9.7) default resolver builder is `AnnotatedResolverBuilder`. This starter follows that convention and will continue to do so if at some point SPQR's default changes.
 
-#### Global resolver builder configuration
+### Global resolver builder configuration
 
-To change the global default configuration you need to implement a bean of type `ExtensionProvider<ResolverBuilder>` and add it to the application context.
+To change the default resolver builders globally, implement and register a bean of type `ExtensionProvider<ResolverBuilder>`.
 A simplified example of this could be:
+
 ```java
     @Bean
     public ExtensionProvider<ResolverBuilder> resolverBuilderExtensionProvider() {
         return (config, defaults) -> {
             List<ResolverBuilder> resolverBuilders = new ArrayList<>();
 
+            //add a custom subtype of PublicResolverBuilder that only exposes a method of it's called "greeting"
             resolverBuilders.add(new PublicResolverBuilder() {
                 @Override
                 protected boolean isQuery(Method method) {
                     return super.isQuery(method) && method.getName().equals("greeting");
                 }
             });
-
+            //add the default builder
             resolverBuilders.add(new AnnotatedResolverBuilder());
 
             return resolverBuilders;
         };
     }
 ```
-This would add two resolver builders that would apply to all operation sources.
-First one would expose all public methods named 'greeting'. The second is the inbuilt `AnnotatedResolverBuilder`.
-There are of course nicer ways to write this but the idea is to keep the example as clear as possible.
+This would add two resolver builders that apply to _all_ operation sources.
+The First one exposes all public methods named _greeting_. The second is the inbuilt `AnnotatedResolverBuilder` (that exposes only the explicitly annotated methods).
+A quicker way to achieve the same would be:
 
-#### Operation source specific configuration
+```java
+    @Bean
+    public ExtensionProvider<ResolverBuilder> resolverBuilderExtensionProvider() {
+        //prepend the custom builder to the provided list of defaults
+        return (config, defaults) -> defaults.insert(0, new PublicResolverBuilder() {
+                @Override
+                protected boolean isQuery(Method method) {
+                    return super.isQuery(method) && method.getName().equals("greeting");
+                }
+            });
+    };
+```
 
-To leverage the underlying SPQR features `graphiql-spring-boot-starter` uses `@WithResolverBuilder` annotation on the operation source bean.
+### Operation source specific configuration
 
-This annotation can also be used in combination with both `@Component` or `@Bean` annotations as used normally in spring framework.
+To attach a resolver builder to a specific source (bean), use the `@WithResolverBuilder` annotation on it.
+This annotation also works both on the beans registered by `@Component/@Service/@Repository` or `@Bean` annotations.
 
-As an example we can expose a `getGreetingFromAnnotatedSource_wiredAsComponent` query by using:
+As an example, we can expose the `greeting` query by using:
 
 ```java
     @Component
     @GraphQLApi
-    @WithResolverBuilder(BeanResolverBuilder.class)
+    @WithResolverBuilder(BeanResolverBuilder.class) //exposes all getters
     private class MyOperationSource {
-        public String getGreetingFromAnnotatedSource_wiredAsComponent(){
+        public String getGreeting(){
             return "Hello world !"; 
         }
     }
-
 ```
 
-or `greetingFromAnnotatedSource_wiredAsBean` query:
+or:
+
 ```java
     @Bean
     @GraphQLApi
+    //No explicit resolver builders declared, so AnnotatedResolverBuilder is used
     public MyOperationSource() {
-        @GraphQLQuery(name = "greetingFromAnnotatedSource_wiredAsBean")
+        @GraphQLQuery(name = "greeting")
         public String getGreeting(){
             return "Hello world !"; 
         }
     }
 ``` 
 
-Note that if no explicit resolver builders are declared `AnnotatedResolverBuilder` will be used as default.
+It is also entirely possible to use more than one resolver builder on the same operation source e.g.
 
-Also it is completely normal to use more than one resolver builder on the same operation source e.g.
 ```java
     @Component
     @GraphQLApi
     @WithResolverBuilder(BeanResolverBuilder.class)
     @WithResolverBuilder(AnnotatedResolverBuilder.class)
     private class MyOperationSource {
-        public String getGreetingFromAnnotatedSource_wiredAsComponent_withBeanResolverBuilder(){
-            return "Hello world !"; 
-        }
-        
-        @GraphQLQuery(name = "greetingFromAnnotatedSource_wiredAsBean_withAnnotatedResolverBuildr")
+        //Exposed by BeanResolverBuilder because it's a getter
         public String getGreeting(){
             return "Hello world !"; 
         }
+
+        //Exposed by AnnotatedResolverBuilder because it's annotated
+        @GraphQLQuery
+        public String personalGreeting(String name){
+            return "Hello " + name + " !"; 
+        }
     }
 ```
-this way we would expose both queries discovered in a different way. And same would also work if we were using it with `@Bean` annotation.
+This way, both queries are exposed but in different ways. The same would work on a bean registered using the `@Bean` annotation.
 
 ### More to follow soon ...
