@@ -43,7 +43,8 @@ To use this starter in a typical Spring Boot project, add the following dependen
 
 ### Note
 
-The plan is that in 0.0.2 alpha release `spring-boot-starter-websocket` dependency won't be necessary if you're not using autoconfig for GraphQL subscriptions over WebSockets. Additionally, an implementations using server-sent-events will be added.
+The plan is that in the 0.0.2 alpha release `spring-boot-starter-websocket` dependency won't be necessary if you're not using autoconfig for GraphQL subscriptions over WebSockets.
+Additionally, an option to use server-sent-events instead will be added.
 
 ## Defining the operation sources (the beans that get exposed via the API)
 
