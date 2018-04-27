@@ -16,6 +16,9 @@ import io.leangen.graphql.generator.mapping.OutputConverter;
 import io.leangen.graphql.generator.mapping.TypeMapper;
 import io.leangen.graphql.metadata.InputField;
 import io.leangen.graphql.metadata.strategy.InclusionStrategy;
+import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
+import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
+import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
 import io.leangen.graphql.metadata.strategy.type.TypeInfoGenerator;
 import io.leangen.graphql.metadata.strategy.type.TypeTransformer;
 import io.leangen.graphql.metadata.strategy.value.InputFieldDiscoveryStrategy;
@@ -35,10 +38,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {SpqrAutoConfiguration.class, GlobalConfig_SpqrAutoConfigurationTest.TypeMapper_TestConfig.class})
@@ -57,6 +65,28 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         Assert.assertNotNull(spqrProperties.getQueryBasePackages());
         Assert.assertEquals(1, spqrProperties.getQueryBasePackages().length);
         Assert.assertEquals("com.bogus.package", spqrProperties.getQueryBasePackages()[0]);
+    }
+
+    @Test
+    public void ResolverBuilderExtensionProvider_schemaGeneratorConfigTest() {
+        Assert.assertNotNull(schemaGenerator);
+
+        Set<ExtensionProvider<ResolverBuilder>> resolverBuilderProviders =
+                getPrivateFieldValueFromObject(schemaGenerator, "resolverBuilderProviders");
+
+        Assert.assertNotNull(resolverBuilderProviders);
+
+        Assert.assertEquals(1, resolverBuilderProviders.size());
+
+        ExtensionProvider<ResolverBuilder> resolverBuilderExtensionProvider = resolverBuilderProviders.iterator().next();
+
+        Assert.assertNotNull(resolverBuilderExtensionProvider);
+
+        List<ResolverBuilder> resolverBuilders = resolverBuilderExtensionProvider.getExtensions(null, null);
+
+        Assert.assertNotNull(resolverBuilders);
+        Assert.assertEquals(2, resolverBuilders.size());
+
     }
 
     @Test
@@ -238,6 +268,22 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
             public String getGreeting(){
                 return "Hello world !";
             }
+        }
+
+        @Bean
+        public ExtensionProvider<ResolverBuilder> testResolverBuilderExtensionProvider() {
+            return (config, defaults) -> Stream
+                                         .concat(
+                                            Stream.of(new AnnotatedResolverBuilder()),
+                                            Stream.of(new PublicResolverBuilder() {
+                                               @Override
+                                               protected boolean isQuery(Method method) {
+                                                   return super.isQuery(method) && method.getName().equals("getGreeting");
+                                               }
+                                            })
+                                         )
+                                         .collect(Collectors.toList())
+            ;
         }
 
         @Bean
