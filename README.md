@@ -50,9 +50,9 @@ The plan is that in 0.0.2 alpha release `spring-boot-starter-websocket` dependen
 
 ## Defining operation sources for the API
 
-All beans in spring context annotated with `@GraphqlApi` are considered to be operation sources (concept similar to `Controller` class in SpringMVC).
+All beans in spring application context annotated with `@GraphqlApi` are considered to be operation sources (concept similar to `Controller` class in SpringMVC).
 
-This annotation can be used in combination with `@Context` or `@Bean` annotations, e.g.
+This annotation can be used in combination with `@Component` or `@Bean` annotations, e.g.
 
 ```java
     @Component
@@ -113,7 +113,7 @@ There are of course nicer ways to write this but the idea is to keep the example
 
 To leverage the underlying SPQR features `graphiql-spring-boot-starter` uses `@WithResolverBuilder` annotation on the operation source bean.
 
-This annotation can also be used in combination with both `@Context` or `@Bean` annotations as used normally in spring framework.
+This annotation can also be used in combination with both `@Component` or `@Bean` annotations as used normally in spring framework.
 
 As an example we can expose a `getGreetingFromAnnotatedSource_wiredAsComponent` query by using:
 
