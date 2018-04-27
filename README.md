@@ -161,3 +161,5 @@ Also it is completely normal to use more than one resolver builder on the same o
     }
 ```
 this way we would expose both queries discovered in a different way. And same would also work if we were using it with `@Bean` annotation.
+
+### More to follow soon ...
