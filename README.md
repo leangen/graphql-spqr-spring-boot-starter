@@ -75,15 +75,16 @@ To cover the basic approaches `SpqrAutoConfiguration` registers a bean for each 
 
 * `AnnotatedResolverBuilder` - exposes only the methods annotated by `@GraphQLQuery`, `@GraphQLMutation` or `@GraphQLSubscription`
 * `PublicResolverBuilder` - exposes all `public` methods from the operations source class (methods returning `void` are considered mutations)
-* `BeanResolverBuilder` - exposes all getters as queries and setters as mutations (getters returning `Publisher<...>` are considered subscriptions)
+* `BeanResolverBuilder` - exposes all getters as queries and setters as mutations (getters returning `Publisher<T>` are considered subscriptions)
 
 It is also possible to implement custom resolver builders by implementing the `ResolverBuilder` interface.
 
-Resolver builders can be declared on both global and operation source specific level. Generally we consider it a better idea to declare them explicitly on the operation source level, unless the rules are absolutely the same across all operation sources. Mixing will work but could prove tricky to control as your API grows.
+Resolver builders can be declared both globally and on the operation source level. If not sticking to the defaults, it is generally safer to explicitly customize on the operation source level, unless the rules are absolutely uniform across all operation sources.
+Customizing on both levels simultaniously will work but could prove tricky to control as your API grows.
 
 At the moment SPQR's (v0.9.7) default resolver builder is `AnnotatedResolverBuilder`. This starter follows that convention and will continue to do so if at some point SPQR's default changes.
 
-### Global resolver builder configuration
+### Customizing resolver builders globally
 
 To change the default resolver builders globally, implement and register a bean of type `ExtensionProvider<ResolverBuilder>`.
 A simplified example of this could be:
@@ -125,7 +126,7 @@ A quicker way to achieve the same would be:
     };
 ```
 
-### Operation source specific configuration
+### Customizing the resolver builders for a specific operation source
 
 To attach a resolver builder to a specific source (bean), use the `@WithResolverBuilder` annotation on it.
 This annotation also works both on the beans registered by `@Component/@Service/@Repository` or `@Bean` annotations.
