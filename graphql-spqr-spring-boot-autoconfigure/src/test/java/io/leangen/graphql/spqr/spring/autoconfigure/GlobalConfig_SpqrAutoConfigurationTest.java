@@ -125,22 +125,24 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 //        Assert.assertEquals("java.lang.Object", inputField.getJavaType().getType().getTypeName());
 //    }
 
-//    @Test
-//    public void valueMapperFactory_schemaGeneratorConfigTest() {
-//        Assert.assertNotNull(schemaGenerator);
-//
-//        ValueMapperFactory valueMapperFactory =
-//                getPrivateFieldValueFromObject(schemaGenerator, "valueMapperFactory");
-//
-//        Assert.assertNotNull(valueMapperFactory);
-//
-//        ValueMapper valueMapper = valueMapperFactory.getValueMapper();
-//
-//        Assert.assertNotNull(valueMapper);
-//
-//        Assert.assertNull(valueMapper.fromString("test!@#$%^&*", String.class.getAnnotatedSuperclass()));
-//        Assert.assertEquals("OK", valueMapper.toString("test!@#$%^&*"));
-//    }
+    @Test
+    public void valueMapperFactory_schemaGeneratorConfigTest() {
+        Assert.assertNotNull(schemaGenerator);
+
+        ValueMapperFactory valueMapperFactory =
+                getPrivateFieldValueFromObject(schemaGenerator, "valueMapperFactory");
+
+        Assert.assertNotNull(valueMapperFactory);
+
+        GlobalEnvironment mockEnv = new GlobalEnvironment(null,null, null, null, null);
+
+        ValueMapper valueMapper = valueMapperFactory.getValueMapper(Collections.emptyMap(), mockEnv);
+
+        Assert.assertNotNull(valueMapper);
+
+        Assert.assertNull(valueMapper.fromString("test!@#$%^&*", String.class.getAnnotatedSuperclass()));
+        Assert.assertEquals("OK", valueMapper.toString("test!@#$%^&*"));
+    }
 
     @Test
     public void argumentInjectorExtensionProvider_schemaGeneratorConfigTest() {
