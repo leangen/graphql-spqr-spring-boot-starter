@@ -1,5 +1,6 @@
 package io.leangen.graphql.spqr.spring.test;
 
+import io.leangen.graphql.GraphQLSchemaGenerator;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import io.leangen.graphql.extension.ExtensionProvider;
 import io.leangen.graphql.metadata.strategy.query.BeanResolverBuilder;
@@ -21,7 +22,7 @@ public class ResolverBuilder_TestConfig {
     //------------ Global resolver builder config ----------------------------------------------
     //------------------------------------------------------------------------------------------
     @Bean
-    public ExtensionProvider<ResolverBuilder> globalResolverBuilderExtensionProvider() {
+    public ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder> globalResolverBuilderExtensionProvider() {
         return (config, defaults) -> defaults.insert(0, new PublicResolverBuilder() {
             @Override
             protected boolean isQuery(Method method) {
