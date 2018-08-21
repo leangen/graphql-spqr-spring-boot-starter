@@ -12,7 +12,7 @@ import io.leangen.graphql.metadata.strategy.query.BeanResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
 import io.leangen.graphql.metadata.strategy.type.TypeInfoGenerator;
-import io.leangen.graphql.metadata.strategy.value.InputFieldDiscoveryStrategy;
+import io.leangen.graphql.metadata.strategy.value.InputFieldBuilder;
 import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
 import io.leangen.graphql.spqr.spring.annotation.GraphQLApi;
 import io.leangen.graphql.spqr.spring.annotation.WithResolverBuilder;
@@ -52,25 +52,25 @@ public class SpqrAutoConfiguration {
     private final ConfigurableApplicationContext context;
 
     @Autowired(required = false)
-    private ExtensionProvider<ResolverBuilder> globalResolverBuilderExtensionProvider;
+    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder> globalResolverBuilderExtensionProvider;
 
     @Autowired(required = false)
-    private ExtensionProvider<TypeMapper> typeMapperExtensionProvider;
+    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, TypeMapper> typeMapperExtensionProvider;
 
     @Autowired(required = false)
-    private ExtensionProvider<InputConverter> inputConverterExtensionProvider;
+    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputConverter> inputConverterExtensionProvider;
 
     @Autowired(required = false)
-    private ExtensionProvider<OutputConverter> outputConverterExtensionProvider;
+    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, OutputConverter> outputConverterExtensionProvider;
 
     @Autowired(required = false)
-    private ExtensionProvider<ArgumentInjector> argumentInjectorExtensionProvider;
+    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, ArgumentInjector> argumentInjectorExtensionProvider;
 
     @Autowired(required = false)
     private ValueMapperFactory valueMapperFactory;
 
     @Autowired(required = false)
-    private InputFieldDiscoveryStrategy inputFieldDiscoveryStrategy;
+    private ExtensionProvider<GraphQLSchemaGenerator.ExtendedConfiguration, InputFieldBuilder> inputFieldBuilderProvider;
 
     @Autowired(required = false)
     private TypeInfoGenerator typeInfoGenerator;
@@ -145,8 +145,8 @@ public class SpqrAutoConfiguration {
             schemaGenerator.withValueMapperFactory(valueMapperFactory);
         }
 
-        if (inputFieldDiscoveryStrategy != null) {
-            schemaGenerator.withInputFieldDiscoveryStrategy(inputFieldDiscoveryStrategy);
+        if (inputFieldBuilderProvider != null) {
+            schemaGenerator.withInputFieldBuilders(inputFieldBuilderProvider);
         }
 
         if (typeInfoGenerator != null) {
