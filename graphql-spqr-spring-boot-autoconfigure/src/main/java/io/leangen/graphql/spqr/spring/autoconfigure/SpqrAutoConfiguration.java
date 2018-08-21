@@ -12,7 +12,7 @@ import io.leangen.graphql.metadata.strategy.query.BeanResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
 import io.leangen.graphql.metadata.strategy.type.TypeInfoGenerator;
-//import io.leangen.graphql.metadata.strategy.value.InputFieldDiscoveryStrategy;
+import io.leangen.graphql.metadata.strategy.value.InputFieldBuilder;
 import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
 import io.leangen.graphql.spqr.spring.annotation.GraphQLApi;
 import io.leangen.graphql.spqr.spring.annotation.WithResolverBuilder;
@@ -69,8 +69,8 @@ public class SpqrAutoConfiguration {
     @Autowired(required = false)
     private ValueMapperFactory valueMapperFactory;
 
-//    @Autowired(required = false)
-//    private InputFieldDiscoveryStrategy inputFieldDiscoveryStrategy;
+    @Autowired(required = false)
+    private InputFieldBuilder inputFieldBuilder;
 
     @Autowired(required = false)
     private TypeInfoGenerator typeInfoGenerator;
@@ -145,9 +145,9 @@ public class SpqrAutoConfiguration {
             schemaGenerator.withValueMapperFactory(valueMapperFactory);
         }
 
-//        if (inputFieldDiscoveryStrategy != null) {
-//            schemaGenerator.withInputFieldDiscoveryStrategy(inputFieldDiscoveryStrategy);
-//        }
+        if (inputFieldBuilder != null) {
+            schemaGenerator.withInputFieldBuilders(inputFieldBuilder);
+        }
 
         if (typeInfoGenerator != null) {
             schemaGenerator.withTypeInfoGenerator(typeInfoGenerator);

@@ -17,13 +17,12 @@ import io.leangen.graphql.generator.mapping.OutputConverter;
 import io.leangen.graphql.generator.mapping.TypeMapper;
 import io.leangen.graphql.metadata.InputField;
 import io.leangen.graphql.metadata.messages.MessageBundle;
-import io.leangen.graphql.metadata.strategy.InclusionStrategy;
 import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
 import io.leangen.graphql.metadata.strategy.type.TypeInfoGenerator;
-import io.leangen.graphql.metadata.strategy.type.TypeTransformer;
-//import io.leangen.graphql.metadata.strategy.value.InputFieldDiscoveryStrategy;
+import io.leangen.graphql.metadata.strategy.value.InputFieldBuilder;
+import io.leangen.graphql.metadata.strategy.value.InputFieldBuilderParams;
 import io.leangen.graphql.metadata.strategy.value.ValueMapper;
 import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
 import io.leangen.graphql.spqr.spring.annotation.GraphQLApi;
@@ -44,10 +43,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+//import io.leangen.graphql.metadata.strategy.value.InputFieldDiscoveryStrategy;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {SpqrAutoConfiguration.class, GlobalConfig_SpqrAutoConfigurationTest.TypeMapper_TestConfig.class})
@@ -103,27 +103,27 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         Assert.assertEquals(1, typeInfoGenerator.getFieldOrder(null, null).length);
     }
 
-//    @Test
-//    public void inputFieldDiscoveryStrategy_schemaGeneratorConfigTest() {
-//        Assert.assertNotNull(schemaGenerator);
-//
-//        InputFieldDiscoveryStrategy inputFieldDiscoveryStrategy =
-//                getPrivateFieldValueFromObject(schemaGenerator, "inputFieldStrategy");
-//
-//        Assert.assertNotNull(inputFieldDiscoveryStrategy);
-//
-//        Set<InputField> inputFields = inputFieldDiscoveryStrategy.getInputFields(null, null, null);
-//
-//        Assert.assertFalse(inputFields.isEmpty());
-//        Assert.assertEquals(1, inputFields.size());
-//
-//        InputField inputField = inputFields.iterator().next();
-//
-//        Assert.assertNotNull(inputField);
-//        Assert.assertEquals("OK", inputField.getName());
-//        Assert.assertEquals("OK", inputField.getDescription());
-//        Assert.assertEquals("java.lang.Object", inputField.getJavaType().getType().getTypeName());
-//    }
+    @Test
+    public void inputFieldDiscoveryStrategy_schemaGeneratorConfigTest() {
+        Assert.assertNotNull(schemaGenerator);
+
+        InputFieldBuilder inputFieldBuilder =
+                getPrivateFieldValueFromObject(schemaGenerator, "inputFieldStrategy");
+
+        Assert.assertNotNull(inputFieldBuilder);
+
+        Set<InputField> inputFields = inputFieldBuilder.getInputFields(null);
+
+        Assert.assertFalse(inputFields.isEmpty());
+        Assert.assertEquals(1, inputFields.size());
+
+        InputField inputField = inputFields.iterator().next();
+
+        Assert.assertNotNull(inputField);
+        Assert.assertEquals("OK", inputField.getName());
+        Assert.assertEquals("OK", inputField.getDescription());
+        Assert.assertEquals("java.lang.Object", inputField.getJavaType().getType().getTypeName());
+    }
 
     @Test
     public void valueMapperFactory_schemaGeneratorConfigTest() {
@@ -312,16 +312,21 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
             };
         }
 
-//        @Bean
-//        public InputFieldDiscoveryStrategy testInputFieldDiscoveryStrategy() {
-//            return new InputFieldDiscoveryStrategy() {
-//                @Override
-//                public Set<InputField> getInputFields(AnnotatedType type, InclusionStrategy inclusionStrategy, TypeTransformer typeTransformer) {
-//                    InputField testField = new InputField("OK", "OK", String.class.getAnnotatedSuperclass(), null);
-//                    return Collections.singleton(testField);
-//                }
-//            };
-//        }
+        @Bean
+        public InputFieldBuilder testInputFieldBuilder() {
+            return new InputFieldBuilder() {
+                @Override
+                public Set<InputField> getInputFields(InputFieldBuilderParams params) {
+                    InputField testField = new InputField("OK", "OK", String.class.getAnnotatedSuperclass(), null, null);
+                    return Collections.singleton(testField);
+                }
+
+                @Override
+                public boolean supports(AnnotatedType type) {
+                    return false;
+                }
+            };
+        }
 
         @Bean
         public ValueMapperFactory testValueMapperFactory() {
