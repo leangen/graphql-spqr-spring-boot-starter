@@ -104,18 +104,33 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     }
 
     @Test
-    public void inputFieldDiscoveryStrategy_schemaGeneratorConfigTest() {
+    public void inputFieldBuilder_schemaGeneratorConfigTest() {
         Assert.assertNotNull(schemaGenerator);
 
-        InputFieldBuilder inputFieldBuilder =
-                getPrivateFieldValueFromObject(schemaGenerator, "inputFieldStrategy");
+        List<ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputFieldBuilder>> inputFieldBuilderProviders =
+                getPrivateFieldValueFromObject(schemaGenerator, "inputFieldBuilderProviders");
+
+        Assert.assertNotNull(inputFieldBuilderProviders);
+
+        Assert.assertEquals(1, inputFieldBuilderProviders.size());
+
+        ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputFieldBuilder> inputFieldBuilderProvider = inputFieldBuilderProviders.iterator().next();
+
+        Assert.assertNotNull(inputFieldBuilderProvider);
+
+        List<InputFieldBuilder> inputFieldBuilders = inputFieldBuilderProvider.getExtensions(null, null);
+
+        Assert.assertNotNull(inputFieldBuilders);
+        Assert.assertEquals(1, inputFieldBuilders.size());
+
+        InputFieldBuilder inputFieldBuilder = inputFieldBuilders.iterator().next();
 
         Assert.assertNotNull(inputFieldBuilder);
 
         Set<InputField> inputFields = inputFieldBuilder.getInputFields(null);
 
+        Assert.assertNotNull(inputFields);
         Assert.assertFalse(inputFields.isEmpty());
-        Assert.assertEquals(1, inputFields.size());
 
         InputField inputField = inputFields.iterator().next();
 
@@ -313,19 +328,24 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public InputFieldBuilder testInputFieldBuilder() {
-            return new InputFieldBuilder() {
-                @Override
-                public Set<InputField> getInputFields(InputFieldBuilderParams params) {
-                    InputField testField = new InputField("OK", "OK", String.class.getAnnotatedSuperclass(), null, null);
-                    return Collections.singleton(testField);
-                }
+        public ExtensionProvider<GraphQLSchemaGenerator.ExtendedConfiguration, InputFieldBuilder> testInputFieldBuilder() {
+            return (config, defaults) -> {
+                List<InputFieldBuilder> inputFieldBuilders = new ArrayList<>();
+                inputFieldBuilders.add(new InputFieldBuilder() {
+                    @Override
+                    public Set<InputField> getInputFields(InputFieldBuilderParams params) {
+                        InputField testField = new InputField("OK", "OK", String.class.getAnnotatedSuperclass(), null, null);
+                        return Collections.singleton(testField);
+                    }
 
-                @Override
-                public boolean supports(AnnotatedType type) {
-                    return false;
-                }
+                    @Override
+                    public boolean supports(AnnotatedType type) {
+                        return false;
+                    }
+                });
+                return inputFieldBuilders;
             };
+
         }
 
         @Bean

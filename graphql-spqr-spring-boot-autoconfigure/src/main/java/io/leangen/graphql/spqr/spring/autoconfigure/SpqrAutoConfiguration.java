@@ -70,7 +70,7 @@ public class SpqrAutoConfiguration {
     private ValueMapperFactory valueMapperFactory;
 
     @Autowired(required = false)
-    private InputFieldBuilder inputFieldBuilder;
+    private ExtensionProvider<GraphQLSchemaGenerator.ExtendedConfiguration, InputFieldBuilder> inputFieldBuilderProvider;
 
     @Autowired(required = false)
     private TypeInfoGenerator typeInfoGenerator;
@@ -145,8 +145,8 @@ public class SpqrAutoConfiguration {
             schemaGenerator.withValueMapperFactory(valueMapperFactory);
         }
 
-        if (inputFieldBuilder != null) {
-            schemaGenerator.withInputFieldBuilders(inputFieldBuilder);
+        if (inputFieldBuilderProvider != null) {
+            schemaGenerator.withInputFieldBuilders(inputFieldBuilderProvider);
         }
 
         if (typeInfoGenerator != null) {
