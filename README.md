@@ -91,7 +91,7 @@ A simplified example of this could be:
 
 ```java
     @Bean
-    public ExtensionProvider<ResolverBuilder> resolverBuilderExtensionProvider() {
+    public ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder> resolverBuilderExtensionProvider() {
         return (config, defaults) -> {
             List<ResolverBuilder> resolverBuilders = new ArrayList<>();
 
@@ -115,7 +115,7 @@ A quicker way to achieve the same would be:
 
 ```java
     @Bean
-    public ExtensionProvider<ResolverBuilder> resolverBuilderExtensionProvider() {
+    public ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder> resolverBuilderExtensionProvider() {
         //prepend the custom builder to the provided list of defaults
         return (config, defaults) -> defaults.insert(0, new PublicResolverBuilder() {
                 @Override
@@ -179,5 +179,198 @@ It is also entirely possible to use more than one resolver builder on the same o
     }
 ```
 This way, both queries are exposed but in different ways. The same would work on a bean registered using the `@Bean` annotation.
+
+## Customize GraphQL type information
+
+Sometimes it is useful to have an automated strategy for generating type names, descriptions and order of fields within the type.
+To do this SPQR uses `TypeInfoGenerator` on a global level. When using this starter the most convenient way is to wire a single bean of that type in the application context.
+
+```java
+    @Bean
+    public TypeInfoGenerator testTypeInfoGenerator() {
+        return new TypeInfoGenerator() {
+            @Override
+            public String generateTypeName(AnnotatedType type, MessageBundle messageBundle) {
+                return nameGenerationMethodLocalized(type, messageBundle);
+            }
+
+            @Override
+            public String generateTypeDescription(AnnotatedType type, MessageBundle messageBundle) {
+                return descriptionGenerationMethodLocalized(type, messageBundle);
+            }
+
+            @Override
+            public String[] getFieldOrder(AnnotatedType type, MessageBundle messageBundle) {
+                return fieldOrderGenerationMethodLocalized(type, messageBundle);
+            }
+
+        };
+    }
+```
+
+## Advanced config
+
+### Customize mapping of GraphQL values to Java values
+
+Class in charge of doing this in SPQR is `ValueMapper`. Again the simplest way to make use of this when using the starter is to wire a single bean of this type into the application context.
+
+```java
+    @Bean
+    public ValueMapperFactory testValueMapperFactory() {
+        return (abstractTypes, environment) -> new ValueMapper() {
+            @Override
+            public <T> T fromInput(Object graphQLInput, Type sourceType, AnnotatedType outputType) {
+                return null;
+            }
+
+            @Override
+            public <T> T fromString(String json, AnnotatedType type) {
+                return null;
+            }
+
+            @Override
+            public String toString(Object output) {
+                return null;
+            }
+        };
+    }
+``` 
+NOTE: SPQR comes with `JacksonValueMapper` and `GsonValueMapperFactory` so in reality this should be needed infrequently.
+
+### Customizing input and output converters
+
+Analogous to the rest of the configuration, single beans should be wired into the context. As this is done in functional style in SPQR it is not possible to set chains of `InputConverter` and `OutputConverter`, but by passing a lambda that will manipulate the chains.
+
+Extension provider for input converters
+```java
+    @Bean
+    public ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputConverter> testInputConverterExtensionProvider() {
+        return (config, defaults) -> Collections.singletonList(
+            new InputConverter() {
+                @Override
+                public Object convertInput(Object substitute, AnnotatedType type, GlobalEnvironment environment, ValueMapper valueMapper) {
+                    return null;
+                }
+
+                @Override
+                public boolean supports(AnnotatedType type) {
+                    return false;
+                }
+
+                @Override
+                public AnnotatedType getSubstituteType(AnnotatedType original) {
+                    return null;
+                }
+            }
+        );
+    }
+```
+
+Extension provider for output converters
+```java
+    @Bean
+    public ExtensionProvider<GraphQLSchemaGenerator.Configuration, OutputConverter> testOutputConverterExtensionProvider() {
+        return (config, defaults) -> Collections.singletonList(
+            new OutputConverter() {
+                @Override
+                public Object convertOutput(Object original, AnnotatedType type, ResolutionEnvironment resolutionEnvironment) {
+                    return null;
+                }
+
+                @Override
+                public boolean supports(AnnotatedType type) {
+                    return false;
+                }
+            }
+         );
+    }
+```
+### Custom type mapper for GraphQL output and input types
+
+Again wire a single bean of type `ExtensionProvider<GraphQLSchemaGenerator.Configuration, TypeMapper>` into the application context to manipulate mapper chain.
+
+```java
+    @Bean
+    public ExtensionProvider<GraphQLSchemaGenerator.Configuration, TypeMapper> testTypeMapperExtensionProvider() {
+        return (config, defaults) -> Collections.singletonList(
+            new TypeMapper() {
+                @Override
+                public GraphQLOutputType toGraphQLType(AnnotatedType javaType, OperationMapper operationMapper, Set<Class<? extends TypeMapper>> mappersToSkip, BuildContext buildContext) {
+                    return new GraphQLOutputType() {
+                        @Override
+                        public String getName() {
+                            return null;
+                        }
+                    };
+                }
+
+                @Override
+                public GraphQLInputType toGraphQLInputType(AnnotatedType javaType, OperationMapper operationMapper, Set<Class<? extends TypeMapper>> mappersToSkip, BuildContext buildContext) {
+                    return new GraphQLInputType() {
+                        @Override
+                        public String getName() {
+                            return null;
+                        }
+                    };
+                }
+
+                @Override
+                public boolean supports(AnnotatedType type) {
+                    return false;
+                }
+            }
+        );
+    }
+
+```
+
+### Custom argument injector
+
+Also has a functional API, utilised by wiring a single bean of type `ExtensionProvider<GraphQLSchemaGenerator.Configuration, ArgumentInjector>`.
+
+```java
+    @Bean
+    public ExtensionProvider<GraphQLSchemaGenerator.Configuration, ArgumentInjector> testArgumentInjectorExtensionProvider() {
+        return (config, defaults) -> Collections.singletonList(
+           new ArgumentInjector() {
+               @Override
+               public Object getArgumentValue(ArgumentInjectorParams params) {
+                   return null;
+               }
+
+               @Override
+               public boolean supports(AnnotatedType type, Parameter parameter) {
+                   return false;
+               }
+
+           }
+        );
+    }
+```
+
+### Custom input fields
+
+Wiring a single bean of type `ExtensionProvider<GraphQLSchemaGenerator.ExtendedConfiguration, InputFieldBuilder>` will allow you to manipulate the input builder chain.
+
+```java
+    @Bean
+    public ExtensionProvider<GraphQLSchemaGenerator.ExtendedConfiguration, InputFieldBuilder> testInputFieldBuilder() {
+        return (config, defaults) -> {
+            List<InputFieldBuilder> inputFieldBuilders = new ArrayList<>();
+            inputFieldBuilders.add(new InputFieldBuilder() {
+                @Override
+                public Set<InputField> getInputFields(InputFieldBuilderParams params) {
+                    return null;
+                }
+
+                @Override
+                public boolean supports(AnnotatedType type) {
+                    return false;
+                }
+            });
+            return inputFieldBuilders;
+        };
+    }
+```
 
 ### More to follow soon ...
