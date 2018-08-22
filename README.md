@@ -212,7 +212,7 @@ To do this SPQR uses `TypeInfoGenerator` on a global level. When using this star
 
 ### Customize mapping of GraphQL values to Java values
 
-Class in charge of doing this in SPQR is `ValueMapper`. Again the simplest way to make use of this when using the starter is to wire a single bean of this type into the application context.
+Object in charge of doing this in SPQR is `ValueMapperFactory`. Again the simplest way to make use of this when using the starter is to wire a single bean of this type into the application context.
 
 ```java
     @Bean
@@ -235,7 +235,7 @@ Class in charge of doing this in SPQR is `ValueMapper`. Again the simplest way t
         };
     }
 ``` 
-NOTE: SPQR comes with `JacksonValueMapper` and `GsonValueMapperFactory` so in reality this should be needed infrequently.
+NOTE: SPQR comes with `JacksonValueMapper` and `GsonValueMapperFactory` so in reality this should be needed infrequently as these are by far the most frequently used libraries in Java.
 
 ### Customizing input and output converters
 
@@ -372,5 +372,8 @@ Wiring a single bean of type `ExtensionProvider<GraphQLSchemaGenerator.ExtendedC
         };
     }
 ```
+
+NOTE: In SPQR this is already implemented by `JacksonValueMapper` and `GsonValueMapperFactory`.
+
 
 ### More to follow soon ...
