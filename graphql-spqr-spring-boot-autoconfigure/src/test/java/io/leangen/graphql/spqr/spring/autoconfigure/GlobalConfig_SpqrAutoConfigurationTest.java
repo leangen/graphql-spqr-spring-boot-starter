@@ -53,8 +53,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-//import io.leangen.graphql.metadata.strategy.value.InputFieldDiscoveryStrategy;
-
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {SpqrAutoConfiguration.class, GlobalConfig_SpqrAutoConfigurationTest.TypeMapper_TestConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
