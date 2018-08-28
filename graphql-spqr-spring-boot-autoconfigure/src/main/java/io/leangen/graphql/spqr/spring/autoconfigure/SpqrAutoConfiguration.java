@@ -7,6 +7,10 @@ import io.leangen.graphql.generator.mapping.ArgumentInjector;
 import io.leangen.graphql.generator.mapping.InputConverter;
 import io.leangen.graphql.generator.mapping.OutputConverter;
 import io.leangen.graphql.generator.mapping.TypeMapper;
+import io.leangen.graphql.generator.mapping.strategy.AbstractInputHandler;
+import io.leangen.graphql.generator.mapping.strategy.InterfaceMappingStrategy;
+import io.leangen.graphql.metadata.messages.MessageBundle;
+import io.leangen.graphql.metadata.strategy.InclusionStrategy;
 import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.BeanResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
@@ -42,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Configuration
 @ConditionalOnClass(GraphQLSchemaGenerator.class)
@@ -73,7 +78,22 @@ public class SpqrAutoConfiguration {
     private ExtensionProvider<GraphQLSchemaGenerator.ExtendedConfiguration, InputFieldBuilder> inputFieldBuilderProvider;
 
     @Autowired(required = false)
+    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder> nestedResolverBuilders;
+
+    @Autowired(required = false)
     private TypeInfoGenerator typeInfoGenerator;
+
+    @Autowired(required = false)
+    private AbstractInputHandler abstractInputHandler;
+
+    @Autowired(required = false)
+    private InclusionStrategy inclusionStrategy;
+
+    @Autowired(required = false)
+    private InterfaceMappingStrategy interfaceMappingStrategy;
+
+    @Autowired(required = false)
+    private Set<MessageBundle> messageBundles;
 
     @Autowired
     public SpqrAutoConfiguration(ConfigurableApplicationContext context) {
@@ -151,6 +171,34 @@ public class SpqrAutoConfiguration {
 
         if (typeInfoGenerator != null) {
             schemaGenerator.withTypeInfoGenerator(typeInfoGenerator);
+        }
+
+        if (nestedResolverBuilders != null) {
+            schemaGenerator.withNestedResolverBuilders(nestedResolverBuilders);
+        }
+
+        if (spqrProperties.getAbstractInputTypeResolution()) {
+            schemaGenerator.withAbstractInputTypeResolution();
+        }
+
+        if (abstractInputHandler != null) {
+            schemaGenerator.withAbstractInputHandler(abstractInputHandler);
+        }
+
+        if (messageBundles != null && !messageBundles.isEmpty()) {
+            schemaGenerator.withStringInterpolation(messageBundles.toArray(new MessageBundle[0]));
+        }
+
+        if (inclusionStrategy != null) {
+            schemaGenerator.withInclusionStrategy(inclusionStrategy);
+        }
+
+        if (interfaceMappingStrategy != null) {
+            schemaGenerator.withInterfaceMappingStrategy(interfaceMappingStrategy);
+        }
+
+        if (spqrProperties.getRelayConnectionCheckRelaxed()) {
+            schemaGenerator.withRelayConnectionCheckRelaxed();
         }
 
         return schemaGenerator;
