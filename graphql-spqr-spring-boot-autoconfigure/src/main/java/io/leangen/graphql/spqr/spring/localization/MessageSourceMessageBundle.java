@@ -5,20 +5,19 @@ import org.springframework.context.MessageSource;
 
 import java.util.Locale;
 
-public class SpringSpqrMessageBundle implements MessageBundle {
+public class MessageSourceMessageBundle implements MessageBundle {
 
     private final MessageSource messageSource;
 
     private final Locale schemaLocale;
 
-    public SpringSpqrMessageBundle(MessageSource messageSource, Locale schemaLocale) {
+    public MessageSourceMessageBundle(MessageSource messageSource, Locale schemaLocale) {
         this.schemaLocale = schemaLocale;
         this.messageSource = messageSource;
     }
 
-    public SpringSpqrMessageBundle(MessageSource messageSource) {
-        this.schemaLocale = new Locale("en", "US");
-        this.messageSource = messageSource;
+    public MessageSourceMessageBundle(MessageSource messageSource) {
+        this(messageSource, new Locale("en", "US"));
     }
 
     @Override
