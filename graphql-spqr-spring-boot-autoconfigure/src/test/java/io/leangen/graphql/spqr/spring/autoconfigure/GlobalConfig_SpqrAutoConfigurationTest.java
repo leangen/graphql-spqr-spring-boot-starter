@@ -15,8 +15,11 @@ import io.leangen.graphql.generator.mapping.ArgumentInjectorParams;
 import io.leangen.graphql.generator.mapping.InputConverter;
 import io.leangen.graphql.generator.mapping.OutputConverter;
 import io.leangen.graphql.generator.mapping.TypeMapper;
+import io.leangen.graphql.generator.mapping.strategy.AbstractInputHandler;
+import io.leangen.graphql.generator.mapping.strategy.InterfaceMappingStrategy;
 import io.leangen.graphql.metadata.InputField;
 import io.leangen.graphql.metadata.messages.MessageBundle;
+import io.leangen.graphql.metadata.strategy.InclusionStrategy;
 import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
@@ -37,12 +40,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -265,6 +270,54 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         Assert.assertEquals("OK input type", typeMapper.toGraphQLInputType(null, null, null, null).getName());
     }
 
+    @Test
+    public void abstractInputHandler_schemaGeneratorConfigTest() {
+        Assert.assertNotNull(schemaGenerator);
+
+        AbstractInputHandler abstractInputHandler = getPrivateFieldValueFromObject(schemaGenerator, "abstractInputHandler");
+
+        Assert.assertNotNull(abstractInputHandler);
+
+        Assert.assertTrue(abstractInputHandler instanceof TestAbstractInputHandler);
+    }
+
+    @Test
+    public void inclusionStrategy_schemaGeneratorConfigTest() {
+        Assert.assertNotNull(schemaGenerator);
+
+        InclusionStrategy inclusionStrategy = getPrivateFieldValueFromObject(schemaGenerator, "inclusionStrategy");
+
+        Assert.assertNotNull(inclusionStrategy);
+
+        Assert.assertTrue(inclusionStrategy instanceof TestInclusionStrategy);
+    }
+
+    @Test
+    public void interfaceMappingStrategy_schemaGeneratorConfigTest() {
+        Assert.assertNotNull(schemaGenerator);
+
+        InterfaceMappingStrategy interfaceMappingStrategy = getPrivateFieldValueFromObject(schemaGenerator, "interfaceStrategy");
+
+        Assert.assertNotNull(interfaceMappingStrategy);
+
+        Assert.assertTrue(interfaceMappingStrategy instanceof TestInterfaceMappingStrategy);
+    }
+
+    @Test
+    public void stringInterpolation_schemaGeneratorConfigTest() {
+        Assert.assertNotNull(schemaGenerator);
+
+        MessageBundle messageBundle = getPrivateFieldValueFromObject(schemaGenerator, "messageBundle");
+
+        Assert.assertNotNull(messageBundle);
+
+        Assert.assertTrue(messageBundle.containsKey("hello"));
+        Assert.assertTrue(messageBundle.containsKey("foo"));
+
+        Assert.assertEquals(messageBundle.getMessage("hello"), "world");
+        Assert.assertEquals(messageBundle.getMessage("foo"), "bar");
+    }
+
     @SuppressWarnings("unchecked")
     private <T> T getPrivateFieldValueFromObject(Object object, String fieldName){
         try {
@@ -455,8 +508,93 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
+        public AbstractInputHandler abstractInputHandler() {
+            return new TestAbstractInputHandler();
+        }
+
+        @Bean
+        public InclusionStrategy inclusionStrategy() {
+            return new TestInclusionStrategy();
+        }
+
+        @Bean
+        public InterfaceMappingStrategy interfaceMappingStrategy() {
+            return new TestInterfaceMappingStrategy();
+        }
+
+        @Bean
+        public MessageBundle messageBundle1() {
+            return new MessageBundle() {
+                @Override
+                public String getMessage(String key) {
+                    if (key.equals("hello")) {
+                        return "world";
+                    }
+                    return null;
+                }
+            };
+        }
+
+        @Bean
+        public MessageBundle messageBundle2() {
+            return new MessageBundle() {
+                @Override
+                public String getMessage(String key) {
+                    if (key.equals("foo")) {
+                        return "bar";
+                    }
+                    return null;
+                }
+            };
+        }
+
+        @Bean
         public GraphQLSchema graphQLSchema(GraphQLSchemaGenerator schemaGenerator) {
             //Suppressing schema generation with bogus test parameters
+            return null;
+        }
+    }
+
+    public static class TestAbstractInputHandler implements AbstractInputHandler {
+
+        @Override
+        public Set<Type> findConstituentAbstractTypes(AnnotatedType javaType, BuildContext buildContext) {
+            return null;
+        }
+
+        @Override
+        public List<Class<?>> findConcreteSubTypes(Class abstractType, BuildContext buildContext) {
+            return null;
+        }
+    }
+
+    public static class TestInclusionStrategy implements InclusionStrategy {
+
+        @Override
+        public boolean includeOperation(AnnotatedElement element, AnnotatedType type) {
+            return false;
+        }
+
+        @Override
+        public boolean includeArgument(Parameter parameter, AnnotatedType type) {
+            return false;
+        }
+
+        @Override
+        public boolean includeInputField(Class<?> declaringClass, AnnotatedElement element, AnnotatedType elementType) {
+            return false;
+        }
+    }
+
+    public static class TestInterfaceMappingStrategy implements InterfaceMappingStrategy {
+
+        @Override
+        public boolean supports(AnnotatedType interfase) {
+            return false;
+        }
+
+        @Override
+        public Collection<AnnotatedType> getInterfaces(AnnotatedType type) {
             return null;
         }
     }

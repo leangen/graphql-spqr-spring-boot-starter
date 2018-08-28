@@ -78,9 +78,6 @@ public class SpqrAutoConfiguration {
     private ExtensionProvider<GraphQLSchemaGenerator.ExtendedConfiguration, InputFieldBuilder> inputFieldBuilderProvider;
 
     @Autowired(required = false)
-    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder> nestedResolverBuilders;
-
-    @Autowired(required = false)
     private TypeInfoGenerator typeInfoGenerator;
 
     @Autowired(required = false)
@@ -171,10 +168,6 @@ public class SpqrAutoConfiguration {
 
         if (typeInfoGenerator != null) {
             schemaGenerator.withTypeInfoGenerator(typeInfoGenerator);
-        }
-
-        if (nestedResolverBuilders != null) {
-            schemaGenerator.withNestedResolverBuilders(nestedResolverBuilders);
         }
 
         if (spqrProperties.getAbstractInputTypeResolution()) {
