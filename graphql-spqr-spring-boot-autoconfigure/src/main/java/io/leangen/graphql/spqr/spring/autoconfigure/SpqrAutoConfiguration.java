@@ -3,6 +3,7 @@ package io.leangen.graphql.spqr.spring.autoconfigure;
 import graphql.schema.GraphQLSchema;
 import io.leangen.graphql.GraphQLSchemaGenerator;
 import io.leangen.graphql.extension.ExtensionProvider;
+import io.leangen.graphql.extension.Module;
 import io.leangen.graphql.generator.mapping.ArgumentInjector;
 import io.leangen.graphql.generator.mapping.InputConverter;
 import io.leangen.graphql.generator.mapping.OutputConverter;
@@ -91,6 +92,9 @@ public class SpqrAutoConfiguration {
 
     @Autowired(required = false)
     private Set<MessageBundle> messageBundles;
+
+    @Autowired
+    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module> moduleExtensionProvider;
 
     @Autowired
     public SpqrAutoConfiguration(ConfigurableApplicationContext context) {
@@ -192,6 +196,10 @@ public class SpqrAutoConfiguration {
 
         if (spqrProperties.getRelayConnectionCheckRelaxed()) {
             schemaGenerator.withRelayConnectionCheckRelaxed();
+        }
+
+        if (moduleExtensionProvider != null) {
+            schemaGenerator.withModules(moduleExtensionProvider);
         }
 
         return schemaGenerator;

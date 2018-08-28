@@ -8,6 +8,7 @@ import io.leangen.graphql.annotations.GraphQLQuery;
 import io.leangen.graphql.execution.GlobalEnvironment;
 import io.leangen.graphql.execution.ResolutionEnvironment;
 import io.leangen.graphql.extension.ExtensionProvider;
+import io.leangen.graphql.extension.Module;
 import io.leangen.graphql.generator.BuildContext;
 import io.leangen.graphql.generator.OperationMapper;
 import io.leangen.graphql.generator.mapping.ArgumentInjector;
@@ -318,6 +319,31 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         Assert.assertEquals(messageBundle.getMessage("foo"), "bar");
     }
 
+    @Test
+    public void moduleExtensionProvider_schemaGeneratorConfigTest() {
+        Assert.assertNotNull(schemaGenerator);
+
+        List<ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module>> moduleExtensionProviders = getPrivateFieldValueFromObject(schemaGenerator, "moduleProviders");
+
+        Assert.assertNotNull(moduleExtensionProviders);
+        Assert.assertFalse(moduleExtensionProviders.isEmpty());
+        Assert.assertEquals(moduleExtensionProviders.size(), 1);
+
+        ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module> moduleExtensionProvider = moduleExtensionProviders.get(0);
+
+        Assert.assertNotNull(moduleExtensionProvider);
+
+        List<Module> modules = moduleExtensionProvider.getExtensions(null, null);
+
+        Assert.assertNotNull(modules);
+        Assert.assertEquals(modules.size(), 1);
+
+        Module module = modules.get(0);
+
+        Assert.assertNotNull(module);
+        Assert.assertTrue(module instanceof TestModule);
+    }
+
     @SuppressWarnings("unchecked")
     private <T> T getPrivateFieldValueFromObject(Object object, String fieldName){
         try {
@@ -549,6 +575,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
+        public ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module> moduleExtensionProvider() {
+            return ((config, defaults) -> Collections.singletonList(new TestModule()));
+        }
+
+        @Bean
         public GraphQLSchema graphQLSchema(GraphQLSchemaGenerator schemaGenerator) {
             //Suppressing schema generation with bogus test parameters
             return null;
@@ -596,6 +627,13 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         @Override
         public Collection<AnnotatedType> getInterfaces(AnnotatedType type) {
             return null;
+        }
+    }
+
+    public static class TestModule implements Module {
+        @Override
+        public void setUp(SetupContext context) {
+
         }
     }
 }
