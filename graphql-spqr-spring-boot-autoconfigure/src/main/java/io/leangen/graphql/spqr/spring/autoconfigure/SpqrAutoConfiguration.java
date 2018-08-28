@@ -93,7 +93,7 @@ public class SpqrAutoConfiguration {
     @Autowired(required = false)
     private Set<MessageBundle> messageBundles;
 
-    @Autowired
+    @Autowired(required = false)
     private ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module> moduleExtensionProvider;
 
     @Autowired
