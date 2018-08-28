@@ -6,9 +6,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class SpqrProperties {
 
     private String[] queryBasePackages;
+    private boolean abstractInputTypeResolution;
+
     private boolean relaySupported;
     private String relayMutationWrapper;
     private String relayMutationWrapperDescription;
+    private boolean relayConnectionCheckRelaxed;
 
     public SpqrProperties() {
     }
@@ -43,5 +46,21 @@ public class SpqrProperties {
 
     public void setRelayMutationWrapperDescription(String relayMutationWrapperDescription) {
         this.relayMutationWrapperDescription = relayMutationWrapperDescription;
+    }
+
+    public boolean getAbstractInputTypeResolution() {
+        return abstractInputTypeResolution;
+    }
+
+    public void setAbstractInputTypeResolution(boolean abstractInputTypeResolution) {
+        this.abstractInputTypeResolution = abstractInputTypeResolution;
+    }
+
+    public boolean getRelayConnectionCheckRelaxed() {
+        return relayConnectionCheckRelaxed;
+    }
+
+    public void setRelayConnectionCheckRelaxed(boolean relayConnectionCheckRelaxed) {
+        this.relayConnectionCheckRelaxed = relayConnectionCheckRelaxed;
     }
 }
