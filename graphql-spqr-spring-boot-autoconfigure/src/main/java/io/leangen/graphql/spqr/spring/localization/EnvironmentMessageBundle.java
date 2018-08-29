@@ -14,4 +14,14 @@ public class EnvironmentMessageBundle implements MessageBundle {
     public String getMessage(String key) {
         return environment.getProperty(key);
     }
+
+    @Override
+    public boolean containsKey(String key) {
+        return environment.containsProperty(key);
+    }
+
+    @Override
+    public String interpolate(String template) {
+        return environment.resolvePlaceholders(template);
+    }
 }
