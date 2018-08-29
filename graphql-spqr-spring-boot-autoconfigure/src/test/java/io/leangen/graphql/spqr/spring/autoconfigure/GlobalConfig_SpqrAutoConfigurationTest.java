@@ -30,12 +30,14 @@ import io.leangen.graphql.metadata.strategy.value.InputFieldBuilderParams;
 import io.leangen.graphql.metadata.strategy.value.ValueMapper;
 import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
 import io.leangen.graphql.spqr.spring.annotation.GraphQLApi;
+import io.leangen.graphql.spqr.spring.localization.EnvironmentMessageBundle;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -311,10 +313,10 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         Assert.assertNotNull(messageBundle);
 
         Assert.assertTrue(messageBundle.containsKey("hello"));
-        Assert.assertTrue(messageBundle.containsKey("foo"));
+        Assert.assertTrue(messageBundle.containsKey("graphql.messages.foo"));
 
         Assert.assertEquals(messageBundle.getMessage("hello"), "world");
-        Assert.assertEquals(messageBundle.getMessage("foo"), "bar");
+        Assert.assertEquals(messageBundle.getMessage("graphql.messages.foo"), "bar");
     }
 
     @Test
@@ -560,16 +562,8 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public MessageBundle messageBundle2() {
-            return new MessageBundle() {
-                @Override
-                public String getMessage(String key) {
-                    if (key.equals("foo")) {
-                        return "bar";
-                    }
-                    return null;
-                }
-            };
+        public MessageBundle messageBundle2(Environment environment) {
+            return new EnvironmentMessageBundle(environment);
         }
 
         @Bean
