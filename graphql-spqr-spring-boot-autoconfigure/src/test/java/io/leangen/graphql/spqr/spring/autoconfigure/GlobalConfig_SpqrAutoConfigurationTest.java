@@ -30,13 +30,16 @@ import io.leangen.graphql.metadata.strategy.value.InputFieldBuilderParams;
 import io.leangen.graphql.metadata.strategy.value.ValueMapper;
 import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
 import io.leangen.graphql.spqr.spring.annotation.GraphQLApi;
-import io.leangen.graphql.spqr.spring.localization.EnvironmentMessageBundle;
+import io.leangen.graphql.spqr.spring.localization.MessageSourceMessageBundle;
+import io.leangen.graphql.spqr.spring.localization.PropertyResolverMessageBundle;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
@@ -314,9 +317,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         Assert.assertTrue(messageBundle.containsKey("hello"));
         Assert.assertTrue(messageBundle.containsKey("graphql.messages.foo"));
+        Assert.assertTrue(messageBundle.containsKey("baz"));
 
-        Assert.assertEquals(messageBundle.getMessage("hello"), "world");
-        Assert.assertEquals(messageBundle.getMessage("graphql.messages.foo"), "bar");
+        Assert.assertEquals("world", messageBundle.getMessage("hello"));
+        Assert.assertEquals("bar", messageBundle.getMessage("graphql.messages.foo"));
+        Assert.assertEquals("bar", messageBundle.getMessage("baz"));
     }
 
     @Test
@@ -327,7 +332,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         Assert.assertNotNull(moduleExtensionProviders);
         Assert.assertFalse(moduleExtensionProviders.isEmpty());
-        Assert.assertEquals(moduleExtensionProviders.size(), 1);
+        Assert.assertEquals(1, moduleExtensionProviders.size());
 
         ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module> moduleExtensionProvider = moduleExtensionProviders.get(0);
 
@@ -336,7 +341,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         List<Module> modules = moduleExtensionProvider.getExtensions(null, null);
 
         Assert.assertNotNull(modules);
-        Assert.assertEquals(modules.size(), 1);
+        Assert.assertEquals(1, modules.size());
 
         Module module = modules.get(0);
 
@@ -549,6 +554,13 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
+        public ResourceBundleMessageSource messageSource() {
+            ResourceBundleMessageSource source = new ResourceBundleMessageSource();
+            source.setBasenames("message");
+            return source;
+        }
+
+        @Bean
         public MessageBundle messageBundle1() {
             return new MessageBundle() {
                 @Override
@@ -563,7 +575,12 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         @Bean
         public MessageBundle messageBundle2(Environment environment) {
-            return new EnvironmentMessageBundle(environment);
+            return new PropertyResolverMessageBundle(environment);
+        }
+
+        @Bean
+        public MessageBundle messageBundle3(MessageSource messageSource) {
+            return new MessageSourceMessageBundle(messageSource);
         }
 
         @Bean
