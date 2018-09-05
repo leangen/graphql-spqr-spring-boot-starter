@@ -14,15 +14,21 @@ This project is still in early development and, while fairly well tested, should
 
 ## Project setup / Dependencies
 
-To use this starter in a typical Spring Boot project, add the following dependencies:
+To use this starter in a typical Spring Boot project, add the following dependencies to your project:
 
 ```xml
+
 <dependencies>
+  <dependency>
+  	<groupId>io.leangen.graphql</groupId>
+  	<artifactId>graphql-spqr-spring-boot-starter</artifactId>
+  	<version>0.0.2</version>
+  </dependency>
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
   </dependency>
-  <!--Will be optional as of 0.0.2-->
+  <!--optional as of 0.0.2-->
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-websocket</artifactId>
@@ -30,21 +36,16 @@ To use this starter in a typical Spring Boot project, add the following dependen
   <dependency>
     <groupId>io.leangen.graphql</groupId>
     <artifactId>graphiql-spring-boot-starter</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
   </dependency>
-  <!--Will be implicit as of 0.0.2-->
   <dependency>
     <groupId>io.leangen.graphql</groupId>
     <artifactId>spqr</artifactId>
-    <version>0.9.7</version>
+    <version>0.9.8</version>
   </dependency>
 </dependencies>
 ```
-
-### Note
-
-The plan is that in the 0.0.2 alpha release `spring-boot-starter-websocket` dependency won't be necessary if you're not using autoconfig for GraphQL subscriptions over WebSockets.
-Additionally, an option to use server-sent-events instead will be added.
+[There's also a very basic sample project](https://github.com/leangen/graphql-spqr-samples/tree/master/spring-boot-starter-sample) 
 
 ## Defining the operation sources (the beans that get exposed via the API)
 
