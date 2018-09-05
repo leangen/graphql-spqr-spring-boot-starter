@@ -20,9 +20,9 @@ To use this starter in a typical Spring Boot project, add the following dependen
 
 <dependencies>
   <dependency>
-  	<groupId>io.leangen.graphql</groupId>
-  	<artifactId>graphql-spqr-spring-boot-starter</artifactId>
-  	<version>0.0.2</version>
+    <groupId>io.leangen.graphql</groupId>
+    <artifactId>graphql-spqr-spring-boot-starter</artifactId>
+    <version>0.0.2</version>
   </dependency>
   <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -32,11 +32,6 @@ To use this starter in a typical Spring Boot project, add the following dependen
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-websocket</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>io.leangen.graphql</groupId>
-    <artifactId>graphiql-spring-boot-starter</artifactId>
-    <version>0.0.2</version>
   </dependency>
   <dependency>
     <groupId>io.leangen.graphql</groupId>
