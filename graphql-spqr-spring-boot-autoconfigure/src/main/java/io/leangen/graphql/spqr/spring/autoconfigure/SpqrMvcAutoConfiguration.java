@@ -1,5 +1,6 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
+import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import io.leangen.graphql.spqr.spring.web.DefaultGraphQLController;
 import io.leangen.graphql.spqr.spring.web.DefaultGraphiQLController;
@@ -21,8 +22,8 @@ public class SpqrMvcAutoConfiguration {
     @Bean
     @ConditionalOnProperty(name = "graphql.spqr.default-endpoint.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnBean(GraphQLSchema.class)
-    public DefaultGraphQLController defaultGraphQLController(GraphQLSchema schema) {
-        return new DefaultGraphQLController(schema, dataLoaderRegistryFactory);
+    public DefaultGraphQLController defaultGraphQLController(GraphQL graphQL) {
+        return new DefaultGraphQLController(graphQL, dataLoaderRegistryFactory);
     }
 
     @Bean

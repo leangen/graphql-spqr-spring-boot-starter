@@ -1,5 +1,6 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
+import graphql.GraphQL;
 import graphql.schema.GraphQLInputType;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
@@ -589,8 +590,8 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public GraphQLSchema graphQLSchema(GraphQLSchemaGenerator schemaGenerator) {
-            //Suppressing schema generation with bogus test parameters
+        public GraphQL graphQL(GraphQLSchema schema) {
+            //Suppressing GraphQL object generation with bogus test parameters
             return null;
         }
     }

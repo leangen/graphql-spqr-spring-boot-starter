@@ -1,5 +1,6 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
+import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import io.leangen.graphql.GraphQLSchemaGenerator;
 import io.leangen.graphql.extension.ExtensionProvider;
@@ -225,6 +226,13 @@ public class SpqrAutoConfiguration {
     @ConditionalOnMissingBean
     public GraphQLSchema graphQLSchema(GraphQLSchemaGenerator schemaGenerator) {
         return schemaGenerator.generate();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public GraphQL graphQL(GraphQLSchema schema){
+        GraphQL.Builder builder = GraphQL.newGraphQL(schema);
+        return builder.build();
     }
 
     private <T> T findQualifiedBeanByType(Class<? extends T> type, String qualifierValue, Class<? extends Annotation> qualifierType) {

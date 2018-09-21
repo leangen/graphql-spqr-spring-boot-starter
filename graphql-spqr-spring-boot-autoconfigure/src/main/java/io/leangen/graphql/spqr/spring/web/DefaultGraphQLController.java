@@ -31,8 +31,8 @@ public class DefaultGraphQLController {
     private final DataLoaderRegistryFactory dataLoaderRegistryFactory;
 
     @Autowired
-    public DefaultGraphQLController(GraphQLSchema schema, DataLoaderRegistryFactory dataLoaderRegistryFactory) {
-        graphQL = GraphQL.newGraphQL(schema).build();
+    public DefaultGraphQLController(GraphQL graphQL, DataLoaderRegistryFactory dataLoaderRegistryFactory) {
+        this.graphQL = graphQL;
         this.dataLoaderRegistryFactory = dataLoaderRegistryFactory == null ? () -> null : dataLoaderRegistryFactory;
     }
 
