@@ -19,13 +19,13 @@ public class DefaultGraphiQLController {
     @Value("${graphiql.websocket-endpoint:#{null}}")
     private String webSocketEndpoint;
 
-    @Value("${graphql.spqr.websocket.mapping:#{null}}")
+    @Value("${graphql.spqr.ws.endpoint:#{null}}")
     private String webSocketDefaultEndpoint;
 
     @Value("${graphql.spqr.default-endpoint.mapping:/graphql}")
     private String graphqlDefaultEndpoint;
 
-    @Value("${graphql.spqr.websocket.enabled:true}")
+    @Value("${graphql.spqr.ws.enabled:true}")
     private boolean webSocketEnabled;
 
     @Value("${graphiql.pageTitle:GraphiQL}")

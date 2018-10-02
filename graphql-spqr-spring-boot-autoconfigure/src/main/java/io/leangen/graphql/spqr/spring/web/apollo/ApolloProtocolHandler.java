@@ -1,7 +1,5 @@
 package io.leangen.graphql.spqr.spring.web.apollo;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -11,16 +9,16 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.leangen.graphql.spqr.spring.web.apollo.ApolloMessage.GQL_CONNECTION_INIT;
@@ -31,25 +29,38 @@ import static io.leangen.graphql.spqr.spring.web.apollo.ApolloMessage.GQL_STOP;
 class ApolloProtocolHandler extends TextWebSocketHandler {
 
     private final GraphQL graphQL;
+    private final TaskScheduler taskScheduler;
+    private final int keepAliveInterval;
     private final Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
-    private final AtomicReference<WebSocketSession> session = new AtomicReference<>();
+    private final AtomicReference<ScheduledFuture<?>> keepAlive = new AtomicReference<>();
 
     private static final Logger log = LoggerFactory.getLogger(ApolloProtocolHandler.class);
 
-    public ApolloProtocolHandler(GraphQL graphQL) {
+    public ApolloProtocolHandler(GraphQL graphQL, TaskScheduler taskScheduler, int keepAliveInterval) {
         this.graphQL = graphQL;
+        this.taskScheduler = taskScheduler;
+        this.keepAliveInterval = keepAliveInterval;
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
-        this.session.set(session);
+        if (taskScheduler != null) {
+            this.keepAlive.compareAndSet(null, taskScheduler.scheduleWithFixedDelay(keepAliveTask(session), Math.max(keepAliveInterval, 1000)));
+        }
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         cancelAll();
-        this.session.set(null);
+        if (taskScheduler != null) {
+            this.keepAlive.getAndUpdate(task -> {
+                if (task != null) {
+                    task.cancel(false);
+                }
+                return null;
+            });
+        }
     }
 
     @Override
@@ -71,7 +82,9 @@ class ApolloProtocolHandler extends TextWebSocketHandler {
             switch (apolloMessage.getType()) {
                 case GQL_CONNECTION_INIT:
                     session.sendMessage(ApolloMessage.connectionAck());
-                    session.sendMessage(ApolloMessage.keepAlive());
+                    if (taskScheduler != null) {
+                        session.sendMessage(ApolloMessage.keepAlive());
+                    }
                     break;
                 case GQL_START:
                     GraphQLRequest request = ((StartMessage) apolloMessage).getPayload();
@@ -98,8 +111,7 @@ class ApolloProtocolHandler extends TextWebSocketHandler {
                     break;
             }
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
-//            fatalError(session, e);
+            fatalError(session, e);
         }
     }
 
@@ -166,8 +178,7 @@ class ApolloProtocolHandler extends TextWebSocketHandler {
         stream.subscribe(subscriber);
     }
 
-    @PreDestroy
-    public void cancelAll() {
+    void cancelAll() {
         synchronized (subscriptions) {
             subscriptions.values().forEach(Subscription::cancel);
             subscriptions.clear();
@@ -182,15 +193,17 @@ class ApolloProtocolHandler extends TextWebSocketHandler {
         log.warn(String.format("WebSocket session %s (%s) closed due to an exception", session.getId(), session.getRemoteAddress()), exception);
     }
 
-    /*@Scheduled(fixedDelay = -1)
-    public void keepAlive() {
-        try {
-            WebSocketSession s = session.get();
-            if (s != null && s.isOpen()) {
-                s.sendMessage(ApolloMessage.keepAlive());
+    private Runnable keepAliveTask(WebSocketSession session) {
+        return () -> {
+            try {
+                if (session != null && session.isOpen()) {
+                    session.sendMessage(ApolloMessage.keepAlive());
+                }
+            } catch (Exception exception) {
+                try {
+                    session.close(CloseStatus.SESSION_NOT_RELIABLE);
+                } catch (Exception ignored) {/*no-op*/}
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
+        };
+    }
 }

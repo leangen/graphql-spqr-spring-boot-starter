@@ -4,7 +4,6 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
-import graphql.schema.GraphQLSchema;
 import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
 import io.leangen.graphql.spqr.spring.autoconfigure.DefaultGlobalContext;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
@@ -110,7 +109,8 @@ public class DefaultGraphQLController {
 
     @GetMapping(
             value = "${graphql.spqr.default-endpoint.mapping:/graphql}",
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            headers = "Connection!=Upgrade"
     )
     @ResponseBody
     public Map<String, Object> executeGet(GraphQLRequest request,
