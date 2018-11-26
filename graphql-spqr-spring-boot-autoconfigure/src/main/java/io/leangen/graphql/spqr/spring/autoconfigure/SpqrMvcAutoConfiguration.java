@@ -6,6 +6,7 @@ import io.leangen.graphql.spqr.spring.web.GraphQLController;
 import io.leangen.graphql.spqr.spring.web.GuiController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
@@ -20,10 +21,16 @@ public class SpqrMvcAutoConfiguration {
     private DataLoaderRegistryFactory dataLoaderRegistryFactory;
 
     @Bean
+    @ConditionalOnMissingBean
+    public GlobalContextFactory globalContextFactory() {
+        return params -> new DefaultGlobalContext(params.getHttpRequest());
+    }
+
+    @Bean
     @ConditionalOnProperty(name = "graphql.spqr.http.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnBean(GraphQLSchema.class)
-    public GraphQLController graphQLController(GraphQL graphQL) {
-        return new GraphQLController(graphQL, dataLoaderRegistryFactory);
+    public GraphQLController graphQLController(GraphQL graphQL, GlobalContextFactory contextFactory) {
+        return new GraphQLController(graphQL, contextFactory, dataLoaderRegistryFactory);
     }
 
     @Bean

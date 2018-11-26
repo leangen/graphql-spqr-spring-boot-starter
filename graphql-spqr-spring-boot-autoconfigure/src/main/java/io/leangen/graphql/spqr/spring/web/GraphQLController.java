@@ -4,7 +4,8 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
-import io.leangen.graphql.spqr.spring.autoconfigure.DefaultGlobalContext;
+import io.leangen.graphql.spqr.spring.autoconfigure.GlobalContextFactory;
+import io.leangen.graphql.spqr.spring.autoconfigure.GlobalContextFactoryParams;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,11 +28,13 @@ import java.util.Map;
 public class GraphQLController {
 
     private final GraphQL graphQL;
+    private final GlobalContextFactory contextFactory;
     private final DataLoaderRegistryFactory dataLoaderRegistryFactory;
 
     @Autowired
-    public GraphQLController(GraphQL graphQL, DataLoaderRegistryFactory dataLoaderRegistryFactory) {
+    public GraphQLController(GraphQL graphQL, GlobalContextFactory contextFactory, DataLoaderRegistryFactory dataLoaderRegistryFactory) {
         this.graphQL = graphQL;
+        this.contextFactory = contextFactory;
         this.dataLoaderRegistryFactory = dataLoaderRegistryFactory;
     }
 
@@ -49,7 +52,7 @@ public class GraphQLController {
         Map<String, Object> variables = requestParams.getVariables() == null ? requestBody.getVariables() : requestParams.getVariables();
 
         ExecutionResult executionResult = graphQL.execute(
-                input(query, operationName, variables, raw));
+                input(new GraphQLRequest(query, operationName, variables), raw));
         return executionResult.toSpecification();
     }
 
@@ -65,7 +68,7 @@ public class GraphQLController {
         String query = request.getQuery() == null ? queryBody : request.getQuery();
 
         ExecutionResult executionResult = graphQL.execute(
-                input(query, request.getOperationName(), request.getVariables(), raw));
+                input(new GraphQLRequest(query, request.getOperationName(), request.getVariables()), raw));
         return executionResult.toSpecification();
     }
 
@@ -86,7 +89,7 @@ public class GraphQLController {
         String operationName = StringUtils.isEmpty(operationNameParam) ? request.getOperationName() : operationNameParam;
 
         ExecutionResult executionResult = graphQL.execute(
-                input(query, operationName, request.getVariables(), raw));
+                input(new GraphQLRequest(query, operationName, request.getVariables()), raw));
         return executionResult.toSpecification();
     }
 
@@ -100,16 +103,19 @@ public class GraphQLController {
                                           HttpServletRequest raw) {
 
         ExecutionResult executionResult = graphQL.execute(
-                input(request.getQuery(), request.getOperationName(), request.getVariables(), raw));
+                input(request, raw));
         return executionResult.toSpecification();
     }
 
-    private ExecutionInput input(String query, String operationName, Map<String, Object> variables, HttpServletRequest raw) {
+    private ExecutionInput input(GraphQLRequest request, HttpServletRequest raw) {
         ExecutionInput.Builder inputBuilder = ExecutionInput.newExecutionInput()
-                .query(query)
-                .operationName(operationName)
-                .variables(variables)
-                .context(new DefaultGlobalContext(raw));
+                .query(request.getQuery())
+                .operationName(request.getOperationName())
+                .variables(request.getVariables())
+                .context(contextFactory.createGlobalContext(GlobalContextFactoryParams.builder()
+                        .withGraphQLRequest(request)
+                        .withHttpRequest(raw)
+                        .build()));
         if (dataLoaderRegistryFactory != null) {
             inputBuilder.dataLoaderRegistry(dataLoaderRegistryFactory.createDataLoaderRegistry());
         }
