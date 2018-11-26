@@ -26,9 +26,9 @@ public class ResolverBuilder_SpqrAutoConfigurationTest {
     @Test
     public void propertiesLoad() {
         Assert.assertNotNull(spqrProperties);
-        Assert.assertNotNull(spqrProperties.getQueryBasePackages());
-        Assert.assertEquals(1, spqrProperties.getQueryBasePackages().length);
-        Assert.assertEquals("com.bogus.package", spqrProperties.getQueryBasePackages()[0]);
+        Assert.assertNotNull(spqrProperties.getBasePackages());
+        Assert.assertEquals(1, spqrProperties.getBasePackages().length);
+        Assert.assertEquals("com.bogus.package", spqrProperties.getBasePackages()[0]);
     }
 
     @Test

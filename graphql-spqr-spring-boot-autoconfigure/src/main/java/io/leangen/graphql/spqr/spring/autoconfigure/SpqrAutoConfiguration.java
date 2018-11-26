@@ -2,9 +2,11 @@ package io.leangen.graphql.spqr.spring.autoconfigure;
 
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
+import io.leangen.geantyref.GenericTypeReflector;
+import io.leangen.graphql.ExtendedGeneratorConfiguration;
+import io.leangen.graphql.ExtensionProvider;
+import io.leangen.graphql.GeneratorConfiguration;
 import io.leangen.graphql.GraphQLSchemaGenerator;
-import io.leangen.graphql.extension.ExtensionProvider;
-import io.leangen.graphql.extension.Module;
 import io.leangen.graphql.generator.mapping.ArgumentInjector;
 import io.leangen.graphql.generator.mapping.InputConverter;
 import io.leangen.graphql.generator.mapping.OutputConverter;
@@ -20,6 +22,7 @@ import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
 import io.leangen.graphql.metadata.strategy.type.TypeInfoGenerator;
 import io.leangen.graphql.metadata.strategy.value.InputFieldBuilder;
 import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
+import io.leangen.graphql.module.Module;
 import io.leangen.graphql.spqr.spring.annotation.GraphQLApi;
 import io.leangen.graphql.spqr.spring.annotation.WithResolverBuilder;
 import io.leangen.graphql.spqr.spring.annotation.WithResolverBuilders;
@@ -38,9 +41,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.StandardMethodMetadata;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,25 +64,25 @@ public class SpqrAutoConfiguration {
     private final ConfigurableApplicationContext context;
 
     @Autowired(required = false)
-    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder> globalResolverBuilderExtensionProvider;
+    private ExtensionProvider<GeneratorConfiguration, ResolverBuilder> globalResolverBuilderExtensionProvider;
 
     @Autowired(required = false)
-    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, TypeMapper> typeMapperExtensionProvider;
+    private ExtensionProvider<GeneratorConfiguration, TypeMapper> typeMapperExtensionProvider;
 
     @Autowired(required = false)
-    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputConverter> inputConverterExtensionProvider;
+    private ExtensionProvider<GeneratorConfiguration, InputConverter> inputConverterExtensionProvider;
 
     @Autowired(required = false)
-    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, OutputConverter> outputConverterExtensionProvider;
+    private ExtensionProvider<GeneratorConfiguration, OutputConverter> outputConverterExtensionProvider;
 
     @Autowired(required = false)
-    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, ArgumentInjector> argumentInjectorExtensionProvider;
+    private ExtensionProvider<GeneratorConfiguration, ArgumentInjector> argumentInjectorExtensionProvider;
 
     @Autowired(required = false)
     private ValueMapperFactory valueMapperFactory;
 
     @Autowired(required = false)
-    private ExtensionProvider<GraphQLSchemaGenerator.ExtendedConfiguration, InputFieldBuilder> inputFieldBuilderProvider;
+    private ExtensionProvider<ExtendedGeneratorConfiguration, InputFieldBuilder> inputFieldBuilderProvider;
 
     @Autowired(required = false)
     private TypeInfoGenerator typeInfoGenerator;
@@ -95,7 +100,7 @@ public class SpqrAutoConfiguration {
     private Set<MessageBundle> messageBundles;
 
     @Autowired(required = false)
-    private ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module> moduleExtensionProvider;
+    private ExtensionProvider<GeneratorConfiguration, Module> moduleExtensionProvider;
 
     @Autowired
     public SpqrAutoConfiguration(ConfigurableApplicationContext context) {
@@ -125,12 +130,12 @@ public class SpqrAutoConfiguration {
     public GraphQLSchemaGenerator graphQLSchemaGenerator(SpqrProperties spqrProperties) {
         GraphQLSchemaGenerator schemaGenerator = new GraphQLSchemaGenerator();
 
-        schemaGenerator.withBasePackages(spqrProperties.getQueryBasePackages());
+        schemaGenerator.withBasePackages(spqrProperties.getBasePackages());
 
-        if (spqrProperties.getRelaySupported()) {
-            if (!StringUtils.isEmpty(spqrProperties.getRelayMutationWrapper())) {
+        if (spqrProperties.getRelay().isEnabled()) {
+            if (!StringUtils.isEmpty(spqrProperties.getRelay().getMutationWrapper())) {
                 schemaGenerator.withRelayCompliantMutations(
-                        spqrProperties.getRelayMutationWrapper(), spqrProperties.getRelayMutationWrapperDescription()
+                        spqrProperties.getRelay().getMutationWrapper(), spqrProperties.getRelay().getMutationWrapperDescription()
                 );
             } else {
                 schemaGenerator.withRelayCompliantMutations();
@@ -175,7 +180,7 @@ public class SpqrAutoConfiguration {
             schemaGenerator.withTypeInfoGenerator(typeInfoGenerator);
         }
 
-        if (spqrProperties.getAbstractInputTypeResolution()) {
+        if (spqrProperties.isAbstractInputTypeResolution()) {
             schemaGenerator.withAbstractInputTypeResolution();
         }
 
@@ -195,7 +200,7 @@ public class SpqrAutoConfiguration {
             schemaGenerator.withInterfaceMappingStrategy(interfaceMappingStrategy);
         }
 
-        if (spqrProperties.getRelayConnectionCheckRelaxed()) {
+        if (spqrProperties.getRelay().isConnectionCheckRelaxed()) {
             schemaGenerator.withRelayConnectionCheckRelaxed();
         }
 
@@ -213,6 +218,7 @@ public class SpqrAutoConfiguration {
                         spqrBean ->
                         schemaGenerator.withOperationsFromSingleton(
                             spqrBean.getSpringBean(),
+                            spqrBean.getType(),
                             spqrBean.resolverBuilders.stream()
                                     .map(resolverBuilderBeanIdentity -> findQualifiedBeanByType(resolverBuilderBeanIdentity.getResolverType(),
                                             resolverBuilderBeanIdentity.getValue(),
@@ -299,7 +305,7 @@ public class SpqrAutoConfiguration {
                     continue;
                 }
 
-                SpqrBean spqrBean = new SpqrBean(context, beanName);
+                SpqrBean spqrBean = new SpqrBean(context, beanName, metadata.getIntrospectedMethod().getAnnotatedReturnType());
 
                 Map<String, Object> withResolverBuildersAttributes = metadata.getAnnotationAttributes(WithResolverBuilders.class.getTypeName());
                 if (withResolverBuildersAttributes != null) {
@@ -337,9 +343,9 @@ public class SpqrAutoConfiguration {
 
         Map<String, SpqrBean> result = new HashMap<>();
         for (String beanName : operationSourcesBeans.keySet()) {
-            result.put(beanName, new SpqrBean(context,beanName));
-
             Class<?> operationSourceBeanClass = operationSourcesBeans.get(beanName).getClass();
+            result.put(beanName, new SpqrBean(context, beanName, GenericTypeReflector.annotate(ClassUtils.getUserClass(operationSourceBeanClass))));
+
             if (operationSourceBeanClass.isAnnotationPresent(WithResolverBuilder.class)) {
                 WithResolverBuilder withResolverBuilder = operationSourceBeanClass.getAnnotation(WithResolverBuilder.class);
                 result.get(beanName).resolverBuilders.add(new ResolverBuilderBeanIdentity(withResolverBuilder.value(), withResolverBuilder.qualifierValue(), withResolverBuilder.qualifierType()));
@@ -353,14 +359,16 @@ public class SpqrAutoConfiguration {
         return result;
     }
 
-    private class SpqrBean {
+    private static class SpqrBean {
         private final BeanScope scope;
         private final Object springBean;
+        private final AnnotatedType type;
         private final List<ResolverBuilderBeanIdentity> resolverBuilders;
 
-        SpqrBean(ApplicationContext context, String beanName) {
+        SpqrBean(ApplicationContext context, String beanName, AnnotatedType type) {
             this.springBean = context.getBean(beanName);
             this.scope = BeanScope.findBeanScope(context, beanName);
+            this.type = type;
             this.resolverBuilders  = new ArrayList<>();
         }
 
@@ -370,6 +378,10 @@ public class SpqrAutoConfiguration {
 
         Object getSpringBean() {
             return springBean;
+        }
+
+        public AnnotatedType getType() {
+            return type;
         }
 
         List<ResolverBuilderBeanIdentity> getResolverBuilders() {

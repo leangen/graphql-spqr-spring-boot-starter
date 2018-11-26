@@ -2,8 +2,8 @@ package io.leangen.graphql.spqr.spring.autoconfigure;
 
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
-import io.leangen.graphql.spqr.spring.web.DefaultGraphQLController;
-import io.leangen.graphql.spqr.spring.web.DefaultGraphiQLController;
+import io.leangen.graphql.spqr.spring.web.GraphQLController;
+import io.leangen.graphql.spqr.spring.web.GuiController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,15 +20,15 @@ public class SpqrMvcAutoConfiguration {
     private DataLoaderRegistryFactory dataLoaderRegistryFactory;
 
     @Bean
-    @ConditionalOnProperty(name = "graphql.spqr.default-endpoint.enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(name = "graphql.spqr.http.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnBean(GraphQLSchema.class)
-    public DefaultGraphQLController defaultGraphQLController(GraphQL graphQL) {
-        return new DefaultGraphQLController(graphQL, dataLoaderRegistryFactory);
+    public GraphQLController graphQLController(GraphQL graphQL) {
+        return new GraphQLController(graphQL, dataLoaderRegistryFactory);
     }
 
     @Bean
-    @ConditionalOnProperty(value = "graphiql.enabled", havingValue = "true")
-    public DefaultGraphiQLController graphiQLController() {
-        return new DefaultGraphiQLController();
+    @ConditionalOnProperty(value = "graphql.spqr.gui.enabled", havingValue = "true")
+    public GuiController guiController(SpqrProperties config) {
+        return new GuiController(config);
     }
 }

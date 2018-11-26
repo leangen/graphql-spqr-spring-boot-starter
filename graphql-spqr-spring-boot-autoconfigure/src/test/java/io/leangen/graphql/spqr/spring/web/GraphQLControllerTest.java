@@ -27,11 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 @ContextConfiguration(classes = {SpqrAutoConfiguration.class, SpqrMvcAutoConfiguration.class, ResolverBuilder_TestConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
-public class DefaultGraphQLControllerTest {
+public class GraphQLControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Value("${graphql.spqr.default-endpoint.mapping}")
+    @Value("${graphql.spqr.http.endpoint}")
     private String apiContext;
 
     @Test

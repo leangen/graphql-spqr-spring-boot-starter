@@ -3,11 +3,9 @@ package io.leangen.graphql.spqr.spring.web;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
-import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
 import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
 import io.leangen.graphql.spqr.spring.autoconfigure.DefaultGlobalContext;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
-import org.dataloader.DataLoaderRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
@@ -26,19 +24,19 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin
-public class DefaultGraphQLController {
+public class GraphQLController {
 
     private final GraphQL graphQL;
     private final DataLoaderRegistryFactory dataLoaderRegistryFactory;
 
     @Autowired
-    public DefaultGraphQLController(GraphQL graphQL, DataLoaderRegistryFactory dataLoaderRegistryFactory) {
+    public GraphQLController(GraphQL graphQL, DataLoaderRegistryFactory dataLoaderRegistryFactory) {
         this.graphQL = graphQL;
-        this.dataLoaderRegistryFactory = dataLoaderRegistryFactory == null ? () -> null : dataLoaderRegistryFactory;
+        this.dataLoaderRegistryFactory = dataLoaderRegistryFactory;
     }
 
     @PostMapping(
-            value = "${graphql.spqr.default-endpoint.mapping:/graphql}",
+            value = "${graphql.spqr.http.endpoint:/graphql}",
             consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE},
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
@@ -50,40 +48,30 @@ public class DefaultGraphQLController {
         String operationName = requestParams.getOperationName() == null ? requestBody.getOperationName() : requestParams.getOperationName();
         Map<String, Object> variables = requestParams.getVariables() == null ? requestBody.getVariables() : requestParams.getVariables();
 
-        DataLoaderRegistry dataLoaders = dataLoaderRegistryFactory.createDataLoaderRegistry();
-        ExecutionResult executionResult = graphQL(dataLoaders).execute(ExecutionInput.newExecutionInput()
-                .query(query)
-                .operationName(operationName)
-                .variables(variables)
-                .context(new DefaultGlobalContext(raw, dataLoaders))
-                .build());
+        ExecutionResult executionResult = graphQL.execute(
+                input(query, operationName, variables, raw));
         return executionResult.toSpecification();
     }
 
     @PostMapping(
-            value = "${graphql.spqr.default-endpoint.mapping:/graphql}",
+            value = "${graphql.spqr.http.endpoint:/graphql}",
             consumes = {"application/graphql", "application/graphql;charset=UTF-8"},
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
     @ResponseBody
     public Map<String, Object> executeGraphQLPost(@RequestBody String queryBody,
-                                                  GraphQLRequest requestParams,
+                                                  GraphQLRequest request,
                                                   HttpServletRequest raw) {
-        String query = requestParams.getQuery() == null ? queryBody : requestParams.getQuery();
+        String query = request.getQuery() == null ? queryBody : request.getQuery();
 
-        DataLoaderRegistry dataLoaders = dataLoaderRegistryFactory.createDataLoaderRegistry();
-        ExecutionResult executionResult = graphQL(dataLoaders).execute(ExecutionInput.newExecutionInput()
-                .query(query)
-                .operationName(requestParams.getOperationName())
-                .variables(requestParams.getVariables())
-                .context(new DefaultGlobalContext(raw, dataLoaders))
-                .build());
+        ExecutionResult executionResult = graphQL.execute(
+                input(query, request.getOperationName(), request.getVariables(), raw));
         return executionResult.toSpecification();
     }
 
     @RequestMapping(
             method = RequestMethod.POST,
-            value = "${graphql.spqr.default-endpoint.mapping:/graphql}",
+            value = "${graphql.spqr.http.endpoint:/graphql}",
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, "application/x-www-form-urlencoded;charset=UTF-8"},
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
@@ -97,18 +85,13 @@ public class DefaultGraphQLController {
         String query = StringUtils.isEmpty(queryParam) ? request.getQuery() : queryParam;
         String operationName = StringUtils.isEmpty(operationNameParam) ? request.getOperationName() : operationNameParam;
 
-        DataLoaderRegistry dataLoaders = dataLoaderRegistryFactory.createDataLoaderRegistry();
-        ExecutionResult executionResult = graphQL(dataLoaders).execute(ExecutionInput.newExecutionInput()
-                .query(query)
-                .operationName(operationName)
-                .variables(request.getVariables())
-                .context(new DefaultGlobalContext(raw, dataLoaders))
-                .build());
+        ExecutionResult executionResult = graphQL.execute(
+                input(query, operationName, request.getVariables(), raw));
         return executionResult.toSpecification();
     }
 
     @GetMapping(
-            value = "${graphql.spqr.default-endpoint.mapping:/graphql}",
+            value = "${graphql.spqr.http.endpoint:/graphql}",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
             headers = "Connection!=Upgrade"
     )
@@ -116,20 +99,20 @@ public class DefaultGraphQLController {
     public Map<String, Object> executeGet(GraphQLRequest request,
                                           HttpServletRequest raw) {
 
-        DataLoaderRegistry dataLoaders = dataLoaderRegistryFactory.createDataLoaderRegistry();
-        ExecutionResult executionResult = graphQL(dataLoaders).execute(ExecutionInput.newExecutionInput()
-                .query(request.getQuery())
-                .operationName(request.getOperationName())
-                .variables(request.getVariables())
-                .context(new DefaultGlobalContext(raw, dataLoaders))
-                .build());
+        ExecutionResult executionResult = graphQL.execute(
+                input(request.getQuery(), request.getOperationName(), request.getVariables(), raw));
         return executionResult.toSpecification();
     }
 
-    private GraphQL graphQL(DataLoaderRegistry dataLoaders) {
-        if (dataLoaders == null) {
-            return graphQL;
+    private ExecutionInput input(String query, String operationName, Map<String, Object> variables, HttpServletRequest raw) {
+        ExecutionInput.Builder inputBuilder = ExecutionInput.newExecutionInput()
+                .query(query)
+                .operationName(operationName)
+                .variables(variables)
+                .context(new DefaultGlobalContext(raw));
+        if (dataLoaderRegistryFactory != null) {
+            inputBuilder.dataLoaderRegistry(dataLoaderRegistryFactory.createDataLoaderRegistry());
         }
-        return graphQL.transform(builder -> builder.instrumentation(new DataLoaderDispatcherInstrumentation(dataLoaders)));
+        return inputBuilder.build();
     }
 }

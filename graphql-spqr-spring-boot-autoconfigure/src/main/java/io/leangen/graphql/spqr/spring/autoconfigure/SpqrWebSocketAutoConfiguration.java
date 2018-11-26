@@ -29,35 +29,29 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class SpqrWebSocketAutoConfiguration implements WebSocketConfigurer {
 
     private final GraphQL graphQL;
-    private final String webSocketEndpoint;
-    private final String graphQLEndpoint;
-    private final boolean keepAliveEnabled;
-    private final int keepAliveInterval;
+    private final SpqrProperties config;
 
     @Autowired
-    public SpqrWebSocketAutoConfiguration(
-            GraphQL graphQL,
-            @Value("${graphql.spqr.ws.endpoint:#{null}}") String webSocketEndpoint,
-            @Value("${graphql.spqr.default-endpoint.mapping:/graphql}") String graphQLEndpoint,
-            @Value("${graphql.spqr.ws.keepalive.enabled:false}") boolean keepAliveEnabled,
-            @Value("${graphql.spqr.ws.keepalive.intervalMillis:10000}") int keepAliveInterval) {
-
+    public SpqrWebSocketAutoConfiguration(GraphQL graphQL, SpqrProperties config) {
         this.graphQL = graphQL;
-        this.webSocketEndpoint = webSocketEndpoint;
-        this.graphQLEndpoint = graphQLEndpoint;
-        this.keepAliveEnabled = keepAliveEnabled;
-        this.keepAliveInterval = keepAliveInterval;
+        this.config = config;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
+        String webSocketEndpoint = config.getWs().getEndpoint();
+        String graphQLEndpoint = config.getHttp().getEndpoint();
         String endpointUrl = webSocketEndpoint == null ? graphQLEndpoint : webSocketEndpoint;
-        webSocketHandlerRegistry.addHandler(webSocketHandler(), endpointUrl).setAllowedOrigins("*");
+        webSocketHandlerRegistry
+                .addHandler(webSocketHandler(), endpointUrl)
+                .setAllowedOrigins(config.getWs().getAllowedOrigins());
     }
 
     @Bean
     @ConditionalOnMissingBean
     public PerConnectionApolloHandler webSocketHandler() {
+        boolean keepAliveEnabled = config.getWs().getKeepAlive().isEnabled();
+        int keepAliveInterval = config.getWs().getKeepAlive().getIntervalMillis();
         return new PerConnectionApolloHandler(graphQL, keepAliveEnabled ? defaultTaskScheduler() : null, keepAliveInterval);
     }
 

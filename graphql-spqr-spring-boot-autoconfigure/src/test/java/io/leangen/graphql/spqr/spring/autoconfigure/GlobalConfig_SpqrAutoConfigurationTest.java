@@ -4,12 +4,17 @@ import graphql.GraphQL;
 import graphql.schema.GraphQLInputType;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
+import graphql.schema.GraphQLType;
+import graphql.schema.GraphQLTypeVisitor;
+import graphql.util.TraversalControl;
+import graphql.util.TraverserContext;
+import io.leangen.graphql.ExtendedGeneratorConfiguration;
+import io.leangen.graphql.ExtensionProvider;
+import io.leangen.graphql.GeneratorConfiguration;
 import io.leangen.graphql.GraphQLSchemaGenerator;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import io.leangen.graphql.execution.GlobalEnvironment;
 import io.leangen.graphql.execution.ResolutionEnvironment;
-import io.leangen.graphql.extension.ExtensionProvider;
-import io.leangen.graphql.extension.Module;
 import io.leangen.graphql.generator.BuildContext;
 import io.leangen.graphql.generator.OperationMapper;
 import io.leangen.graphql.generator.mapping.ArgumentInjector;
@@ -30,6 +35,7 @@ import io.leangen.graphql.metadata.strategy.value.InputFieldBuilder;
 import io.leangen.graphql.metadata.strategy.value.InputFieldBuilderParams;
 import io.leangen.graphql.metadata.strategy.value.ValueMapper;
 import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
+import io.leangen.graphql.module.Module;
 import io.leangen.graphql.spqr.spring.annotation.GraphQLApi;
 import io.leangen.graphql.spqr.spring.localization.MessageSourceMessageBundle;
 import io.leangen.graphql.spqr.spring.localization.PropertyResolverMessageBundle;
@@ -73,23 +79,23 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     @Test
     public void propertiesLoad() {
         Assert.assertNotNull(spqrProperties);
-        Assert.assertNotNull(spqrProperties.getQueryBasePackages());
-        Assert.assertEquals(1, spqrProperties.getQueryBasePackages().length);
-        Assert.assertEquals("com.bogus.package", spqrProperties.getQueryBasePackages()[0]);
+        Assert.assertNotNull(spqrProperties.getBasePackages());
+        Assert.assertEquals(1, spqrProperties.getBasePackages().length);
+        Assert.assertEquals("com.bogus.package", spqrProperties.getBasePackages()[0]);
     }
 
     @Test
     public void ResolverBuilderExtensionProvider_schemaGeneratorConfigTest() {
         Assert.assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder>> resolverBuilderProviders =
+        List<ExtensionProvider<GeneratorConfiguration, ResolverBuilder>> resolverBuilderProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "resolverBuilderProviders");
 
         Assert.assertNotNull(resolverBuilderProviders);
 
         Assert.assertEquals(1, resolverBuilderProviders.size());
 
-        ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder> resolverBuilderExtensionProvider = resolverBuilderProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, ResolverBuilder> resolverBuilderExtensionProvider = resolverBuilderProviders.iterator().next();
 
         Assert.assertNotNull(resolverBuilderExtensionProvider);
 
@@ -117,14 +123,14 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void inputFieldBuilder_schemaGeneratorConfigTest() {
         Assert.assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputFieldBuilder>> inputFieldBuilderProviders =
+        List<ExtensionProvider<GeneratorConfiguration, InputFieldBuilder>> inputFieldBuilderProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "inputFieldBuilderProviders");
 
         Assert.assertNotNull(inputFieldBuilderProviders);
 
         Assert.assertEquals(1, inputFieldBuilderProviders.size());
 
-        ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputFieldBuilder> inputFieldBuilderProvider = inputFieldBuilderProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, InputFieldBuilder> inputFieldBuilderProvider = inputFieldBuilderProviders.iterator().next();
 
         Assert.assertNotNull(inputFieldBuilderProvider);
 
@@ -159,7 +165,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         Assert.assertNotNull(valueMapperFactory);
 
-        GlobalEnvironment mockEnv = new GlobalEnvironment(null,null, null, null, null);
+        GlobalEnvironment mockEnv = new GlobalEnvironment(null,null, null, null, null, null, null, null);
 
         ValueMapper valueMapper = valueMapperFactory.getValueMapper(Collections.emptyMap(), mockEnv);
 
@@ -173,14 +179,14 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void argumentInjectorExtensionProvider_schemaGeneratorConfigTest() {
         Assert.assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GraphQLSchemaGenerator.Configuration, ArgumentInjector>> argumentInjectorProviders =
+        List<ExtensionProvider<GeneratorConfiguration, ArgumentInjector>> argumentInjectorProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "argumentInjectorProviders");
 
         Assert.assertNotNull(argumentInjectorProviders);
 
         Assert.assertEquals(1, argumentInjectorProviders.size());
 
-        ExtensionProvider<GraphQLSchemaGenerator.Configuration, ArgumentInjector> argumentInjectorExtensionProvider = argumentInjectorProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, ArgumentInjector> argumentInjectorExtensionProvider = argumentInjectorProviders.iterator().next();
 
         Assert.assertNotNull(argumentInjectorExtensionProvider);
 
@@ -200,14 +206,14 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void outputConverterExtensionProvider_schemaGeneratorConfigTest() {
         Assert.assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GraphQLSchemaGenerator.Configuration, OutputConverter>> outputConverterProviders =
+        List<ExtensionProvider<GeneratorConfiguration, OutputConverter>> outputConverterProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "outputConverterProviders");
 
         Assert.assertNotNull(outputConverterProviders);
 
         Assert.assertEquals(1, outputConverterProviders.size());
 
-        ExtensionProvider<GraphQLSchemaGenerator.Configuration, OutputConverter> outputConverterExtensionProvider = outputConverterProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, OutputConverter> outputConverterExtensionProvider = outputConverterProviders.iterator().next();
 
         Assert.assertNotNull(outputConverterExtensionProvider);
 
@@ -226,14 +232,14 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void inputConverterExtensionProvider_schemaGeneratorConfigTest() {
         Assert.assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputConverter>> inputConverterProviders =
+        List<ExtensionProvider<GeneratorConfiguration, InputConverter>> inputConverterProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "inputConverterProviders");
 
         Assert.assertNotNull(inputConverterProviders);
 
         Assert.assertEquals(1, inputConverterProviders.size());
 
-        ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputConverter> inputConverterExtensionProvider = inputConverterProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, InputConverter> inputConverterExtensionProvider = inputConverterProviders.iterator().next();
 
         Assert.assertNotNull(inputConverterExtensionProvider);
 
@@ -252,14 +258,14 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void typeMapperExtensionProvider_schemaGeneratorConfigTest() {
         Assert.assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GraphQLSchemaGenerator.Configuration, TypeMapper>> typeMapperExtensionProviders =
+        List<ExtensionProvider<GeneratorConfiguration, TypeMapper>> typeMapperExtensionProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "typeMapperProviders");
 
         Assert.assertNotNull(typeMapperExtensionProviders);
 
         Assert.assertEquals(1, typeMapperExtensionProviders.size());
 
-        ExtensionProvider<GraphQLSchemaGenerator.Configuration, TypeMapper> typeMapperExtensionProvider = typeMapperExtensionProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, TypeMapper> typeMapperExtensionProvider = typeMapperExtensionProviders.iterator().next();
 
         Assert.assertNotNull(typeMapperExtensionProvider);
 
@@ -329,13 +335,13 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void moduleExtensionProvider_schemaGeneratorConfigTest() {
         Assert.assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module>> moduleExtensionProviders = getPrivateFieldValueFromObject(schemaGenerator, "moduleProviders");
+        List<ExtensionProvider<GeneratorConfiguration, Module>> moduleExtensionProviders = getPrivateFieldValueFromObject(schemaGenerator, "moduleProviders");
 
         Assert.assertNotNull(moduleExtensionProviders);
         Assert.assertFalse(moduleExtensionProviders.isEmpty());
         Assert.assertEquals(1, moduleExtensionProviders.size());
 
-        ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module> moduleExtensionProvider = moduleExtensionProviders.get(0);
+        ExtensionProvider<GeneratorConfiguration, Module> moduleExtensionProvider = moduleExtensionProviders.get(0);
 
         Assert.assertNotNull(moduleExtensionProvider);
 
@@ -374,7 +380,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GraphQLSchemaGenerator.Configuration, ResolverBuilder> testResolverBuilderExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, ResolverBuilder> testResolverBuilderExtensionProvider() {
             return (config, defaults) -> {
                 List<ResolverBuilder> resolverBuilders = new ArrayList<>();
 
@@ -413,13 +419,13 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GraphQLSchemaGenerator.ExtendedConfiguration, InputFieldBuilder> testInputFieldBuilder() {
+        public ExtensionProvider<ExtendedGeneratorConfiguration, InputFieldBuilder> testInputFieldBuilder() {
             return (config, defaults) -> {
                 List<InputFieldBuilder> inputFieldBuilders = new ArrayList<>();
                 inputFieldBuilders.add(new InputFieldBuilder() {
                     @Override
                     public Set<InputField> getInputFields(InputFieldBuilderParams params) {
-                        InputField testField = new InputField("OK", "OK", String.class.getAnnotatedSuperclass(), null, null);
+                        InputField testField = new InputField("OK", "OK", String.class.getAnnotatedSuperclass(), null, null, null);
                         return Collections.singleton(testField);
                     }
 
@@ -454,7 +460,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GraphQLSchemaGenerator.Configuration, ArgumentInjector> testArgumentInjectorExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, ArgumentInjector> testArgumentInjectorExtensionProvider() {
             return (config, defaults) -> Collections.singletonList(
                     new ArgumentInjector() {
                         @Override
@@ -472,7 +478,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GraphQLSchemaGenerator.Configuration, OutputConverter> testOutputConverterExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, OutputConverter> testOutputConverterExtensionProvider() {
             return (config, defaults) -> Collections.singletonList(
                     new OutputConverter() {
                         @Override
@@ -488,7 +494,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GraphQLSchemaGenerator.Configuration, InputConverter> testInputConverterExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, InputConverter> testInputConverterExtensionProvider() {
             return (config, defaults) -> Collections.singletonList(
                     new InputConverter() {
                         @Override
@@ -509,7 +515,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GraphQLSchemaGenerator.Configuration, TypeMapper> testTypeMapperExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, TypeMapper> testTypeMapperExtensionProvider() {
             return (config, defaults) -> Collections.singletonList(
                     new TypeMapper() {
                         @Override
@@ -518,6 +524,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                                 @Override
                                 public String getName() {
                                     return "OK output type";
+                                }
+
+                                @Override
+                                public TraversalControl accept(TraverserContext<GraphQLType> context, GraphQLTypeVisitor visitor) {
+                                    return TraversalControl.CONTINUE;
                                 }
                             };
                         }
@@ -528,6 +539,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                                 @Override
                                 public String getName() {
                                     return "OK input type";
+                                }
+
+                                @Override
+                                public TraversalControl accept(TraverserContext<GraphQLType> context, GraphQLTypeVisitor visitor) {
+                                    return TraversalControl.CONTINUE;
                                 }
                             };
                         }
@@ -585,7 +601,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GraphQLSchemaGenerator.Configuration, Module> moduleExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, Module> moduleExtensionProvider() {
             return ((config, defaults) -> Collections.singletonList(new TestModule()));
         }
 
@@ -642,7 +658,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
     public static class TestModule implements Module {
         @Override
-        public void setUp(SetupContext context) {
+        public void setUp(Module.SetupContext context) {
 
         }
     }

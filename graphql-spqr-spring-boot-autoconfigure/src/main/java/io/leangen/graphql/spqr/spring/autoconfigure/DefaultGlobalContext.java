@@ -1,7 +1,5 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
-import org.dataloader.DataLoaderRegistry;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,21 +7,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultGlobalContext {
 
     private final HttpServletRequest servletRequest;
-    private final DataLoaderRegistry dataLoaders;
     private final Map<String, Object> extensions;
 
-    public DefaultGlobalContext(HttpServletRequest servletRequest, DataLoaderRegistry dataLoaders) {
+    public DefaultGlobalContext(HttpServletRequest servletRequest) {
         this.servletRequest = servletRequest;
-        this.dataLoaders = dataLoaders;
         this.extensions = new ConcurrentHashMap<>();
     }
 
     public HttpServletRequest getServletRequest() {
         return servletRequest;
-    }
-
-    public DataLoaderRegistry getDataLoaders() {
-        return dataLoaders;
     }
 
     @SuppressWarnings("unchecked")

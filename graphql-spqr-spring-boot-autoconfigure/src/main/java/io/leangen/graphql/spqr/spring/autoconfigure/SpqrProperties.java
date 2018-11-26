@@ -1,54 +1,54 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.StringUtils;
 
 @ConfigurationProperties(prefix = "graphql.spqr")
+@SuppressWarnings("WeakerAccess")
 public class SpqrProperties {
 
-    private String[] queryBasePackages;
-    private boolean abstractInputTypeResolution;
+    public static String DEFAULT_ENDPOINT = "/graphql";
+    public static String DEFAULT_GUI_ENDPOINT = "/gui";
 
-    private boolean relaySupported;
-    private String relayMutationWrapper;
-    private String relayMutationWrapperDescription;
-    private boolean relayConnectionCheckRelaxed;
+    // Core properties
+    private String[] basePackages;
+    private boolean abstractInputTypeResolution;
+    private Relay relay = new Relay();
+
+    // Web properties
+    private Http http = new Http();
+    private WebSocket ws = new WebSocket();
+
+    // GUI properties
+    private Gui gui = new Gui();
 
     public SpqrProperties() {
     }
 
-    public String[] getQueryBasePackages() {
-        return queryBasePackages;
+    @PostConstruct
+    public void setDefaults() {
+        if (StringUtils.isEmpty(ws.getEndpoint())) {
+            ws.setEndpoint(http.endpoint);
+        }
+        if (StringUtils.isEmpty(gui.getTargetEndpoint())) {
+            gui.setTargetEndpoint(http.endpoint);
+        }
+        if (StringUtils.isEmpty(gui.getTargetWsEndpoint())) {
+            gui.setTargetWsEndpoint(ws.endpoint);
+        }
     }
 
-    public void setQueryBasePackages(String[] queryBasePackages) {
-        this.queryBasePackages = queryBasePackages;
+    public String[] getBasePackages() {
+        return basePackages;
     }
 
-    public boolean getRelaySupported() {
-        return relaySupported;
+    public void setBasePackages(String[] basePackages) {
+        this.basePackages = basePackages;
     }
 
-    public void setRelaySupported(boolean relaySupported) {
-        this.relaySupported = relaySupported;
-    }
-
-    public String getRelayMutationWrapper() {
-        return relayMutationWrapper;
-    }
-
-    public void setRelayMutationWrapper(String relayMutationWrapper) {
-        this.relayMutationWrapper = relayMutationWrapper;
-    }
-
-    public String getRelayMutationWrapperDescription() {
-        return relayMutationWrapperDescription;
-    }
-
-    public void setRelayMutationWrapperDescription(String relayMutationWrapperDescription) {
-        this.relayMutationWrapperDescription = relayMutationWrapperDescription;
-    }
-
-    public boolean getAbstractInputTypeResolution() {
+    public boolean isAbstractInputTypeResolution() {
         return abstractInputTypeResolution;
     }
 
@@ -56,11 +56,208 @@ public class SpqrProperties {
         this.abstractInputTypeResolution = abstractInputTypeResolution;
     }
 
-    public boolean getRelayConnectionCheckRelaxed() {
-        return relayConnectionCheckRelaxed;
+    public Relay getRelay() {
+        return relay;
     }
 
-    public void setRelayConnectionCheckRelaxed(boolean relayConnectionCheckRelaxed) {
-        this.relayConnectionCheckRelaxed = relayConnectionCheckRelaxed;
+    public void setRelay(Relay relay) {
+        this.relay = relay;
+    }
+
+    public Http getHttp() {
+        return http;
+    }
+
+    public void setHttp(Http http) {
+        this.http = http;
+    }
+
+    public WebSocket getWs() {
+        return ws;
+    }
+
+    public void setWs(WebSocket ws) {
+        this.ws = ws;
+    }
+
+    public Gui getGui() {
+        return gui;
+    }
+
+    public void setGui(Gui gui) {
+        this.gui = gui;
+    }
+
+    public class Relay {
+
+        private boolean enabled;
+        private String mutationWrapper;
+        private String mutationWrapperDescription;
+        private boolean connectionCheckRelaxed;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getMutationWrapper() {
+            return mutationWrapper;
+        }
+
+        public void setMutationWrapper(String mutationWrapper) {
+            this.mutationWrapper = mutationWrapper;
+        }
+
+        public String getMutationWrapperDescription() {
+            return mutationWrapperDescription;
+        }
+
+        public void setMutationWrapperDescription(String mutationWrapperDescription) {
+            this.mutationWrapperDescription = mutationWrapperDescription;
+        }
+
+        public boolean isConnectionCheckRelaxed() {
+            return connectionCheckRelaxed;
+        }
+
+        public void setConnectionCheckRelaxed(boolean connectionCheckRelaxed) {
+            this.connectionCheckRelaxed = connectionCheckRelaxed;
+        }
+    }
+
+    public class Http {
+
+        private boolean enabled = true;
+        private String endpoint = DEFAULT_ENDPOINT;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
+        }
+    }
+
+    public class WebSocket {
+
+        private boolean enabled = true;
+        private String endpoint;
+        private String[] allowedOrigins = new String[] {"*"};
+        private KeepAlive keepAlive = new KeepAlive();
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
+        }
+
+        public String[] getAllowedOrigins() {
+            return allowedOrigins;
+        }
+
+        public void setAllowedOrigins(String[] allowedOrigins) {
+            this.allowedOrigins = allowedOrigins;
+        }
+
+        public KeepAlive getKeepAlive() {
+            return keepAlive;
+        }
+
+        public void setKeepAlive(KeepAlive keepAlive) {
+            this.keepAlive = keepAlive;
+        }
+
+        public class KeepAlive {
+
+            private boolean enabled;
+            private int intervalMillis = 10000;
+
+            public boolean isEnabled() {
+                return enabled;
+            }
+
+            public void setEnabled(boolean enabled) {
+                this.enabled = enabled;
+            }
+
+            public int getIntervalMillis() {
+                return intervalMillis;
+            }
+
+            public void setIntervalMillis(int intervalMillis) {
+                this.intervalMillis = intervalMillis;
+            }
+        }
+    }
+
+    public class Gui {
+
+        private boolean enabled = true;
+        private String endpoint = DEFAULT_GUI_ENDPOINT;
+        private String targetEndpoint;
+        private String targetWsEndpoint;
+        private String pageTitle = "GraphQL Playground";
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
+        }
+
+        public String getTargetEndpoint() {
+            return targetEndpoint;
+        }
+
+        public void setTargetEndpoint(String targetEndpoint) {
+            this.targetEndpoint = targetEndpoint;
+        }
+
+        public String getTargetWsEndpoint() {
+            return targetWsEndpoint;
+        }
+
+        public void setTargetWsEndpoint(String targetWsEndpoint) {
+            this.targetWsEndpoint = targetWsEndpoint;
+        }
+
+        public String getPageTitle() {
+            return pageTitle;
+        }
+
+        public void setPageTitle(String pageTitle) {
+            this.pageTitle = pageTitle;
+        }
     }
 }
