@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -156,6 +157,12 @@ public class ResolverBuilder_TestConfig {
 
         public String greetingFromBeanSource_wiredAsComponent_byNamedCustomResolverBuilder_wiredAsComponent() {
             return "Hello world !";
+        }
+
+        @GraphQLQuery(name = "greetingFromBeanSource_integer")
+        public Mono<Integer> getInteger() {
+//            return Mono.just("PHP");
+            return Mono.just(1984);
         }
     }
 

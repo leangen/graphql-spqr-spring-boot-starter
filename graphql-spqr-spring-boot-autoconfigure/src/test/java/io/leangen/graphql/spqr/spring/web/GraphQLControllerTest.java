@@ -2,6 +2,7 @@ package io.leangen.graphql.spqr.spring.web;
 
 import io.leangen.graphql.spqr.spring.autoconfigure.SpqrAutoConfiguration;
 import io.leangen.graphql.spqr.spring.autoconfigure.SpqrMvcAutoConfiguration;
+import io.leangen.graphql.spqr.spring.autoconfigure.SpqrReactiveAutoConfiguration;
 import io.leangen.graphql.spqr.spring.test.ResolverBuilder_TestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {SpqrAutoConfiguration.class, SpqrMvcAutoConfiguration.class, ResolverBuilder_TestConfig.class})
+@ContextConfiguration(classes = {SpqrAutoConfiguration.class, SpqrMvcAutoConfiguration.class, SpqrReactiveAutoConfiguration.class,
+        ResolverBuilder_TestConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 public class GraphQLControllerTest {
     @Autowired
@@ -134,6 +136,16 @@ public class GraphQLControllerTest {
                         .content("query="+ URLEncoder.encode("{INVALID_QUERY}", StandardCharsets.UTF_8.toString())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
+    }
+
+    @Test
+    public void defaultControllerTest_GET_integer() throws Exception {
+        mockMvc.perform(
+                post("/"+apiContext)
+                        .param("query","{greetingFromBeanSource_integer}")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("1984")));
     }
 
 }
