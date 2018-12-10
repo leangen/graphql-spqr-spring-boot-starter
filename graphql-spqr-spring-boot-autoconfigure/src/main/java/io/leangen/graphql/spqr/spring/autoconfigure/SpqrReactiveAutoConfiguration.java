@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.AnnotatedType;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 @Configuration
@@ -48,7 +48,7 @@ public class SpqrReactiveAutoConfiguration {
 
     @Bean
     public ExtensionProvider<GeneratorConfiguration, TypeMapper> typeMapperExtensionProvider() {
-        return (config, defaults) -> defaults.append(Arrays.asList(new MonoCompletableFutureAdapter(), new MonoCompletableFutureAdapter2()));
+        return (config, defaults) -> defaults.append(Collections.singletonList(new MonoCompletableFutureAdapter()));
     }
 
     public class MonoCompletableFutureAdapter extends AbstractTypeAdapter<Mono, CompletableFuture> {
@@ -69,17 +69,5 @@ public class SpqrReactiveAutoConfiguration {
             return Mono.fromCompletionStage(substitute);
         }
     }
-    public class MonoCompletableFutureAdapter2 extends AbstractTypeAdapter<CompletableFuture, Mono> {
 
-
-        @Override
-        public CompletableFuture convertInput(Mono substitute, AnnotatedType type, GlobalEnvironment environment, ValueMapper valueMapper) {
-            return substitute.toFuture();
-        }
-
-        @Override
-        public Mono convertOutput(CompletableFuture original, AnnotatedType type, ResolutionEnvironment resolutionEnvironment) {
-            return Mono.fromCompletionStage(original);
-        }
-    }
 }
