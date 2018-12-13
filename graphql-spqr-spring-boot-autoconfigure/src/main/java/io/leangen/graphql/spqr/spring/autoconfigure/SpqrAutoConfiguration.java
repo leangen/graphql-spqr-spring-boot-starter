@@ -102,6 +102,9 @@ public class SpqrAutoConfiguration {
     @Autowired(required = false)
     private ExtensionProvider<GeneratorConfiguration, Module> moduleExtensionProvider;
 
+    @Autowired(required = false)
+    private Internal<Module> reactorModule;
+
     @Autowired
     public SpqrAutoConfiguration(ConfigurableApplicationContext context) {
         this.context = context;
@@ -147,6 +150,16 @@ public class SpqrAutoConfiguration {
 
         List<SpqrBean> beansWiredWithAsBeans = findGraphQLApiBeans();
         addOperationSources(schemaGenerator, beansWiredWithAsBeans);
+
+        // Modules should be registered first, so that extension providers have a chance to override what they need
+        // Built-in modules must go before the user-provided ones for similar reasons
+        if (reactorModule != null) {
+            schemaGenerator.withModules(reactorModule.get());
+        }
+
+        if (moduleExtensionProvider != null) {
+            schemaGenerator.withModules(moduleExtensionProvider);
+        }
 
         if (globalResolverBuilderExtensionProvider != null) {
             schemaGenerator.withResolverBuilders(globalResolverBuilderExtensionProvider);
@@ -202,10 +215,6 @@ public class SpqrAutoConfiguration {
 
         if (spqrProperties.getRelay().isConnectionCheckRelaxed()) {
             schemaGenerator.withRelayConnectionCheckRelaxed();
-        }
-
-        if (moduleExtensionProvider != null) {
-            schemaGenerator.withModules(moduleExtensionProvider);
         }
 
         return schemaGenerator;
