@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [0.0.3] - 2018-11-26
+## [0.0.3] - 2018-12-14
 ### Added
 - Full support for Apollo's graphql-ws protocol [#13](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/13)
 - Easy way to inject custom global context [#11](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/11)
