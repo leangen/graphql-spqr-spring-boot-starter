@@ -7,9 +7,11 @@ import io.leangen.graphql.ExtendedGeneratorConfiguration;
 import io.leangen.graphql.ExtensionProvider;
 import io.leangen.graphql.GeneratorConfiguration;
 import io.leangen.graphql.GraphQLSchemaGenerator;
+import io.leangen.graphql.execution.ResolverInterceptorFactory;
 import io.leangen.graphql.generator.mapping.ArgumentInjector;
 import io.leangen.graphql.generator.mapping.InputConverter;
 import io.leangen.graphql.generator.mapping.OutputConverter;
+import io.leangen.graphql.generator.mapping.SchemaTransformer;
 import io.leangen.graphql.generator.mapping.TypeMapper;
 import io.leangen.graphql.generator.mapping.strategy.AbstractInputHandler;
 import io.leangen.graphql.generator.mapping.strategy.InterfaceMappingStrategy;
@@ -77,6 +79,12 @@ public class SpqrAutoConfiguration {
 
     @Autowired(required = false)
     private ExtensionProvider<GeneratorConfiguration, ArgumentInjector> argumentInjectorExtensionProvider;
+
+    @Autowired(required = false)
+    private ExtensionProvider<GeneratorConfiguration, SchemaTransformer> schemaTransformerExtensionProvider;
+
+    @Autowired(required = false)
+    private ExtensionProvider<GeneratorConfiguration, ResolverInterceptorFactory> resolverInterceptorFactoryExtensionProvider;
 
     @Autowired(required = false)
     private ValueMapperFactory valueMapperFactory;
@@ -179,6 +187,14 @@ public class SpqrAutoConfiguration {
 
         if (argumentInjectorExtensionProvider != null) {
             schemaGenerator.withArgumentInjectors(argumentInjectorExtensionProvider);
+        }
+
+        if (schemaTransformerExtensionProvider != null) {
+            schemaGenerator.withSchemaTransformers(schemaTransformerExtensionProvider);
+        }
+
+        if (resolverInterceptorFactoryExtensionProvider != null) {
+            schemaGenerator.withResolverInterceptorFactories(resolverInterceptorFactoryExtensionProvider);
         }
 
         if (valueMapperFactory != null) {
@@ -297,7 +313,7 @@ public class SpqrAutoConfiguration {
         }
     }
 
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    @SuppressWarnings({"unchecked"})
     private List<SpqrBean> findGraphQLApiBeans() {
         ConfigurableListableBeanFactory factory = context.getBeanFactory();
 
