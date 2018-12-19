@@ -1,4 +1,4 @@
-package io.leangen.graphql.spqr.spring.reactor;
+package io.leangen.graphql.spqr.spring.autoconfigure.reactive;
 
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.graphql.execution.ResolutionEnvironment;
