@@ -136,15 +136,4 @@ public class GraphQLControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
     }
-
-    @Test
-    public void defaultControllerTest_GET_integer() throws Exception {
-        mockMvc.perform(
-                post("/"+apiContext)
-                        .param("query","{greetingFromBeanSource_integer}")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("1984")));
-    }
-
 }
