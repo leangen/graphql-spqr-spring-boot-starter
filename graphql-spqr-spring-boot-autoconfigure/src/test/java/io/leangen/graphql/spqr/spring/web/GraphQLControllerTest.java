@@ -2,7 +2,6 @@ package io.leangen.graphql.spqr.spring.web;
 
 import io.leangen.graphql.spqr.spring.autoconfigure.SpqrAutoConfiguration;
 import io.leangen.graphql.spqr.spring.autoconfigure.SpqrMvcAutoConfiguration;
-import io.leangen.graphql.spqr.spring.autoconfigure.SpqrReactiveAutoConfiguration;
 import io.leangen.graphql.spqr.spring.test.ResolverBuilder_TestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {SpqrAutoConfiguration.class, SpqrMvcAutoConfiguration.class, SpqrReactiveAutoConfiguration.class,
+@ContextConfiguration(classes = {SpqrAutoConfiguration.class, SpqrMvcAutoConfiguration.class,
         ResolverBuilder_TestConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 public class GraphQLControllerTest {
