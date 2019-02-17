@@ -99,18 +99,16 @@
             </dependency>
 
             <dependency>
-                <groupId>io.leangen.graphql</groupId>
-                <artifactId>graphql-spqr-spring-boot-autoconfigure</artifactId>
-                <version>${project.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-webflux</artifactId>
+                <version>${spring-boot.version}</version>
+                <optional>true</optional>
             </dependency>
 
             <dependency>
-                <groupId>io.projectreactor</groupId>
-                <artifactId>reactor-bom</artifactId>
-                <version>Californium-SR3</version>
-                <type>pom</type>
-                <scope>import</scope>
-                <optional>true</optional>
+                <groupId>io.leangen.graphql</groupId>
+                <artifactId>graphql-spqr-spring-boot-autoconfigure</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>

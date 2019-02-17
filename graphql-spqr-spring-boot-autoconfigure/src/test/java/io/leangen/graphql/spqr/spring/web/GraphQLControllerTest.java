@@ -25,9 +25,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {SpqrAutoConfiguration.class, SpqrMvcAutoConfiguration.class, ResolverBuilder_TestConfig.class})
+@ContextConfiguration(classes = {SpqrAutoConfiguration.class, SpqrMvcAutoConfiguration.class,
+        ResolverBuilder_TestConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 public class GraphQLControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -135,5 +137,4 @@ public class GraphQLControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
     }
-
 }

@@ -1,22 +1,22 @@
-package io.leangen.graphql.spqr.spring.autoconfigure;
+package io.leangen.graphql.spqr.spring.autoconfigure.reactive;
 
-import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultGlobalContext {
+public class ReactiveGlobalContext {
 
-    private final NativeWebRequest nativeRequest;
+    private final ServerWebExchange exchange;
     private final Map<String, Object> extensions;
 
-    public DefaultGlobalContext(NativeWebRequest request) {
-        this.nativeRequest = request;
+    public ReactiveGlobalContext(ServerWebExchange exchange) {
+        this.exchange = exchange;
         this.extensions = new ConcurrentHashMap<>();
     }
 
-    public NativeWebRequest getNativeRequest() {
-        return nativeRequest;
+    public ServerWebExchange getExchange() {
+        return exchange;
     }
 
     @SuppressWarnings("unchecked")
