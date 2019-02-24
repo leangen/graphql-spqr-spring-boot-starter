@@ -1,4 +1,4 @@
-package io.leangen.graphql.spqr.spring.annotation;
+package io.leangen.graphql.spqr.spring.annotations;
 
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;

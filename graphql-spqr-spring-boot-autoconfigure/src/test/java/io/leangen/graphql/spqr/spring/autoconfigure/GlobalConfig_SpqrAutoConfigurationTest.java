@@ -36,7 +36,7 @@ import io.leangen.graphql.metadata.strategy.value.InputFieldBuilderParams;
 import io.leangen.graphql.metadata.strategy.value.ValueMapper;
 import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
 import io.leangen.graphql.module.Module;
-import io.leangen.graphql.spqr.spring.annotation.GraphQLApi;
+import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
 import io.leangen.graphql.spqr.spring.localization.MessageSourceMessageBundle;
 import io.leangen.graphql.spqr.spring.localization.PropertyResolverMessageBundle;
 import org.junit.Assert;
@@ -579,15 +579,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         @Bean
         public MessageBundle messageBundle1() {
-            return new MessageBundle() {
-                @Override
-                public String getMessage(String key) {
-                    if (key.equals("hello")) {
-                        return "world";
-                    }
-                    return null;
-                }
-            };
+            return key -> key.equals("hello") ? "world" : null;
         }
 
         @Bean
