@@ -1,21 +1,19 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
-import org.springframework.web.context.request.NativeWebRequest;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultGlobalContext {
+public class DefaultGlobalContext<R> {
 
-    private final NativeWebRequest nativeRequest;
+    private final R nativeRequest;
     private final Map<String, Object> extensions;
 
-    public DefaultGlobalContext(NativeWebRequest request) {
+    public DefaultGlobalContext(R request) {
         this.nativeRequest = request;
         this.extensions = new ConcurrentHashMap<>();
     }
 
-    public NativeWebRequest getNativeRequest() {
+    public R getNativeRequest() {
         return nativeRequest;
     }
 

@@ -5,13 +5,11 @@ import graphql.schema.GraphQLSchema;
 import io.leangen.graphql.module.Module;
 import io.leangen.graphql.spqr.spring.autoconfigure.reactive.FluxAdapter;
 import io.leangen.graphql.spqr.spring.autoconfigure.reactive.MonoAdapter;
-import io.leangen.graphql.spqr.spring.autoconfigure.reactive.ReactiveGlobalContext;
-import io.leangen.graphql.spqr.spring.autoconfigure.reactive.ReactiveGlobalContextFactory;
 import io.leangen.graphql.spqr.spring.web.GraphQLController;
-import io.leangen.graphql.spqr.spring.web.GraphQLExecutor;
-import io.leangen.graphql.spqr.spring.web.GuiController;
-import io.leangen.graphql.spqr.spring.web.reactive.GraphQLReactiveController;
 import io.leangen.graphql.spqr.spring.web.reactive.GraphQLReactiveExecutor;
+import io.leangen.graphql.spqr.spring.web.GuiController;
+import io.leangen.graphql.spqr.spring.web.reactive.DefaultGraphQLExecutor;
+import io.leangen.graphql.spqr.spring.web.reactive.DefaultGraphQLController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -19,10 +17,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.server.ServerWebExchange;
-
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
@@ -44,23 +38,23 @@ public class SpqrReactiveAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ReactiveGlobalContextFactory globalContextFactory() {
-        return params -> new ReactiveGlobalContext(params.getWebExchange());
+    public ReactiveContextFactory globalContextFactory() {
+        return params -> new DefaultGlobalContext<>(params.getNativeRequest());
     }
 
     @Bean
     @ConditionalOnProperty(name = "graphql.spqr.http.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnMissingBean
-    public GraphQLExecutor<ServerWebExchange, CompletableFuture<Map<String, Object>>> graphQLExecutor(ReactiveGlobalContextFactory contextFactory) {
-        return new GraphQLReactiveExecutor(contextFactory, dataLoaderRegistryFactory);
+    public GraphQLReactiveExecutor graphQLExecutor(ReactiveContextFactory contextFactory) {
+        return new DefaultGraphQLExecutor(contextFactory, dataLoaderRegistryFactory);
     }
 
     @Bean
     @ConditionalOnProperty(name = "graphql.spqr.http.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnMissingBean(GraphQLController.class)
     @ConditionalOnBean(GraphQLSchema.class)
-    public GraphQLReactiveController graphQLController(GraphQL graphQL, GraphQLExecutor<ServerWebExchange, CompletableFuture<Map<String, Object>>> executor) {
-        return new GraphQLReactiveController(graphQL, executor);
+    public DefaultGraphQLController graphQLController(GraphQL graphQL, GraphQLReactiveExecutor executor) {
+        return new DefaultGraphQLController(graphQL, executor);
     }
 
     @Bean

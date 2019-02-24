@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-public abstract class GraphQLController<REQ, RESP> {
+public abstract class GraphQLController<R> {
 
     protected final GraphQL graphQL;
-    protected final GraphQLExecutor<REQ, RESP> executor;
+    protected final GraphQLExecutor<R> executor;
 
-    public GraphQLController(GraphQL graphQL, GraphQLExecutor<REQ, RESP> executor) {
+    public GraphQLController(GraphQL graphQL, GraphQLExecutor<R> executor) {
         this.graphQL = graphQL;
         this.executor = executor;
     }
@@ -32,9 +32,9 @@ public abstract class GraphQLController<REQ, RESP> {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
     @ResponseBody
-    public RESP executeJsonPost(@RequestBody GraphQLRequest requestBody,
+    public Object executeJsonPost(@RequestBody GraphQLRequest requestBody,
                                 GraphQLRequest requestParams,
-                                REQ request) {
+                                R request) {
         String query = requestParams.getQuery() == null ? requestBody.getQuery() : requestParams.getQuery();
         String operationName = requestParams.getOperationName() == null ? requestBody.getOperationName() : requestParams.getOperationName();
         Map<String, Object> variables = requestParams.getVariables() == null ? requestBody.getVariables() : requestParams.getVariables();
@@ -48,9 +48,9 @@ public abstract class GraphQLController<REQ, RESP> {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
     @ResponseBody
-    public RESP executeGraphQLPost(@RequestBody String queryBody,
+    public Object executeGraphQLPost(@RequestBody String queryBody,
                                    GraphQLRequest graphQLRequest,
-                                   REQ request) {
+                                   R request) {
         String query = graphQLRequest.getQuery() == null ? queryBody : graphQLRequest.getQuery();
         return executor.execute(graphQL, new GraphQLRequest(query, graphQLRequest.getOperationName(), graphQLRequest.getVariables()), request);
     }
@@ -62,9 +62,9 @@ public abstract class GraphQLController<REQ, RESP> {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
     @ResponseBody
-    public RESP executeFormPost(@RequestParam Map<String, String> queryParams,
+    public Object executeFormPost(@RequestParam Map<String, String> queryParams,
                                 GraphQLRequest graphQLRequest,
-                                REQ request) {
+                                R request) {
         String queryParam = queryParams.get("query");
         String operationNameParam = queryParams.get("operationName");
 
@@ -80,7 +80,7 @@ public abstract class GraphQLController<REQ, RESP> {
             headers = "Connection!=Upgrade"
     )
     @ResponseBody
-    public RESP executeGet(GraphQLRequest graphQLRequest, REQ request) {
+    public Object executeGet(GraphQLRequest graphQLRequest, R request) {
         return executor.execute(graphQL, graphQLRequest, request);
     }
 }

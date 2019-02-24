@@ -1,6 +1,7 @@
 package io.leangen.graphql.spqr.spring.web.apollo;
 
 import graphql.GraphQL;
+import io.leangen.graphql.spqr.spring.web.servlet.websocket.GraphQLWebSocketExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.SubProtocolCapable;
@@ -18,14 +19,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PerConnectionApolloHandler implements WebSocketHandler, SubProtocolCapable {
 
     private final GraphQL graphQL;
+    private final GraphQLWebSocketExecutor executor;
     private final TaskScheduler taskScheduler;
     private final int keepAliveInterval;
     private final Map<WebSocketSession, ApolloProtocolHandler> handlers;
 
     private static final List<String> GRAPHQL_WS = Collections.singletonList("graphql-ws");
 
-    public PerConnectionApolloHandler(GraphQL graphQL, TaskScheduler taskScheduler, int keepAliveInterval) {
+    public PerConnectionApolloHandler(GraphQL graphQL, GraphQLWebSocketExecutor executor,
+                                      TaskScheduler taskScheduler, int keepAliveInterval) {
         this.graphQL = graphQL;
+        this.executor = executor;
         this.taskScheduler = taskScheduler;
         this.keepAliveInterval = keepAliveInterval;
         this.handlers = new ConcurrentHashMap<>();
@@ -33,7 +37,7 @@ public class PerConnectionApolloHandler implements WebSocketHandler, SubProtocol
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        ApolloProtocolHandler handler = new ApolloProtocolHandler(graphQL, taskScheduler, keepAliveInterval);
+        ApolloProtocolHandler handler = new ApolloProtocolHandler(graphQL, executor, taskScheduler, keepAliveInterval);
         this.handlers.put(session, handler);
         handler.afterConnectionEstablished(session);
     }

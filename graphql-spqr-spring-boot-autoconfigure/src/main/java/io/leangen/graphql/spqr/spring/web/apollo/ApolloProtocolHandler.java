@@ -1,8 +1,8 @@
 package io.leangen.graphql.spqr.spring.web.apollo;
 
-import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import io.leangen.graphql.spqr.spring.web.servlet.websocket.GraphQLWebSocketExecutor;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -29,6 +29,7 @@ import static io.leangen.graphql.spqr.spring.web.apollo.ApolloMessage.GQL_STOP;
 class ApolloProtocolHandler extends TextWebSocketHandler {
 
     private final GraphQL graphQL;
+    private final GraphQLWebSocketExecutor executor;
     private final TaskScheduler taskScheduler;
     private final int keepAliveInterval;
     private final Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
@@ -36,8 +37,10 @@ class ApolloProtocolHandler extends TextWebSocketHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ApolloProtocolHandler.class);
 
-    public ApolloProtocolHandler(GraphQL graphQL, TaskScheduler taskScheduler, int keepAliveInterval) {
+    public ApolloProtocolHandler(GraphQL graphQL, GraphQLWebSocketExecutor executor,
+                                 TaskScheduler taskScheduler, int keepAliveInterval) {
         this.graphQL = graphQL;
+        this.executor = executor;
         this.taskScheduler = taskScheduler;
         this.keepAliveInterval = keepAliveInterval;
     }
@@ -88,10 +91,7 @@ class ApolloProtocolHandler extends TextWebSocketHandler {
                     break;
                 case GQL_START:
                     GraphQLRequest request = ((StartMessage) apolloMessage).getPayload();
-                    ExecutionResult result = graphQL.execute(ExecutionInput.newExecutionInput()
-                            .query(request.getQuery())
-                            .operationName(request.getOperationName())
-                            .variables(request.getVariables()));
+                    ExecutionResult result = executor.execute(graphQL, request, session);
                     if (result.getData() instanceof Publisher) {
                         handleSubscription(apolloMessage.getId(), result, session);
                     } else {
