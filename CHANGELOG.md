@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.0.4] - 2018-02-24
+### Added
+- WebFlux support (not yet for subscriptions) (thanks [@vjroby](https://github.com/vjroby)) [#9](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/9)
+- Easier customization of GraphQL execution / error handling via `GraphQLExecutor` [#22](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/22)
+
+### Changed
+- Annotations are now in a separate module to enable lighter dependencies (thanks [@heruan](https://github.com/heruan)) [#6](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/6)
+
+### Fixed
+- `DataLoader` and global context now properly work in subscriptions [#19](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/19)
+
 ## [0.0.3] - 2018-12-14
 ### Added
 - Full support for Apollo's graphql-ws protocol [#13](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/13)
