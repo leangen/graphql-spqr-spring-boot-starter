@@ -71,6 +71,15 @@
                 <version>${project.version}</version>
             </dependency>
 
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-rest</artifactId>
+                <version>${spring-boot.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+
             <dependency>
                 <groupId>io.leangen.graphql</groupId>
                 <artifactId>graphql-spqr-spring-boot-autoconfigure</artifactId>

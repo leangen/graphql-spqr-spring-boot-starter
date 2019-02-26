@@ -137,6 +137,16 @@ public class SpqrAutoConfiguration {
     }
 
     @Bean
+    public ExtensionProvider<GeneratorConfiguration, TypeMapper> pageTypeMapper() {
+        return ((config, defaults) -> defaults.prepend( new PageRequestMapper()));
+    }
+
+    @Bean
+    public ExtensionProvider<GeneratorConfiguration, OutputConverter> pageTypeAdapter() {
+        return ((config, defaults) -> defaults.prepend( new PageAdapter()));
+    }
+
+    @Bean
     @ConditionalOnMissingBean
     public GraphQLSchemaGenerator graphQLSchemaGenerator(SpqrProperties spqrProperties) {
         GraphQLSchemaGenerator schemaGenerator = new GraphQLSchemaGenerator();
