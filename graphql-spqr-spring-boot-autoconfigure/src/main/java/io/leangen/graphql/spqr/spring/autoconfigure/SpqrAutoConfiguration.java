@@ -138,12 +138,12 @@ public class SpqrAutoConfiguration {
 
     @Bean
     public ExtensionProvider<GeneratorConfiguration, TypeMapper> pageTypeMapper() {
-        return ((config, defaults) -> defaults.prepend( new PageRequestMapper()));
+        return ((config, defaults) -> defaults.prepend(new PageRequestMapper()));
     }
 
     @Bean
     public ExtensionProvider<GeneratorConfiguration, OutputConverter> pageTypeAdapter() {
-        return ((config, defaults) -> defaults.prepend( new PageAdapter()));
+        return ((config, defaults) -> defaults.prepend(new PageAdapter()));
     }
 
     @Bean
@@ -251,15 +251,15 @@ public class SpqrAutoConfiguration {
                 .filter(spqrBean -> spqrBean.getScope().equals(BeanScope.SINGLETON))
                 .forEach(
                         spqrBean ->
-                        schemaGenerator.withOperationsFromSingleton(
-                            spqrBean.getSpringBean(),
-                            spqrBean.getType(),
-                            spqrBean.resolverBuilders.stream()
-                                    .map(resolverBuilderBeanIdentity -> findQualifiedBeanByType(resolverBuilderBeanIdentity.getResolverType(),
-                                            resolverBuilderBeanIdentity.getValue(),
-                                            resolverBuilderBeanIdentity.getQualifierType()))
-                                    .toArray(ResolverBuilder[]::new)
-                        )
+                                schemaGenerator.withOperationsFromSingleton(
+                                        spqrBean.getSpringBean(),
+                                        spqrBean.getType(),
+                                        spqrBean.resolverBuilders.stream()
+                                                .map(resolverBuilderBeanIdentity -> findQualifiedBeanByType(resolverBuilderBeanIdentity.getResolverType(),
+                                                        resolverBuilderBeanIdentity.getValue(),
+                                                        resolverBuilderBeanIdentity.getQualifierType()))
+                                                .toArray(ResolverBuilder[]::new)
+                                )
                 );
     }
 
@@ -271,27 +271,27 @@ public class SpqrAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public GraphQL graphQL(GraphQLSchema schema){
+    public GraphQL graphQL(GraphQLSchema schema) {
         GraphQL.Builder builder = GraphQL.newGraphQL(schema);
         return builder.build();
     }
 
     private <T> T findQualifiedBeanByType(Class<? extends T> type, String qualifierValue, Class<? extends Annotation> qualifierType) {
         final NoSuchBeanDefinitionException noSuchBeanDefinitionException = new NoSuchBeanDefinitionException(qualifierValue, "No matching " + type.getSimpleName() +
-                " bean found for qualifier " + qualifierValue + " of type " + qualifierType.getSimpleName() +" !");
+                " bean found for qualifier " + qualifierValue + " of type " + qualifierType.getSimpleName() + " !");
         try {
 
             if (StringUtils.isEmpty(qualifierValue)) {
-                if (qualifierType.equals(Qualifier.class)){
+                if (qualifierType.equals(Qualifier.class)) {
                     return Optional.of(
                             context.getBean(type))
                             .orElseThrow(() -> noSuchBeanDefinitionException);
                 }
                 return context.getBean(
                         Arrays.stream(context.getBeanNamesForAnnotation(qualifierType))
-                            .filter(beanName -> type.isInstance(context.getBean(beanName)))
-                            .findFirst()
-                            .orElseThrow(() -> noSuchBeanDefinitionException),
+                                .filter(beanName -> type.isInstance(context.getBean(beanName)))
+                                .findFirst()
+                                .orElseThrow(() -> noSuchBeanDefinitionException),
                         type);
             }
 
@@ -332,7 +332,7 @@ public class SpqrAutoConfiguration {
         for (String beanName : factory.getBeanDefinitionNames()) {
             BeanDefinition bd = factory.getBeanDefinition(beanName);
 
-            if(bd.getSource() instanceof StandardMethodMetadata) {
+            if (bd.getSource() instanceof StandardMethodMetadata) {
                 StandardMethodMetadata metadata = (StandardMethodMetadata) bd.getSource();
 
                 Map<String, Object> attributes = metadata.getAnnotationAttributes(GraphQLApi.class.getName());
@@ -404,7 +404,7 @@ public class SpqrAutoConfiguration {
             this.springBean = context.getBean(beanName);
             this.scope = BeanScope.findBeanScope(context, beanName);
             this.type = type;
-            this.resolverBuilders  = new ArrayList<>();
+            this.resolverBuilders = new ArrayList<>();
         }
 
         BeanScope getScope() {
@@ -448,7 +448,7 @@ public class SpqrAutoConfiguration {
         }
     }
 
-    private enum  BeanScope {
+    private enum BeanScope {
         SINGLETON,
         PROTOTYPE;
 
