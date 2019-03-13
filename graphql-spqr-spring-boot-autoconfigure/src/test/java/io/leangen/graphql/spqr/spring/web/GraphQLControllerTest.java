@@ -143,7 +143,7 @@ public class GraphQLControllerTest {
     public void pagereq() throws Exception {
 
         String withpage ="{\n" +
-                "    springPageComponent_users(first:5,after:\"2\") {\n" +
+                "    springPageComponent_users(first:3,after:\"2id\") {\n" +
                 "        pageInfo {\n" +
                 "            startCursor\n" +
                 "            endCursor\n" +
@@ -154,7 +154,19 @@ public class GraphQLControllerTest {
                 "                id\n" +
                 "                name\n" +
                 "                age\n" +
+                "                springPageComponent_user_projects(first:2,after:\"4\") {\n" +
+                "                   pageInfo {\n" +
+                "                       startCursor\n" +
+                "                       endCursor\n" +
+                "                       hasNextPage\n" +
+                "                   }\n" +
+                "                   edges {\n" +
+                "                       node {\n" +
+                "                           name\n" +
+                "                       }\n" +
+                "                   }\n" +
                 "                }\n" +
+                "            }\n" +
                 "        }\n" +
                 "    }\n" +
                 "}\n";
@@ -162,12 +174,16 @@ public class GraphQLControllerTest {
                 get("/"+apiContext)
                         .param("query",withpage))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalToIgnoringWhiteSpace("{\"data\":{\"springPageComponent_users\":" +
-                        "{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"5\",\"hasNextPage\":true}," +
-                        "\"edges\":[{\"node\":{\"id\":\"0id\",\"name\":\"Duncan Idaho0\",\"age\":10}}," +
-                        "{\"node\":{\"id\":\"1id\",\"name\":\"Duncan Idaho1\",\"age\":11}}," +
-                        "{\"node\":{\"id\":\"2id\",\"name\":\"Duncan Idaho2\",\"age\":12}}," +
-                        "{\"node\":{\"id\":\"3id\",\"name\":\"Duncan Idaho3\",\"age\":13}}," +
-                        "{\"node\":{\"id\":\"4id\",\"name\":\"Duncan Idaho4\",\"age\":14}}]}}}")));
+                .andExpect(content().string(equalToIgnoringWhiteSpace("{" +
+                        "\"data\":{\"springPageComponent_users\":{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"3\",\"hasNextPage\":true}," +
+                        "\"edges\":[{\"node\":{\"id\":\"0id\",\"name\":\"Duncan Idaho0\",\"age\":10," +
+                        "\"springPageComponent_user_projects\":{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"2\",\"hasNextPage\":true}," +
+                        "\"edges\":[{\"node\":{\"name\":\"Project0\"}},{\"node\":{\"name\":\"Project1\"}}]}}}," +
+                        "{\"node\":{\"id\":\"1id\",\"name\":\"Duncan Idaho1\",\"age\":11," +
+                        "\"springPageComponent_user_projects\":{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"2\",\"hasNextPage\":true}," +
+                        "\"edges\":[{\"node\":{\"name\":\"Project0\"}},{\"node\":{\"name\":\"Project1\"}}]}}}," +
+                        "{\"node\":{\"id\":\"2id\",\"name\":\"Duncan Idaho2\",\"age\":12," +
+                        "\"springPageComponent_user_projects\":{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"2\",\"hasNextPage\":true}," +
+                        "\"edges\":[{\"node\":{\"name\":\"Project0\"}},{\"node\":{\"name\":\"Project1\"}}]}}}]}}}")));
     }
 }

@@ -1,6 +1,5 @@
 package io.leangen.graphql.spqr.spring.util.mapping;
 
-import graphql.relay.Edge;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
@@ -19,16 +18,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SpringPageMapper extends ObjectTypeMapper {
-    /**
-     * this should return a page relay
-     * io.leangen.graphql.execution.relay.generic.PageFactory
-     * AnnotatedType is a Pageable
-     */
+
     @Override
     public GraphQLOutputType toGraphQLType(AnnotatedType javaType, OperationMapper operationMapper, Set<Class<? extends TypeMapper>> mappersToSkip, BuildContext buildContext) {
-        // TODO: check edges, why null?
         AnnotatedType edgeType = GenericTypeReflector.getTypeParameter(javaType, Page.class.getTypeParameters()[0]);
-        AnnotatedType nodeType = GenericTypeReflector.getTypeParameter(edgeType, Edge.class.getTypeParameters()[0]);
         String connectionName = buildContext.typeInfoGenerator.generateTypeName(edgeType, buildContext.messageBundle) + "Connection";
         if (buildContext.typeCache.contains(connectionName)) {
             return new GraphQLTypeReference(connectionName);
