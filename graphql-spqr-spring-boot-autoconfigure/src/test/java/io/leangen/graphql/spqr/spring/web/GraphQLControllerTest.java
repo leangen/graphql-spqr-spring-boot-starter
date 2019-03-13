@@ -138,11 +138,10 @@ public class GraphQLControllerTest {
                 .andExpect(content().string(containsString("Hello world")));
     }
 
-    // TODO: move to another class plus more tests
     @Test
-    public void pagereq() throws Exception {
+    public void defaultControllerTest_POST_spring_page() throws Exception {
 
-        String withpage ="{\n" +
+        String withPage ="{\n" +
                 "    springPageComponent_users(first:3,after:\"2id\") {\n" +
                 "        pageInfo {\n" +
                 "            startCursor\n" +
@@ -170,9 +169,10 @@ public class GraphQLControllerTest {
                 "        }\n" +
                 "    }\n" +
                 "}\n";
+
         mockMvc.perform(
                 get("/"+apiContext)
-                        .param("query",withpage))
+                        .param("query",withPage))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalToIgnoringWhiteSpace("{" +
                         "\"data\":{\"springPageComponent_users\":{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"3\",\"hasNextPage\":true}," +
