@@ -71,7 +71,7 @@ public class ResolverBuilder_SpqrAutoConfigurationTest {
         Assert.assertNotNull(schema.getQueryType().getFieldDefinition("greetingFromBeanSource_wiredAsComponent_byAnnotationQualifiedCustomResolverBuilder_wiredAsComponent"));
         Assert.assertNotNull(schema.getQueryType().getFieldDefinition("greetingFromBeanSource_wiredAsComponent_byNamedCustomResolverBuilder_wiredAsBean"));
         Assert.assertNotNull(schema.getQueryType().getFieldDefinition("greetingFromBeanSource_wiredAsComponent_byNamedCustomResolverBuilder_wiredAsComponent"));
-        Assert.assertNotNull(schema.getQueryType().getFieldDefinition("greeting_Pageable"));
+        Assert.assertNotNull(schema.getQueryType().getFieldDefinition("springPageComponent_users"));
     }
 
 }

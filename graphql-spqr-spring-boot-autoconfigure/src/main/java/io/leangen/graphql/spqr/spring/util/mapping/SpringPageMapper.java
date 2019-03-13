@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class PageRequestMapper extends ObjectTypeMapper {
+public class SpringPageMapper extends ObjectTypeMapper {
     /**
      * this should return a page relay
      * io.leangen.graphql.execution.relay.generic.PageFactory

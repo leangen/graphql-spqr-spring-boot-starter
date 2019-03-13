@@ -3,6 +3,7 @@ package io.leangen.graphql.spqr.spring.test;
 import io.leangen.graphql.ExtensionProvider;
 import io.leangen.graphql.GeneratorConfiguration;
 import io.leangen.graphql.annotations.GraphQLArgument;
+import io.leangen.graphql.annotations.GraphQLContext;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import io.leangen.graphql.metadata.strategy.query.BeanResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
@@ -19,8 +20,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -168,30 +171,43 @@ public class ResolverBuilder_TestConfig {
         }
     }
 
-    // TODO: move to another class
     @Component
     @GraphQLApi
-    public static class PageRequestComponent {
+    public static class SpringPageComponent {
 
-        public static List<User> users = IntStream.range(0,20)
+        public static List<User> users = IntStream.range(0, 20)
                 .boxed()
-                .map(i -> new User(i+"id","Duncan Idaho"+i,i+10))
+                .map(i -> new User(i + "id", "Duncan Idaho" + i, i + 10, null))
                 .collect(Collectors.toList());
 
-        @GraphQLQuery(name = "greeting_Pageable")
-        public Page<User> greeting_Pageable(@GraphQLArgument(name = "first") int first, @GraphQLArgument(name = "after") String after) {
-            return (PageImpl<User>) new PageImpl(users,  PageRequest.of(0, first), users.size());
+
+        public static List<Project> projects = IntStream.range(0, 20)
+                .boxed()
+                .map(i -> new Project("Project"+i))
+                .collect(Collectors.toList());
+
+
+        @GraphQLQuery(name = "springPageComponent_users")
+        public Page<User> users(@GraphQLArgument(name = "first") int first, @GraphQLArgument(name = "after") String after) {
+            return (PageImpl<User>) new PageImpl(users, PageRequest.of(0, first), users.size());
+        }
+
+        @GraphQLQuery(name = "springPageComponent_user_projects")
+        public Page<User> projects(@GraphQLContext User user, @GraphQLArgument(name = "first") int first, @GraphQLArgument(name = "after") String after) {
+            return (PageImpl<User>) new PageImpl(projects, PageRequest.of(0, first), users.size());
         }
 
         public static class User {
             private final String id;
             private final String name;
             private final Integer age;
+            private final List<Project> projects;
 
-            User(String id, String name, Integer age) {
+            User(String id, String name, Integer age, List<Project> projects) {
                 this.id = id;
                 this.name = name;
                 this.age = age;
+                this.projects = Objects.isNull(projects) ? new ArrayList<Project>() : projects;
             }
 
             public String getId() {
@@ -205,10 +221,24 @@ public class ResolverBuilder_TestConfig {
             public Integer getAge() {
                 return age;
             }
+
+            public List<Project> getProjects() {
+                return projects;
+            }
+        }
+
+        public static class Project {
+            private final String name;
+
+            public Project(String name) {
+                this.name = name;
+            }
+
+            public String getName() {
+                return name;
+            }
         }
     }
-
-
 
 
     //------------------------------------------------------------------------------

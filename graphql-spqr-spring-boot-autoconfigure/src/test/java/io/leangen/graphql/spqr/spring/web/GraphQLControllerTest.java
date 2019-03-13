@@ -143,7 +143,7 @@ public class GraphQLControllerTest {
     public void pagereq() throws Exception {
 
         String withpage ="{\n" +
-                "    greeting_Pageable(first:5,after:\"2\") {\n" +
+                "    springPageComponent_users(first:5,after:\"2\") {\n" +
                 "        pageInfo {\n" +
                 "            startCursor\n" +
                 "            endCursor\n" +
@@ -162,7 +162,7 @@ public class GraphQLControllerTest {
                 get("/"+apiContext)
                         .param("query",withpage))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalToIgnoringWhiteSpace("{\"data\":{\"greeting_Pageable\":" +
+                .andExpect(content().string(equalToIgnoringWhiteSpace("{\"data\":{\"springPageComponent_users\":" +
                         "{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"5\",\"hasNextPage\":true}," +
                         "\"edges\":[{\"node\":{\"id\":\"0id\",\"name\":\"Duncan Idaho0\",\"age\":10}}," +
                         "{\"node\":{\"id\":\"1id\",\"name\":\"Duncan Idaho1\",\"age\":11}}," +
