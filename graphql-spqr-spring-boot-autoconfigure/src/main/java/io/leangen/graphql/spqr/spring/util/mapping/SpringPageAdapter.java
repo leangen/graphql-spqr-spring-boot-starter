@@ -17,11 +17,8 @@ public class SpringPageAdapter extends AbstractTypeAdapter<Page, io.leangen.grap
 
     @Override
     public io.leangen.graphql.execution.relay.Page convertOutput(Page original, AnnotatedType type, ResolutionEnvironment resolutionEnvironment) {
-
-        io.leangen.graphql.execution.relay.Page page = PageFactory.createOffsetBasedPage(
-                original.getContent().subList( original.getNumber(), original.getPageable().getPageSize()+ original.getNumber()),
+        return PageFactory.createOffsetBasedPage(
+                original.getContent().subList(original.getNumber(), original.getPageable().getPageSize() + original.getNumber()),
                 original.getTotalElements(), original.getPageable().getOffset());
-
-        return page;
     }
 }
