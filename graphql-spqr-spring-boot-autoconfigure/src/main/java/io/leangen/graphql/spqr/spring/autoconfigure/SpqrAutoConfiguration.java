@@ -25,9 +25,11 @@ import io.leangen.graphql.metadata.strategy.type.TypeInfoGenerator;
 import io.leangen.graphql.metadata.strategy.value.InputFieldBuilder;
 import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
 import io.leangen.graphql.module.Module;
-import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
-import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilder;
-import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilders;
+import io.leangen.graphql.spqr.spring.annotation.GraphQLApi;
+import io.leangen.graphql.spqr.spring.annotation.WithResolverBuilder;
+import io.leangen.graphql.spqr.spring.annotation.WithResolverBuilders;
+import io.leangen.graphql.spqr.spring.util.mapping.SpringPageAdapter;
+import io.leangen.graphql.spqr.spring.util.mapping.SpringPageMapper;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
@@ -138,12 +140,12 @@ public class SpqrAutoConfiguration {
 
     @Bean
     public ExtensionProvider<GeneratorConfiguration, TypeMapper> pageTypeMapper() {
-        return ((config, defaults) -> defaults.prepend(new PageRequestMapper()));
+        return ((config, defaults) -> defaults.prepend(new SpringPageMapper()));
     }
 
     @Bean
     public ExtensionProvider<GeneratorConfiguration, OutputConverter> pageTypeAdapter() {
-        return ((config, defaults) -> defaults.prepend(new PageAdapter()));
+        return ((config, defaults) -> defaults.prepend(new SpringPageAdapter()));
     }
 
     @Bean

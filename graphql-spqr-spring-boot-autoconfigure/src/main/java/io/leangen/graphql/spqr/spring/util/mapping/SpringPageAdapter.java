@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 
 import java.lang.reflect.AnnotatedType;
 
-public class PageAdapter extends AbstractTypeAdapter<Page, io.leangen.graphql.execution.relay.Page> {
+public class SpringPageAdapter extends AbstractTypeAdapter<Page, io.leangen.graphql.execution.relay.Page> {
     @Override
     public Page convertInput(io.leangen.graphql.execution.relay.Page substitute, AnnotatedType type, GlobalEnvironment environment, ValueMapper valueMapper) {
         throw new UnsupportedOperationException();
