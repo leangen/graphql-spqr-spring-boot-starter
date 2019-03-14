@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = InitMessage.class, name = ApolloMessage.GQL_CONNECTION_INIT),
         @JsonSubTypes.Type(value = ApolloMessage.class, name = ApolloMessage.GQL_CONNECTION_TERMINATE),
         @JsonSubTypes.Type(value = ApolloMessage.class, name = ApolloMessage.GQL_STOP),
-        @JsonSubTypes.Type(value = StartMessage.class, name = ApolloMessage.GQL_START)
+        @JsonSubTypes.Type(value = StartMessage.class, name = ApolloMessage.GQL_START),
+        @JsonSubTypes.Type(value = ConnectionErrorMessage.class, name = ApolloMessage.GQL_CONNECTION_ERROR),
+        @JsonSubTypes.Type(value = ErrorMessage.class, name = ApolloMessage.GQL_ERROR),
 })
 @SuppressWarnings("WeakerAccess")
 public class ApolloMessage {
@@ -81,8 +83,12 @@ public class ApolloMessage {
         return jsonMessage(KEEP_ALIVE);
     }
 
+    public static TextMessage connectionError(final String message) throws JsonProcessingException {
+        return jsonMessage(new ConnectionErrorMessage(Collections.singletonMap("message", message)));
+    }
+
     public static TextMessage connectionError() throws JsonProcessingException {
-        return jsonMessage(new ConnectionErrorMessage(Collections.singletonMap("message", "Invalid message")));
+        return connectionError("Invalid message");
     }
 
     public static TextMessage data(String id, ExecutionResult result) throws JsonProcessingException {
@@ -101,7 +107,11 @@ public class ApolloMessage {
     }
 
     public static TextMessage error(String id, Throwable exception) throws JsonProcessingException {
-        return jsonMessage(new ErrorMessage(id, Collections.singletonList(Collections.singletonMap("message", exception.getMessage()))));
+        return error(id, exception.getMessage());
+    }
+
+    public static TextMessage error(String id, String message) throws JsonProcessingException {
+        return jsonMessage(new ErrorMessage(id, Collections.singletonList(Collections.singletonMap("message", message))));
     }
 
     private static TextMessage jsonMessage(ApolloMessage message) throws JsonProcessingException {
