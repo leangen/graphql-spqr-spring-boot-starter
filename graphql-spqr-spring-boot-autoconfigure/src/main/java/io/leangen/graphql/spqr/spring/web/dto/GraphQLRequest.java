@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Collections;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,7 +20,7 @@ public class GraphQLRequest {
                           @JsonProperty("variables") Map<String, Object> variables) {
         this.query = query;
         this.operationName = operationName;
-        this.variables = variables;
+        this.variables = variables != null ? variables : Collections.emptyMap();
     }
 
     public String getQuery() {

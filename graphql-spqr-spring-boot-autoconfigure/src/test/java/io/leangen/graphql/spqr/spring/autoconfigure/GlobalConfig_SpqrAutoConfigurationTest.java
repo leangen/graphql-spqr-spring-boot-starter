@@ -157,7 +157,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         Assert.assertNotNull(inputField);
         Assert.assertEquals("OK", inputField.getName());
         Assert.assertEquals("OK", inputField.getDescription());
-        Assert.assertEquals("java.lang.Object", inputField.getJavaType().getType().getTypeName());
+        Assert.assertEquals(String.class, inputField.getJavaType().getType());
     }
 
     @Test
