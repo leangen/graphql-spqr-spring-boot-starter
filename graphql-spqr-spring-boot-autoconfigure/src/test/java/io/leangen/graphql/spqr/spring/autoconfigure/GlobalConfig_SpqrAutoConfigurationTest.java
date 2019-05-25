@@ -8,6 +8,7 @@ import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLTypeVisitor;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
+import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.graphql.ExtendedGeneratorConfiguration;
 import io.leangen.graphql.ExtensionProvider;
 import io.leangen.graphql.GeneratorConfiguration;
@@ -25,11 +26,13 @@ import io.leangen.graphql.generator.mapping.TypeMapper;
 import io.leangen.graphql.generator.mapping.strategy.AbstractInputHandler;
 import io.leangen.graphql.generator.mapping.strategy.InterfaceMappingStrategy;
 import io.leangen.graphql.metadata.InputField;
+import io.leangen.graphql.metadata.TypedElement;
 import io.leangen.graphql.metadata.messages.MessageBundle;
 import io.leangen.graphql.metadata.strategy.InclusionStrategy;
 import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
+import io.leangen.graphql.metadata.strategy.query.ResolverBuilderParams;
 import io.leangen.graphql.metadata.strategy.type.TypeInfoGenerator;
 import io.leangen.graphql.metadata.strategy.value.InputFieldBuilder;
 import io.leangen.graphql.metadata.strategy.value.InputFieldBuilderParams;
@@ -69,6 +72,8 @@ import java.util.Set;
 @ContextConfiguration(classes = {SpqrAutoConfiguration.class, GlobalConfig_SpqrAutoConfigurationTest.TypeMapper_TestConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 public class GlobalConfig_SpqrAutoConfigurationTest {
+
+    private static AnnotatedType STRING = GenericTypeReflector.annotate(String.class);
 
     @Autowired
     private SpqrProperties spqrProperties;
@@ -116,7 +121,6 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         Assert.assertEquals("OK", typeInfoGenerator.generateTypeName(null, null));
         Assert.assertEquals("OK", typeInfoGenerator.generateTypeDescription(null, null));
-        Assert.assertEquals(1, typeInfoGenerator.getFieldOrder(null, null).length);
     }
 
     @Test
@@ -171,8 +175,8 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         Assert.assertNotNull(valueMapper);
 
-        Assert.assertNull(valueMapper.fromString("test!@#$%^&*", String.class.getAnnotatedSuperclass()));
-        Assert.assertEquals("OK", valueMapper.toString("test!@#$%^&*"));
+        Assert.assertNull(valueMapper.fromString("test!@#$%^&*", STRING));
+        Assert.assertEquals("OK", valueMapper.toString("test!@#$%^&*", STRING));
     }
 
     @Test
@@ -386,8 +390,8 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
                 resolverBuilders.add(new PublicResolverBuilder() {
                     @Override
-                    protected boolean isQuery(Method method) {
-                        return super.isQuery(method) && method.getName().equals("getGreeting");
+                    protected boolean isQuery(Method method, ResolverBuilderParams params) {
+                        return super.isQuery(method, params) && method.getName().equals("getGreeting");
                     }
                 });
 
@@ -409,12 +413,6 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                 public String generateTypeDescription(AnnotatedType type, MessageBundle messageBundle) {
                     return "OK";
                 }
-
-                @Override
-                public String[] getFieldOrder(AnnotatedType type, MessageBundle messageBundle) {
-                    return new String[] {"OK"};
-                }
-
             };
         }
 
@@ -425,7 +423,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                 inputFieldBuilders.add(new InputFieldBuilder() {
                     @Override
                     public Set<InputField> getInputFields(InputFieldBuilderParams params) {
-                        InputField testField = new InputField("OK", "OK", String.class.getAnnotatedSuperclass(), null, null, null);
+                        InputField testField = new InputField("OK", "OK", new TypedElement(STRING, (AnnotatedElement) null), null, null);
                         return Collections.singleton(testField);
                     }
 
@@ -453,7 +451,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                 }
 
                 @Override
-                public String toString(Object output) {
+                public String toString(Object output, AnnotatedType type) {
                     return "OK";
                 }
             };

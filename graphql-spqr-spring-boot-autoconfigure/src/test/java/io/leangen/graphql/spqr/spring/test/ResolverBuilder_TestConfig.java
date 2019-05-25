@@ -6,6 +6,7 @@ import io.leangen.graphql.annotations.GraphQLQuery;
 import io.leangen.graphql.metadata.strategy.query.BeanResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
+import io.leangen.graphql.metadata.strategy.query.ResolverBuilderParams;
 import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
 import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,11 +26,11 @@ public class ResolverBuilder_TestConfig {
     public ExtensionProvider<GeneratorConfiguration, ResolverBuilder> globalResolverBuilderExtensionProvider() {
         return (config, defaults) -> defaults.insert(0, new PublicResolverBuilder() {
             @Override
-            protected boolean isQuery(Method method) {
+            protected boolean isQuery(Method method, ResolverBuilderParams params) {
                 final String[] expectedFragments = new String[] {
                         "byCustomGlobalResolverBuilder"};
 
-                return super.isQuery(method) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
+                return super.isQuery(method, params) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
             }
         });
     }
@@ -169,12 +170,12 @@ public class ResolverBuilder_TestConfig {
     public ResolverBuilder customStringQualifiedResolverBuilder() {
         return new PublicResolverBuilder() {
             @Override
-            protected boolean isQuery(Method method) {
+            protected boolean isQuery(Method method, ResolverBuilderParams params) {
                 final String[] expectedFragments = new String[] {
                         "greetingFromBeanSource", "byStringQualified",
                         "ResolverBuilder_wiredAsBean"};
 
-                return super.isQuery(method) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
+                return super.isQuery(method, params) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
             }
         };
     }
@@ -184,12 +185,12 @@ public class ResolverBuilder_TestConfig {
     public ResolverBuilder customAnnotationQualifiedResolverBuilder() {
         return new PublicResolverBuilder() {
             @Override
-            protected boolean isQuery(Method method) {
+            protected boolean isQuery(Method method, ResolverBuilderParams params) {
                 final String[] expectedFragments = new String[] {
                         "greetingFromBeanSource", "byAnnotationQualified",
                         "ResolverBuilder_wiredAsBean"};
 
-                return super.isQuery(method) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
+                return super.isQuery(method, params) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
             }
         };
     }
@@ -198,12 +199,12 @@ public class ResolverBuilder_TestConfig {
     public ResolverBuilder customNamedResolverBuilder() {
         return new PublicResolverBuilder() {
             @Override
-            protected boolean isQuery(Method method) {
+            protected boolean isQuery(Method method, ResolverBuilderParams params) {
                 final String[] expectedFragments = new String[] {
                         "greetingFromBeanSource", "byNamed",
                         "ResolverBuilder_wiredAsBean"};
 
-                return super.isQuery(method) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
+                return super.isQuery(method, params) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
             }
         };
     }
@@ -214,12 +215,12 @@ public class ResolverBuilder_TestConfig {
     @Qualifier("testStringQualifiedCustomResolverBuilderComponent")
     public static class CustomStringQualifiedResolverBuilderComponent extends PublicResolverBuilder{
         @Override
-        protected boolean isQuery(Method method) {
+        protected boolean isQuery(Method method, ResolverBuilderParams params) {
             final String[] expectedFragments = new String[] {
                     "greetingFromBeanSource", "byStringQualified",
                     "ResolverBuilder_wiredAsComponent"};
 
-            return super.isQuery(method) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
+            return super.isQuery(method, params) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
         }
     }
 
@@ -227,24 +228,24 @@ public class ResolverBuilder_TestConfig {
     @TestComponentQualifier
     public static class CustomAnnotationQualifiedResolverBuilderComponent extends PublicResolverBuilder{
         @Override
-        protected boolean isQuery(Method method) {
+        protected boolean isQuery(Method method, ResolverBuilderParams params) {
             final String[] expectedFragments = new String[] {
                     "greetingFromBeanSource",
                     "byAnnotationQualified", "ResolverBuilder_wiredAsComponent"};
 
-            return super.isQuery(method) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
+            return super.isQuery(method, params) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
         }
     }
 
     @Component("testNamedCustomResolverBuilderComponent")
     public static class CustomNamedResolverBuilderComponent extends PublicResolverBuilder{
         @Override
-        protected boolean isQuery(Method method) {
+        protected boolean isQuery(Method method, ResolverBuilderParams params) {
             final String[] expectedFragments = new String[] {
                     "greetingFromBeanSource",
                     "byNamed", "ResolverBuilder_wiredAsComponent"};
 
-            return super.isQuery(method) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
+            return super.isQuery(method, params) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
         }
     }
 
