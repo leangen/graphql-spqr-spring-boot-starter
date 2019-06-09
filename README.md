@@ -65,7 +65,7 @@ To cover the basic approaches `SpqrAutoConfiguration` registers a bean for each 
 It is also possible to implement custom resolver builders by implementing the `ResolverBuilder` interface.
 
 Resolver builders can be declared both globally and on the operation source level. If not sticking to the defaults, it is generally safer to explicitly customize on the operation source level, unless the rules are absolutely uniform across all operation sources.
-Customizing on both levels simultaniously will work but could prove tricky to control as your API grows.
+Customizing on both levels simultaneously will work but could prove tricky to control as your API grows.
 
 At the moment SPQR's (v0.10.0) default resolver builder is `AnnotatedResolverBuilder`. This starter follows that convention and will continue to do so if at some point SPQR's default changes.
 
