@@ -80,7 +80,7 @@ A simplified example of this could be:
         return (config, current) -> {
             List<ResolverBuilder> resolverBuilders = new ArrayList<>();
 
-            //add a custom subtype of PublicResolverBuilder that only exposes a method of it's called "greeting"
+            //add a custom subtype of PublicResolverBuilder that only exposes a method if it's called "greeting"
             resolverBuilders.add(new PublicResolverBuilder() {
                 @Override
                 protected boolean isQuery(Method method) {
