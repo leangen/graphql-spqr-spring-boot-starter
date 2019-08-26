@@ -1,8 +1,11 @@
 package io.leangen.graphql.spqr.spring.test;
 
+import graphql.cachecontrol.CacheControl;
 import io.leangen.graphql.ExtensionProvider;
 import io.leangen.graphql.GeneratorConfiguration;
+import io.leangen.graphql.annotations.GraphQLEnvironment;
 import io.leangen.graphql.annotations.GraphQLQuery;
+import io.leangen.graphql.execution.ResolutionEnvironment;
 import io.leangen.graphql.metadata.strategy.query.BeanResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
@@ -132,6 +135,12 @@ public class ResolverBuilder_TestConfig {
 
         @GraphQLQuery(name = "greetingFromBeanSource_wiredAsComponent_byAnnotation")
         public String getGreeting(){
+            return "Hello world !";
+        }
+
+        @GraphQLQuery(name = "greetingFromBeanSource_wiredAsComponent_byAnnotation_withCacheHint")
+        public String getGreeting2(@GraphQLEnvironment ResolutionEnvironment env){
+            env.dataFetchingEnvironment.getCacheControl().hint(env.dataFetchingEnvironment, 100, CacheControl.Scope.PUBLIC);
             return "Hello world !";
         }
 

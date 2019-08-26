@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -21,6 +22,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -39,11 +41,35 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_applicationGraphql_noQueryParams() throws Exception {
         mockMvc.perform(
+                post("/"+apiContext)
+                        .contentType("application/graphql")
+                        .content("{greetingFromBeanSource_wiredAsComponent_byAnnotation}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Hello world")))
+                .andExpect(header().doesNotExist(HttpHeaders.CACHE_CONTROL));
+    }
+
+    @Test
+    public void defaultControllerTest_POST_applicationGraphql_noQueryParams_withCacheHint() throws Exception {
+        mockMvc.perform(
+                post("/"+apiContext)
+                        .contentType("application/graphql")
+                        .content("{greetingFromBeanSource_wiredAsComponent_byAnnotation_withCacheHint}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Hello world")))
+                .andExpect(header().exists(HttpHeaders.CACHE_CONTROL))
+                .andExpect(header().string(HttpHeaders.CACHE_CONTROL, "max-age=100, public"));
+    }
+
+    @Test
+    public void defaultControllerTest_POST_applicationGraphql_noQueryParams_withAndWithoutCacheHint() throws Exception {
+        mockMvc.perform(
                     post("/"+apiContext)
                     .contentType("application/graphql")
-                    .content("{greetingFromBeanSource_wiredAsComponent_byAnnotation}"))
+                    .content("{greetingFromBeanSource_wiredAsComponent_byAnnotation_withCacheHint greetingFromBeanSource_wiredAsComponent_byAnnotation}"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Hello world")));
+                .andExpect(content().string(containsString("Hello world")))
+                .andExpect(header().doesNotExist(HttpHeaders.CACHE_CONTROL));
     }
 
     @Test

@@ -2,6 +2,7 @@ package io.leangen.graphql.spqr.spring.web.servlet.websocket;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import graphql.cachecontrol.CacheControl;
 import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
 import io.leangen.graphql.spqr.spring.autoconfigure.WebSocketContextFactory;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
@@ -19,6 +20,9 @@ public class DefaultGraphQLExecutor implements GraphQLWebSocketExecutor {
 
     @Override
     public ExecutionResult execute(GraphQL graphQL, GraphQLRequest graphQLRequest, WebSocketSession request) {
-        return graphQL.execute(buildInput(graphQLRequest, request, contextFactory, dataLoaderRegistryFactory));
+        CacheControl cacheControl = CacheControl.newCacheControl();
+        ExecutionResult executionResult = graphQL.execute(buildInput(graphQLRequest, request, contextFactory, dataLoaderRegistryFactory, cacheControl));
+        executionResult = cacheControl.addTo(executionResult);
+        return executionResult;
     }
 }
