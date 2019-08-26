@@ -37,7 +37,7 @@ public abstract class GraphQLController<R> {
                                 R request) {
         String query = requestParams.getQuery() == null ? requestBody.getQuery() : requestParams.getQuery();
         String operationName = requestParams.getOperationName() == null ? requestBody.getOperationName() : requestParams.getOperationName();
-        Map<String, Object> variables = requestParams.getVariables() == null ? requestBody.getVariables() : requestParams.getVariables();
+        Map<String, Object> variables = requestParams.getVariables().isEmpty() ? requestBody.getVariables() : requestParams.getVariables();
 
         return executor.execute(graphQL, new GraphQLRequest(query, operationName, variables), request);
     }
