@@ -77,7 +77,7 @@ public abstract class GraphQLController<R> {
     @GetMapping(
             value = "${graphql.spqr.http.endpoint:/graphql}",
             produces = MediaType.APPLICATION_JSON_VALUE,
-            headers = "Connection!=Upgrade"
+            headers = { "Connection!=Upgrade", "Connection!=keep-alive, Upgrade" }
     )
     @ResponseBody
     public Object executeGet(GraphQLRequest graphQLRequest, R request) {
