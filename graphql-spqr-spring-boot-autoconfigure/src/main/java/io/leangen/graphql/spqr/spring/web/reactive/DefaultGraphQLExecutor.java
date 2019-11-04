@@ -1,7 +1,7 @@
 package io.leangen.graphql.spqr.spring.web.reactive;
 
-import graphql.ExecutionResult;
 import graphql.GraphQL;
+import graphql.cachecontrol.CacheControl;
 import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
 import io.leangen.graphql.spqr.spring.autoconfigure.ReactiveContextFactory;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
@@ -22,7 +22,8 @@ public class DefaultGraphQLExecutor implements GraphQLReactiveExecutor {
 
     @Override
     public CompletableFuture<Map<String, Object>> execute(GraphQL graphQL, GraphQLRequest graphQLRequest, ServerWebExchange request) {
-        return graphQL.executeAsync(buildInput(graphQLRequest, request, contextFactory, dataLoaderRegistryFactory))
-                .thenApply(ExecutionResult::toSpecification);
+        CacheControl cacheControl = CacheControl.newCacheControl();
+        return graphQL.executeAsync(buildInput(graphQLRequest, request, contextFactory, dataLoaderRegistryFactory, cacheControl))
+                .thenApply((executionResult1) -> cacheControl.addTo(executionResult1).toSpecification());
     }
 }

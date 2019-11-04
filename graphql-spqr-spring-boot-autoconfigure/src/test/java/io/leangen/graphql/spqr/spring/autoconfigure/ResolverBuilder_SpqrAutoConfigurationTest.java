@@ -64,6 +64,7 @@ public class ResolverBuilder_SpqrAutoConfigurationTest {
         // -using default resolver builders
         Assert.assertNotNull(schema.getQueryType().getFieldDefinition("greetingFromBeanSource_wiredAsComponent_byMethodName"));
         Assert.assertNotNull(schema.getQueryType().getFieldDefinition("greetingFromBeanSource_wiredAsComponent_byAnnotation"));
+        Assert.assertNotNull(schema.getQueryType().getFieldDefinition("greetingFromBeanSource_wiredAsComponent_byAnnotation_withCacheHint"));
         // -using custom resolver builders
         Assert.assertNotNull(schema.getQueryType().getFieldDefinition("greetingFromBeanSource_wiredAsComponent_byStringQualifiedCustomResolverBuilder_wiredAsBean"));
         Assert.assertNotNull(schema.getQueryType().getFieldDefinition("greetingFromBeanSource_wiredAsComponent_byStringQualifiedCustomResolverBuilder_wiredAsComponent"));

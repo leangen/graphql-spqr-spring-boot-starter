@@ -2,6 +2,7 @@ package io.leangen.graphql.spqr.spring.web;
 
 import graphql.ExecutionInput;
 import graphql.GraphQL;
+import graphql.cachecontrol.CacheControl;
 import io.leangen.graphql.spqr.spring.autoconfigure.ContextFactory;
 import io.leangen.graphql.spqr.spring.autoconfigure.ContextFactoryParams;
 import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
@@ -13,7 +14,7 @@ public interface GraphQLExecutor<R> {
     Object execute(GraphQL graphQL, GraphQLRequest graphQLRequest, R request);
 
     default ExecutionInput buildInput(GraphQLRequest graphQLRequest, R request, ContextFactory<R> contextFactory,
-                                         DataLoaderRegistryFactory loaderFactory) {
+                                         DataLoaderRegistryFactory loaderFactory, CacheControl cacheControl) {
         ExecutionInput.Builder inputBuilder = ExecutionInput.newExecutionInput()
                 .query(graphQLRequest.getQuery())
                 .operationName(graphQLRequest.getOperationName())
@@ -21,7 +22,8 @@ public interface GraphQLExecutor<R> {
                 .context(contextFactory.createGlobalContext(ContextFactoryParams.<R>builder()
                         .withGraphQLRequest(graphQLRequest)
                         .withNativeRequest(request)
-                        .build()));
+                        .build()))
+                .cacheControl(cacheControl);
         if (loaderFactory != null) {
             inputBuilder.dataLoaderRegistry(loaderFactory.createDataLoaderRegistry());
         }
