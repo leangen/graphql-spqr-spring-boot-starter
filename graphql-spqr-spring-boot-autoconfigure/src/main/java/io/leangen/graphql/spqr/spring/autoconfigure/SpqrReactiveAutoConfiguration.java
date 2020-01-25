@@ -3,8 +3,8 @@ package io.leangen.graphql.spqr.spring.autoconfigure;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import io.leangen.graphql.module.Module;
-import io.leangen.graphql.spqr.spring.autoconfigure.reactive.FluxAdapter;
-import io.leangen.graphql.spqr.spring.autoconfigure.reactive.MonoAdapter;
+import io.leangen.graphql.spqr.spring.modules.reactive.FluxAdapter;
+import io.leangen.graphql.spqr.spring.modules.reactive.MonoAdapter;
 import io.leangen.graphql.spqr.spring.web.GraphQLController;
 import io.leangen.graphql.spqr.spring.web.reactive.GraphQLReactiveExecutor;
 import io.leangen.graphql.spqr.spring.web.GuiController;
@@ -24,8 +24,8 @@ public class SpqrReactiveAutoConfiguration {
 
     @Bean
     public Internal<Module> reactorModule() {
-        MonoAdapter monoAdapter = new MonoAdapter();
-        FluxAdapter fluxAdapter = new FluxAdapter();
+        MonoAdapter<?> monoAdapter = new MonoAdapter<>();
+        FluxAdapter<?> fluxAdapter = new FluxAdapter<>();
         return new Internal<>(context -> context.getSchemaGenerator()
                 .withTypeMappers(monoAdapter, fluxAdapter)
                 .withOutputConverters(monoAdapter, fluxAdapter)

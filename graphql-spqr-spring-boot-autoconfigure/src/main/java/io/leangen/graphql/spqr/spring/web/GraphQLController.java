@@ -28,8 +28,8 @@ public abstract class GraphQLController<R> {
 
     @PostMapping(
             value = "${graphql.spqr.http.endpoint:/graphql}",
-            consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_JSON_VALUE},
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseBody
     public Object executeJsonPost(@RequestBody GraphQLRequest requestBody,
@@ -45,7 +45,7 @@ public abstract class GraphQLController<R> {
     @PostMapping(
             value = "${graphql.spqr.http.endpoint:/graphql}",
             consumes = {"application/graphql", "application/graphql;charset=UTF-8"},
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseBody
     public Object executeGraphQLPost(@RequestBody String queryBody,
@@ -59,7 +59,7 @@ public abstract class GraphQLController<R> {
             method = RequestMethod.POST,
             value = "${graphql.spqr.http.endpoint:/graphql}",
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, "application/x-www-form-urlencoded;charset=UTF-8"},
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseBody
     public Object executeFormPost(@RequestParam Map<String, String> queryParams,
@@ -76,7 +76,7 @@ public abstract class GraphQLController<R> {
 
     @GetMapping(
             value = "${graphql.spqr.http.endpoint:/graphql}",
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE,
             headers = "Connection!=Upgrade"
     )
     @ResponseBody

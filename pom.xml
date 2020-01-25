@@ -39,8 +39,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
 
-        <spqr.version>0.10.0</spqr.version>
-        <spring-boot.version>2.1.3.RELEASE</spring-boot.version>
+        <spqr.version>0.10.1</spqr.version>
+        <spring-boot.version>2.2.2.RELEASE</spring-boot.version>
     </properties>
 
     <modules>
@@ -71,15 +71,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-data-rest</artifactId>
-                <version>${spring-boot.version}</version>
-                <optional>true</optional>
-            </dependency>
-
-
             <dependency>
                 <groupId>io.leangen.graphql</groupId>
                 <artifactId>graphql-spqr-spring-boot-autoconfigure</artifactId>
@@ -94,7 +85,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.0</version>
+                    <version>3.8.1</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -152,7 +143,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.2.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -166,7 +157,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1.1</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -183,7 +174,7 @@
                             </links>
                             <version>true</version>
                             <show>protected</show>
-                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <doclint>none</doclint>
                         </configuration>
                     </plugin>
                 </plugins>

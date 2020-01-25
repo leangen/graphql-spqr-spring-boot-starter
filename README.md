@@ -44,7 +44,7 @@ This annotation can be used in combination with `@Component/@Service/@Repository
         ...
     }
 ```
-or 
+or
 ```java
     @Bean
     @GraphQLApi
@@ -67,7 +67,7 @@ It is also possible to implement custom resolver builders by implementing the `R
 Resolver builders can be declared both globally and on the operation source level. If not sticking to the defaults, it is generally safer to explicitly customize on the operation source level, unless the rules are absolutely uniform across all operation sources.
 Customizing on both levels simultaneously will work but could prove tricky to control as your API grows.
 
-At the moment SPQR's (v0.10.0) default resolver builder is `AnnotatedResolverBuilder`. This starter follows that convention and will continue to do so if at some point SPQR's default changes.
+At the moment SPQR's (v0.10.1) default resolver builder is `AnnotatedResolverBuilder`. This starter follows that convention and will continue to do so if at some point SPQR's default changes.
 
 ### Customizing resolver builders globally
 
@@ -124,7 +124,7 @@ As an example, we can expose the `greeting` query by using:
     @WithResolverBuilder(BeanResolverBuilder.class) //exposes all getters
     private class MyOperationSource {
         public String getGreeting(){
-            return "Hello world !"; 
+            return "Hello world !";
         }
     }
 ```
@@ -137,8 +137,8 @@ or:
     //No explicit resolver builders declared, so AnnotatedResolverBuilder is used
     public MyOperationSource() {
         @GraphQLQuery(name = "greeting")
-        public String getGreeting(){
-            return "Hello world !"; 
+        public String getGreeting() {
+            return "Hello world !";
         }
     }
 ``` 
@@ -153,7 +153,7 @@ It is also entirely possible to use more than one resolver builder on the same o
     private class MyOperationSource {
         //Exposed by BeanResolverBuilder because it's a getter
         public String getGreeting(){
-            return "Hello world !"; 
+            return "Hello world !";
         }
 
         //Exposed by AnnotatedResolverBuilder because it's annotated
@@ -194,6 +194,30 @@ To do this SPQR uses `TypeInfoGenerator` on a global level. When using this star
 ```
 
 ## Advanced config
+
+### Available Properties
+
+| Property | Default Value |
+| ------ | ------ |
+| graphql.spqr.base-packages | n/a |
+| graphql.spqr.abstract-input-type-resolution | false |
+| graphql.spqr.relay.enabled | false |
+| graphql.spqr.relay.mutation-wrapper | n/a |
+| graphql.spqr.relay.mutation-wrapper-description | n/a |
+| graphql.spqr.relay.connection-check-relaxed | false |
+| graphql.spqr.relay.spring-data-compatible | false |
+| graphql.spqr.http.enabled | true |
+| graphql.spqr.http.endpoint | /graphql |
+| graphql.spqr.ws.enabled | true |
+| graphql.spqr.ws.endpoint | n/a |
+| graphql.spqr.ws.allowedOrigins | * |
+| graphql.spqr.ws.keepAlive.enabled | false |
+| graphql.spqr.ws.keepAlive.intervalMillis | 10000 |
+| graphql.spqr.gui.enabled | true |
+| graphql.spqr.gui.endpoint | /gui |
+| graphql.spqr.gui.targetEndpoint | n/a |
+| graphql.spqr.gui.targetWsEndpoint | n/a |
+| graphql.spqr.gui.pageTitle | GraphQL Playground |
 
 ### Customize mapping of GraphQL values to Java values
 

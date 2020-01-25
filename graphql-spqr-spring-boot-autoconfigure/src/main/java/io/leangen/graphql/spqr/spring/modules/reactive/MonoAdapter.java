@@ -1,4 +1,4 @@
-package io.leangen.graphql.spqr.spring.autoconfigure.reactive;
+package io.leangen.graphql.spqr.spring.modules.reactive;
 
 import graphql.schema.GraphQLInputType;
 import io.leangen.geantyref.GenericTypeReflector;

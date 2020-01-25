@@ -1,9 +1,9 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
 
 @ConfigurationProperties(prefix = "graphql.spqr")
 @SuppressWarnings("WeakerAccess")
@@ -88,12 +88,13 @@ public class SpqrProperties {
         this.gui = gui;
     }
 
-    public class Relay {
+    public static class Relay {
 
         private boolean enabled;
         private String mutationWrapper;
         private String mutationWrapperDescription;
         private boolean connectionCheckRelaxed;
+        private boolean springDataCompatible;
 
         public boolean isEnabled() {
             return enabled;
@@ -126,9 +127,17 @@ public class SpqrProperties {
         public void setConnectionCheckRelaxed(boolean connectionCheckRelaxed) {
             this.connectionCheckRelaxed = connectionCheckRelaxed;
         }
+
+        public boolean isSpringDataCompatible() {
+            return springDataCompatible;
+        }
+
+        public void setSpringDataCompatible(boolean springDataCompatible) {
+            this.springDataCompatible = springDataCompatible;
+        }
     }
 
-    public class Http {
+    public static class Http {
 
         private boolean enabled = true;
         private String endpoint = DEFAULT_ENDPOINT;
@@ -150,7 +159,7 @@ public class SpqrProperties {
         }
     }
 
-    public class WebSocket {
+    public static class WebSocket {
 
         private boolean enabled = true;
         private String endpoint;
@@ -189,7 +198,7 @@ public class SpqrProperties {
             this.keepAlive = keepAlive;
         }
 
-        public class KeepAlive {
+        public static class KeepAlive {
 
             private boolean enabled;
             private int intervalMillis = 10000;
@@ -212,7 +221,7 @@ public class SpqrProperties {
         }
     }
 
-    public class Gui {
+    public static class Gui {
 
         private boolean enabled = true;
         private String endpoint = DEFAULT_GUI_ENDPOINT;
