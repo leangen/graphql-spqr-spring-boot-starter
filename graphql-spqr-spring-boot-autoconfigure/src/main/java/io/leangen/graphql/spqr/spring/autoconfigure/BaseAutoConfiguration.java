@@ -61,7 +61,7 @@ import java.util.Set;
 @ConditionalOnClass(GraphQLSchemaGenerator.class)
 @EnableConfigurationProperties(SpqrProperties.class)
 @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-public class SpqrAutoConfiguration {
+public class BaseAutoConfiguration {
 
     private final ConfigurableApplicationContext context;
 
@@ -114,7 +114,7 @@ public class SpqrAutoConfiguration {
     private List<Internal<Module>> internalModules;
 
     @Autowired
-    public SpqrAutoConfiguration(ConfigurableApplicationContext context) {
+    public BaseAutoConfiguration(ConfigurableApplicationContext context) {
         this.context = context;
     }
 

@@ -1,6 +1,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.leangen.graphql.spqr.spring.autoconfigure.SpqrAutoConfiguration,\
-  io.leangen.graphql.spqr.spring.autoconfigure.SpqrMvcAutoConfiguration,\
-  io.leangen.graphql.spqr.spring.autoconfigure.SpqrReactiveAutoConfiguration,\
+  io.leangen.graphql.spqr.spring.autoconfigure.BaseAutoConfiguration,\
+  io.leangen.graphql.spqr.spring.autoconfigure.MvcAutoConfiguration,\
+  io.leangen.graphql.spqr.spring.autoconfigure.ReactiveAutoConfiguration,\
   io.leangen.graphql.spqr.spring.autoconfigure.SpringDataAutoConfiguration,\
-  io.leangen.graphql.spqr.spring.autoconfigure.SpqrWebSocketAutoConfiguration
+  io.leangen.graphql.spqr.spring.autoconfigure.WebSocketAutoConfiguration

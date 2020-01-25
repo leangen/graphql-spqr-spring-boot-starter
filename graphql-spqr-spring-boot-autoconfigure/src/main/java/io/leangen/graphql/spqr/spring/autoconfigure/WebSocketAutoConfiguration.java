@@ -28,7 +28,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @ConditionalOnClass(WebSocketConfigurer.class)
 @ConditionalOnProperty(name = "graphql.spqr.ws.enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnBean(GraphQLSchema.class)
-public class SpqrWebSocketAutoConfiguration implements WebSocketConfigurer {
+public class WebSocketAutoConfiguration implements WebSocketConfigurer {
 
     private final GraphQL graphQL;
     private final SpqrProperties config;
@@ -36,8 +36,8 @@ public class SpqrWebSocketAutoConfiguration implements WebSocketConfigurer {
 
     @Autowired
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public SpqrWebSocketAutoConfiguration(GraphQL graphQL, SpqrProperties config,
-                                          Optional<DataLoaderRegistryFactory> dataLoaderRegistryFactory) {
+    public WebSocketAutoConfiguration(GraphQL graphQL, SpqrProperties config,
+                                      Optional<DataLoaderRegistryFactory> dataLoaderRegistryFactory) {
         this.graphQL = graphQL;
         this.config = config;
         this.dataLoaderRegistryFactory = dataLoaderRegistryFactory.orElse(null);

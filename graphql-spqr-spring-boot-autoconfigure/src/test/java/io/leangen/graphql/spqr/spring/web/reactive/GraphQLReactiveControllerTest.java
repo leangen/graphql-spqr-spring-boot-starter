@@ -1,7 +1,7 @@
 package io.leangen.graphql.spqr.spring.web.reactive;
 
-import io.leangen.graphql.spqr.spring.autoconfigure.SpqrAutoConfiguration;
-import io.leangen.graphql.spqr.spring.autoconfigure.SpqrReactiveAutoConfiguration;
+import io.leangen.graphql.spqr.spring.autoconfigure.BaseAutoConfiguration;
+import io.leangen.graphql.spqr.spring.autoconfigure.ReactiveAutoConfiguration;
 import io.leangen.graphql.spqr.spring.test.ResolverBuilder_TestReactiveConfig;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(SpringRunner.class)
 @WebFluxTest
 @ContextConfiguration(classes = {
-        SpqrAutoConfiguration.class, SpqrReactiveAutoConfiguration.class, ResolverBuilder_TestReactiveConfig.class
+        BaseAutoConfiguration.class, ReactiveAutoConfiguration.class, ResolverBuilder_TestReactiveConfig.class
 })
 @TestPropertySource(locations = "classpath:application.properties")
 public class GraphQLReactiveControllerTest {

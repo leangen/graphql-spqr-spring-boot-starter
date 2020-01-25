@@ -44,7 +44,6 @@ import io.leangen.graphql.module.Module;
 import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
 import io.leangen.graphql.spqr.spring.localization.MessageSourceMessageBundle;
 import io.leangen.graphql.spqr.spring.localization.PropertyResolverMessageBundle;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,8 +69,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {SpqrAutoConfiguration.class, GlobalConfig_SpqrAutoConfigurationTest.TypeMapper_TestConfig.class})
+@ContextConfiguration(classes = {BaseAutoConfiguration.class, GlobalConfig_SpqrAutoConfigurationTest.TypeMapper_TestConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 public class GlobalConfig_SpqrAutoConfigurationTest {
 
@@ -85,281 +90,281 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
     @Test
     public void propertiesLoad() {
-        Assert.assertNotNull(spqrProperties);
-        Assert.assertNotNull(spqrProperties.getBasePackages());
-        Assert.assertEquals(1, spqrProperties.getBasePackages().length);
-        Assert.assertEquals("com.bogus.package", spqrProperties.getBasePackages()[0]);
+        assertNotNull(spqrProperties);
+        assertNotNull(spqrProperties.getBasePackages());
+        assertEquals(1, spqrProperties.getBasePackages().length);
+        assertEquals("com.bogus.package", spqrProperties.getBasePackages()[0]);
     }
 
     @Test
     public void ResolverBuilderExtensionProvider_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         List<ExtensionProvider<GeneratorConfiguration, ResolverBuilder>> resolverBuilderProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "resolverBuilderProviders");
 
-        Assert.assertNotNull(resolverBuilderProviders);
+        assertNotNull(resolverBuilderProviders);
 
-        Assert.assertEquals(1, resolverBuilderProviders.size());
+        assertEquals(1, resolverBuilderProviders.size());
 
         ExtensionProvider<GeneratorConfiguration, ResolverBuilder> resolverBuilderExtensionProvider = resolverBuilderProviders.iterator().next();
 
-        Assert.assertNotNull(resolverBuilderExtensionProvider);
+        assertNotNull(resolverBuilderExtensionProvider);
 
         List<ResolverBuilder> resolverBuilders = resolverBuilderExtensionProvider.getExtensions(null, null);
 
-        Assert.assertNotNull(resolverBuilders);
-        Assert.assertEquals(2, resolverBuilders.size());
+        assertNotNull(resolverBuilders);
+        assertEquals(2, resolverBuilders.size());
 
     }
 
     @Test
     public void typeInfoGenerator_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         TypeInfoGenerator typeInfoGenerator = getPrivateFieldValueFromObject(schemaGenerator, "typeInfoGenerator");
 
-        Assert.assertNotNull(typeInfoGenerator);
+        assertNotNull(typeInfoGenerator);
 
-        Assert.assertEquals("OK", typeInfoGenerator.generateTypeName(null, null));
-        Assert.assertEquals("OK", typeInfoGenerator.generateTypeDescription(null, null));
+        assertEquals("OK", typeInfoGenerator.generateTypeName(null, null));
+        assertEquals("OK", typeInfoGenerator.generateTypeDescription(null, null));
     }
 
     @Test
     public void inputFieldBuilder_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         List<ExtensionProvider<GeneratorConfiguration, InputFieldBuilder>> inputFieldBuilderProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "inputFieldBuilderProviders");
 
-        Assert.assertNotNull(inputFieldBuilderProviders);
+        assertNotNull(inputFieldBuilderProviders);
 
-        Assert.assertEquals(1, inputFieldBuilderProviders.size());
+        assertEquals(1, inputFieldBuilderProviders.size());
 
         ExtensionProvider<GeneratorConfiguration, InputFieldBuilder> inputFieldBuilderProvider = inputFieldBuilderProviders.iterator().next();
 
-        Assert.assertNotNull(inputFieldBuilderProvider);
+        assertNotNull(inputFieldBuilderProvider);
 
         List<InputFieldBuilder> inputFieldBuilders = inputFieldBuilderProvider.getExtensions(null, null);
 
-        Assert.assertNotNull(inputFieldBuilders);
-        Assert.assertEquals(1, inputFieldBuilders.size());
+        assertNotNull(inputFieldBuilders);
+        assertEquals(1, inputFieldBuilders.size());
 
         InputFieldBuilder inputFieldBuilder = inputFieldBuilders.iterator().next();
 
-        Assert.assertNotNull(inputFieldBuilder);
+        assertNotNull(inputFieldBuilder);
 
         Set<InputField> inputFields = inputFieldBuilder.getInputFields(null);
 
-        Assert.assertNotNull(inputFields);
-        Assert.assertFalse(inputFields.isEmpty());
+        assertNotNull(inputFields);
+        assertFalse(inputFields.isEmpty());
 
         InputField inputField = inputFields.iterator().next();
 
-        Assert.assertNotNull(inputField);
-        Assert.assertEquals("OK", inputField.getName());
-        Assert.assertEquals("OK", inputField.getDescription());
-        Assert.assertEquals(String.class, inputField.getJavaType().getType());
+        assertNotNull(inputField);
+        assertEquals("OK", inputField.getName());
+        assertEquals("OK", inputField.getDescription());
+        assertEquals(String.class, inputField.getJavaType().getType());
     }
 
     @Test
     public void valueMapperFactory_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         ValueMapperFactory valueMapperFactory =
                 getPrivateFieldValueFromObject(schemaGenerator, "valueMapperFactory");
 
-        Assert.assertNotNull(valueMapperFactory);
+        assertNotNull(valueMapperFactory);
 
         GlobalEnvironment mockEnv = new GlobalEnvironment(null,null, null, null, null, null, null, null);
 
         ValueMapper valueMapper = valueMapperFactory.getValueMapper(Collections.emptyMap(), mockEnv);
 
-        Assert.assertNotNull(valueMapper);
+        assertNotNull(valueMapper);
 
-        Assert.assertNull(valueMapper.fromString("test!@#$%^&*", STRING));
-        Assert.assertEquals("OK", valueMapper.toString("test!@#$%^&*", STRING));
+        assertNull(valueMapper.fromString("test!@#$%^&*", STRING));
+        assertEquals("OK", valueMapper.toString("test!@#$%^&*", STRING));
     }
 
     @Test
     public void argumentInjectorExtensionProvider_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         List<ExtensionProvider<GeneratorConfiguration, ArgumentInjector>> argumentInjectorProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "argumentInjectorProviders");
 
-        Assert.assertNotNull(argumentInjectorProviders);
+        assertNotNull(argumentInjectorProviders);
 
-        Assert.assertEquals(1, argumentInjectorProviders.size());
+        assertEquals(1, argumentInjectorProviders.size());
 
         ExtensionProvider<GeneratorConfiguration, ArgumentInjector> argumentInjectorExtensionProvider = argumentInjectorProviders.iterator().next();
 
-        Assert.assertNotNull(argumentInjectorExtensionProvider);
+        assertNotNull(argumentInjectorExtensionProvider);
 
         List<ArgumentInjector> argumentInjectors = argumentInjectorExtensionProvider.getExtensions(null, null);
 
-        Assert.assertNotNull(argumentInjectors);
-        Assert.assertEquals(1, argumentInjectors.size());
+        assertNotNull(argumentInjectors);
+        assertEquals(1, argumentInjectors.size());
 
         ArgumentInjector argumentInjector = argumentInjectors.iterator().next();
 
-        Assert.assertNotNull(argumentInjector);
-        Assert.assertEquals("OK argument injector", argumentInjector.getArgumentValue(null));
+        assertNotNull(argumentInjector);
+        assertEquals("OK argument injector", argumentInjector.getArgumentValue(null));
 
     }
 
     @Test
     public void outputConverterExtensionProvider_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         List<ExtensionProvider<GeneratorConfiguration, OutputConverter>> outputConverterProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "outputConverterProviders");
 
-        Assert.assertNotNull(outputConverterProviders);
+        assertNotNull(outputConverterProviders);
 
-        Assert.assertEquals(1, outputConverterProviders.size());
+        assertEquals(1, outputConverterProviders.size());
 
         ExtensionProvider<GeneratorConfiguration, OutputConverter> outputConverterExtensionProvider = outputConverterProviders.iterator().next();
 
-        Assert.assertNotNull(outputConverterExtensionProvider);
+        assertNotNull(outputConverterExtensionProvider);
 
         List<OutputConverter> outputConverters = outputConverterExtensionProvider.getExtensions(null, null);
 
-        Assert.assertNotNull(outputConverters);
-        Assert.assertEquals(1, outputConverters.size());
+        assertNotNull(outputConverters);
+        assertEquals(1, outputConverters.size());
 
         OutputConverter<?, ?> outputConverter = outputConverters.iterator().next();
 
-        Assert.assertNotNull(outputConverter);
-        Assert.assertEquals("OK output converter", outputConverter.convertOutput(null, null, null));
+        assertNotNull(outputConverter);
+        assertEquals("OK output converter", outputConverter.convertOutput(null, null, null));
     }
 
     @Test
     public void inputConverterExtensionProvider_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         List<ExtensionProvider<GeneratorConfiguration, InputConverter>> inputConverterProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "inputConverterProviders");
 
-        Assert.assertNotNull(inputConverterProviders);
+        assertNotNull(inputConverterProviders);
 
-        Assert.assertEquals(1, inputConverterProviders.size());
+        assertEquals(1, inputConverterProviders.size());
 
         ExtensionProvider<GeneratorConfiguration, InputConverter> inputConverterExtensionProvider = inputConverterProviders.iterator().next();
 
-        Assert.assertNotNull(inputConverterExtensionProvider);
+        assertNotNull(inputConverterExtensionProvider);
 
         List<InputConverter> inputConverters = inputConverterExtensionProvider.getExtensions(null, null);
 
-        Assert.assertNotNull(inputConverters);
-        Assert.assertEquals(1, inputConverters.size());
+        assertNotNull(inputConverters);
+        assertEquals(1, inputConverters.size());
 
         InputConverter<?, ?> inputConverter = inputConverters.iterator().next();
 
-        Assert.assertNotNull(inputConverter);
-        Assert.assertEquals("OK input converter", inputConverter.convertInput(null, null, null, null));
+        assertNotNull(inputConverter);
+        assertEquals("OK input converter", inputConverter.convertInput(null, null, null, null));
     }
 
     @Test
     public void typeMapperExtensionProvider_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         List<ExtensionProvider<GeneratorConfiguration, TypeMapper>> typeMapperExtensionProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "typeMapperProviders");
 
-        Assert.assertNotNull(typeMapperExtensionProviders);
+        assertNotNull(typeMapperExtensionProviders);
 
-        Assert.assertEquals(1, typeMapperExtensionProviders.size());
+        assertEquals(1, typeMapperExtensionProviders.size());
 
         ExtensionProvider<GeneratorConfiguration, TypeMapper> typeMapperExtensionProvider = typeMapperExtensionProviders.iterator().next();
 
-        Assert.assertNotNull(typeMapperExtensionProvider);
+        assertNotNull(typeMapperExtensionProvider);
 
         List<TypeMapper> typeMappers = typeMapperExtensionProvider.getExtensions(null, null);
 
-        Assert.assertNotNull(typeMappers);
-        Assert.assertEquals(1, typeMappers.size());
+        assertNotNull(typeMappers);
+        assertEquals(1, typeMappers.size());
 
         TypeMapper typeMapper = typeMappers.iterator().next();
 
-        Assert.assertNotNull(typeMapper);
-        Assert.assertEquals("OK output type", typeMapper.toGraphQLType(null, null, null, null).getName());
-        Assert.assertEquals("OK input type", typeMapper.toGraphQLInputType(null, null, null, null).getName());
+        assertNotNull(typeMapper);
+        assertEquals("OK output type", typeMapper.toGraphQLType(null, null, null, null).getName());
+        assertEquals("OK input type", typeMapper.toGraphQLInputType(null, null, null, null).getName());
     }
 
     @Test
     public void abstractInputHandler_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         AbstractInputHandler abstractInputHandler = getPrivateFieldValueFromObject(schemaGenerator, "abstractInputHandler");
 
-        Assert.assertNotNull(abstractInputHandler);
+        assertNotNull(abstractInputHandler);
 
-        Assert.assertTrue(abstractInputHandler instanceof TestAbstractInputHandler);
+        assertTrue(abstractInputHandler instanceof TestAbstractInputHandler);
     }
 
     @Test
     public void inclusionStrategy_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         InclusionStrategy inclusionStrategy = getPrivateFieldValueFromObject(schemaGenerator, "inclusionStrategy");
 
-        Assert.assertNotNull(inclusionStrategy);
+        assertNotNull(inclusionStrategy);
 
-        Assert.assertTrue(inclusionStrategy instanceof TestInclusionStrategy);
+        assertTrue(inclusionStrategy instanceof TestInclusionStrategy);
     }
 
     @Test
     public void interfaceMappingStrategy_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         InterfaceMappingStrategy interfaceMappingStrategy = getPrivateFieldValueFromObject(schemaGenerator, "interfaceStrategy");
 
-        Assert.assertNotNull(interfaceMappingStrategy);
+        assertNotNull(interfaceMappingStrategy);
 
-        Assert.assertTrue(interfaceMappingStrategy instanceof TestInterfaceMappingStrategy);
+        assertTrue(interfaceMappingStrategy instanceof TestInterfaceMappingStrategy);
     }
 
     @Test
     public void stringInterpolation_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         MessageBundle messageBundle = getPrivateFieldValueFromObject(schemaGenerator, "messageBundle");
 
-        Assert.assertNotNull(messageBundle);
+        assertNotNull(messageBundle);
 
-        Assert.assertTrue(messageBundle.containsKey("hello"));
-        Assert.assertTrue(messageBundle.containsKey("graphql.messages.foo"));
-        Assert.assertTrue(messageBundle.containsKey("baz"));
+        assertTrue(messageBundle.containsKey("hello"));
+        assertTrue(messageBundle.containsKey("graphql.messages.foo"));
+        assertTrue(messageBundle.containsKey("baz"));
 
-        Assert.assertEquals("world", messageBundle.getMessage("hello"));
-        Assert.assertEquals("bar", messageBundle.getMessage("graphql.messages.foo"));
-        Assert.assertEquals("bar", messageBundle.getMessage("baz"));
+        assertEquals("world", messageBundle.getMessage("hello"));
+        assertEquals("bar", messageBundle.getMessage("graphql.messages.foo"));
+        assertEquals("bar", messageBundle.getMessage("baz"));
     }
 
     @Test
     public void moduleExtensionProvider_schemaGeneratorConfigTest() {
-        Assert.assertNotNull(schemaGenerator);
+        assertNotNull(schemaGenerator);
 
         List<ExtensionProvider<GeneratorConfiguration, Module>> moduleExtensionProviders = getPrivateFieldValueFromObject(schemaGenerator, "moduleProviders");
 
-        Assert.assertNotNull(moduleExtensionProviders);
-        Assert.assertFalse(moduleExtensionProviders.isEmpty());
-        Assert.assertEquals(2, moduleExtensionProviders.size());
+        assertNotNull(moduleExtensionProviders);
+        assertFalse(moduleExtensionProviders.isEmpty());
+        assertEquals(1, moduleExtensionProviders.size());
 
-        ExtensionProvider<GeneratorConfiguration, Module> moduleExtensionProvider = moduleExtensionProviders.get(1);
+        ExtensionProvider<GeneratorConfiguration, Module> moduleExtensionProvider = moduleExtensionProviders.get(0);
 
-        Assert.assertNotNull(moduleExtensionProvider);
+        assertNotNull(moduleExtensionProvider);
 
         List<Module> modules = moduleExtensionProvider.getExtensions(null, null);
 
-        Assert.assertNotNull(modules);
-        Assert.assertEquals(1, modules.size());
+        assertNotNull(modules);
+        assertEquals(1, modules.size());
 
         Module module = modules.get(0);
 
-        Assert.assertNotNull(module);
-        Assert.assertTrue(module instanceof TestModule);
+        assertNotNull(module);
+        assertTrue(module instanceof TestModule);
     }
 
     @SuppressWarnings("unchecked")

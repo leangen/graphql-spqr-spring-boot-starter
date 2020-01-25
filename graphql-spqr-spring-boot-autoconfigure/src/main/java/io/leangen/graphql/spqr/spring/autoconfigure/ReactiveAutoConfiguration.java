@@ -3,13 +3,12 @@ package io.leangen.graphql.spqr.spring.autoconfigure;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import io.leangen.graphql.module.Module;
-import io.leangen.graphql.spqr.spring.modules.reactive.FluxAdapter;
-import io.leangen.graphql.spqr.spring.modules.reactive.MonoAdapter;
+import io.leangen.graphql.spqr.spring.modules.reactive.ReactorModule;
 import io.leangen.graphql.spqr.spring.web.GraphQLController;
-import io.leangen.graphql.spqr.spring.web.reactive.GraphQLReactiveExecutor;
 import io.leangen.graphql.spqr.spring.web.GuiController;
-import io.leangen.graphql.spqr.spring.web.reactive.DefaultGraphQLExecutor;
 import io.leangen.graphql.spqr.spring.web.reactive.DefaultGraphQLController;
+import io.leangen.graphql.spqr.spring.web.reactive.DefaultGraphQLExecutor;
+import io.leangen.graphql.spqr.spring.web.reactive.GraphQLReactiveExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -20,16 +19,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-public class SpqrReactiveAutoConfiguration {
+public class ReactiveAutoConfiguration {
 
     @Bean
     public Internal<Module> reactorModule() {
-        MonoAdapter<?> monoAdapter = new MonoAdapter<>();
-        FluxAdapter<?> fluxAdapter = new FluxAdapter<>();
-        return new Internal<>(context -> context.getSchemaGenerator()
-                .withTypeMappers(monoAdapter, fluxAdapter)
-                .withOutputConverters(monoAdapter, fluxAdapter)
-                .withSchemaTransformers(fluxAdapter));
+        return new Internal<>(new ReactorModule());
     }
 
     @Autowired(required = false)

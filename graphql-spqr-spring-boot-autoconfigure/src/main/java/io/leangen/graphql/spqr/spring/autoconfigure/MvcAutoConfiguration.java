@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-public class SpqrMvcAutoConfiguration {
+public class MvcAutoConfiguration {
 
     @Autowired(required = false)
     @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
