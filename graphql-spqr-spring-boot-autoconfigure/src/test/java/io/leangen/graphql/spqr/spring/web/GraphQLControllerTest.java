@@ -18,7 +18,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -50,7 +50,7 @@ public class GraphQLControllerTest {
     public void defaultControllerTest_POST_applicationJson_noQueryParams() throws Exception {
         mockMvc.perform(
                 post("/"+apiContext)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"query\":\"{greetingFromBeanSource_wiredAsComponent_byAnnotation}\",\"variables\":null,\"operationName\":null}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
@@ -100,7 +100,7 @@ public class GraphQLControllerTest {
     public void defaultControllerTest_POST_applicationJson_INVALID() throws Exception {
         mockMvc.perform(
                 post("/"+apiContext)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("FieldUndefined: Field 'INVALID_QUERY'")));
@@ -111,7 +111,7 @@ public class GraphQLControllerTest {
         mockMvc.perform(
                 post("/"+apiContext)
                         .param("query","{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
@@ -174,7 +174,7 @@ public class GraphQLControllerTest {
                 get("/"+apiContext)
                         .param("query",withPage))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalToIgnoringWhiteSpace("{" +
+                .andExpect(content().string(equalToCompressingWhiteSpace("{" +
                         "\"data\":{\"springPageComponent_users\":{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"3\",\"hasNextPage\":true}," +
                         "\"edges\":[{\"node\":{\"id\":\"0id\",\"name\":\"Duncan Idaho0\",\"age\":10," +
                         "\"springPageComponent_user_projects\":{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"2\",\"hasNextPage\":true}," +

@@ -173,13 +173,12 @@ public class ResolverBuilder_TestConfig {
     @GraphQLApi
     public static class SpringPageComponent {
 
-        public static List<User> users = IntStream.range(0, 20)
-                .boxed()
-                .map(i -> new User(i + "id", "Duncan Idaho" + i, i + 10))
+        static List<User> users = IntStream.range(0, 20)
+                .mapToObj(i -> new User(i + "id", "Duncan Idaho" + i, i + 10))
                 .collect(Collectors.toList());
 
 
-        public static List<Project> projects = IntStream.range(0, 20)
+        static List<Project> projects = IntStream.range(0, 20)
                 .boxed()
                 .map(i -> new Project("Project"+i))
                 .collect(Collectors.toList());
@@ -187,12 +186,12 @@ public class ResolverBuilder_TestConfig {
 
         @GraphQLQuery(name = "springPageComponent_users")
         public Page<User> users(@GraphQLArgument(name = "first") int first, @GraphQLArgument(name = "after") String after) {
-            return (PageImpl<User>) new PageImpl(users, PageRequest.of(0, first), users.size());
+            return new PageImpl<>(users.subList(0, first), PageRequest.of(0, first), users.size());
         }
 
         @GraphQLQuery(name = "springPageComponent_user_projects")
         public Page<Project> projects(@GraphQLContext User user, @GraphQLArgument(name = "first") int first, @GraphQLArgument(name = "after") String after) {
-            return (PageImpl<Project>) new PageImpl(projects, PageRequest.of(0, first), users.size());
+            return new PageImpl<>(projects.subList(0, first), PageRequest.of(0, first), users.size());
         }
 
         public static class User {

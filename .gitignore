@@ -1,9 +1,14 @@
 # IDEA
 
-/.idea
+.idea
 .idea_modules/
 *.iml
 /lib
+
+# Eclipse
+.classpath
+.project
+.settings/
 
 # OSX
 .DS_Store
@@ -41,4 +46,3 @@ generated
 
 # ??
 *.log
-demo/.idea/

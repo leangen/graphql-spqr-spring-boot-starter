@@ -6,6 +6,7 @@ import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLTypeVisitor;
+import graphql.schema.GraphqlTypeComparatorRegistry;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 import io.leangen.geantyref.GenericTypeReflector;
@@ -29,6 +30,7 @@ import io.leangen.graphql.metadata.InputField;
 import io.leangen.graphql.metadata.TypedElement;
 import io.leangen.graphql.metadata.messages.MessageBundle;
 import io.leangen.graphql.metadata.strategy.InclusionStrategy;
+import io.leangen.graphql.metadata.strategy.InputFieldInclusionParams;
 import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
@@ -343,9 +345,9 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         Assert.assertNotNull(moduleExtensionProviders);
         Assert.assertFalse(moduleExtensionProviders.isEmpty());
-        Assert.assertEquals(1, moduleExtensionProviders.size());
+        Assert.assertEquals(2, moduleExtensionProviders.size());
 
-        ExtensionProvider<GeneratorConfiguration, Module> moduleExtensionProvider = moduleExtensionProviders.get(0);
+        ExtensionProvider<GeneratorConfiguration, Module> moduleExtensionProvider = moduleExtensionProviders.get(1);
 
         Assert.assertNotNull(moduleExtensionProvider);
 
@@ -412,6 +414,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                 @Override
                 public String generateTypeDescription(AnnotatedType type, MessageBundle messageBundle) {
                     return "OK";
+                }
+
+                @Override
+                public GraphqlTypeComparatorRegistry generateComparatorRegistry(AnnotatedType type, MessageBundle messageBundle) {
+                    return GraphqlTypeComparatorRegistry.AS_IS_REGISTRY;
                 }
             };
         }
@@ -618,7 +625,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public static class TestInclusionStrategy implements InclusionStrategy {
 
         @Override
-        public boolean includeOperation(AnnotatedElement element, AnnotatedType type) {
+        public boolean includeOperation(List<AnnotatedElement> elements, AnnotatedType declaringType) {
             return false;
         }
 
@@ -628,7 +635,12 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Override
-        public boolean includeInputField(Class<?> declaringClass, AnnotatedElement element, AnnotatedType elementType) {
+        public boolean includeArgumentForMapping(Parameter parameter, AnnotatedType parameterType, AnnotatedType declaringType) {
+            return false;
+        }
+
+        @Override
+        public boolean includeInputField(InputFieldInclusionParams params) {
             return false;
         }
     }

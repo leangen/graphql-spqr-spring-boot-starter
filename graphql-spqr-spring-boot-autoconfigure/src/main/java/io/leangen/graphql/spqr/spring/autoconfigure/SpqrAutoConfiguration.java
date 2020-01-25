@@ -28,8 +28,6 @@ import io.leangen.graphql.module.Module;
 import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
 import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilder;
 import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilders;
-import io.leangen.graphql.spqr.spring.util.mapping.SpringPageAdapter;
-import io.leangen.graphql.spqr.spring.util.mapping.SpringPageMapper;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
@@ -113,7 +111,7 @@ public class SpqrAutoConfiguration {
     private ExtensionProvider<GeneratorConfiguration, Module> moduleExtensionProvider;
 
     @Autowired(required = false)
-    private Internal<Module> reactorModule;
+    private List<Internal<Module>> internalModules;
 
     @Autowired
     public SpqrAutoConfiguration(ConfigurableApplicationContext context) {
@@ -136,16 +134,6 @@ public class SpqrAutoConfiguration {
     @ConditionalOnMissingBean
     public PublicResolverBuilder defaultPublicResolverBuilder() {
         return new PublicResolverBuilder();
-    }
-
-    @Bean
-    public ExtensionProvider<GeneratorConfiguration, TypeMapper> pageTypeMapper() {
-        return ((config, defaults) -> defaults.prepend(new SpringPageMapper()));
-    }
-
-    @Bean
-    public ExtensionProvider<GeneratorConfiguration, OutputConverter> pageTypeAdapter() {
-        return ((config, defaults) -> defaults.prepend(new SpringPageAdapter()));
     }
 
     @Bean
@@ -173,8 +161,8 @@ public class SpqrAutoConfiguration {
 
         // Modules should be registered first, so that extension providers have a chance to override what they need
         // Built-in modules must go before the user-provided ones for similar reasons
-        if (reactorModule != null) {
-            schemaGenerator.withModules(reactorModule.get());
+        if (internalModules != null) {
+            internalModules.forEach(module -> schemaGenerator.withModules(module.get()));
         }
 
         if (moduleExtensionProvider != null) {
