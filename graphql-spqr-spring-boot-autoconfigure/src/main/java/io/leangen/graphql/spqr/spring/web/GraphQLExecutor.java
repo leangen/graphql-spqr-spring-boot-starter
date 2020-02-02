@@ -13,7 +13,7 @@ public interface GraphQLExecutor<R> {
     Object execute(GraphQL graphQL, GraphQLRequest graphQLRequest, R request);
 
     default ExecutionInput buildInput(GraphQLRequest graphQLRequest, R request, ContextFactory<R> contextFactory,
-                                         DataLoaderRegistryFactory loaderFactory) {
+                                      DataLoaderRegistryFactory loaderFactory) {
         ExecutionInput.Builder inputBuilder = ExecutionInput.newExecutionInput()
                 .query(graphQLRequest.getQuery())
                 .operationName(graphQLRequest.getOperationName())

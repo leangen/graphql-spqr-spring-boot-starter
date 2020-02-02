@@ -180,7 +180,7 @@ public class ResolverBuilder_TestConfig {
 
         static List<Project> projects = IntStream.range(0, 20)
                 .boxed()
-                .map(i -> new Project("Project"+i))
+                .map(i -> new Project("Project" + i))
                 .collect(Collectors.toList());
 
 

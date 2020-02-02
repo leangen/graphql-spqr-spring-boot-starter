@@ -17,7 +17,7 @@ public class FluxAdapter<T> extends PublisherAdapter<T> {
 
     @Override
     protected Object convertOutputForNonSubscription(Publisher<T> original, AnnotatedType type, ResolutionEnvironment resolutionEnvironment) {
-        return ((Flux<T>)original).collectList().toFuture();
+        return ((Flux<T>) original).collectList().toFuture();
     }
 
     @Override
