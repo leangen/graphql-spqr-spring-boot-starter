@@ -41,9 +41,9 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_applicationGraphql_noQueryParams() throws Exception {
         mockMvc.perform(
-                    post("/"+apiContext)
-                    .contentType("application/graphql")
-                    .content("{greetingFromBeanSource_wiredAsComponent_byAnnotation}"))
+                post("/" + apiContext)
+                        .contentType("application/graphql")
+                        .content("{greetingFromBeanSource_wiredAsComponent_byAnnotation}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
     }
@@ -51,7 +51,7 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_applicationJson_noQueryParams() throws Exception {
         mockMvc.perform(
-                post("/"+apiContext)
+                post("/" + apiContext)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"query\":\"{greetingFromBeanSource_wiredAsComponent_byAnnotation}\",\"variables\":null,\"operationName\":null}"))
                 .andExpect(status().isOk())
@@ -61,9 +61,9 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_formUrlEncoded_noQueryParams() throws Exception {
         mockMvc.perform(
-                post("/"+apiContext)
+                post("/" + apiContext)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                        .content("query="+ URLEncoder.encode("{greetingFromBeanSource_wiredAsComponent_byAnnotation}", StandardCharsets.UTF_8.toString())))
+                        .content("query=" + URLEncoder.encode("{greetingFromBeanSource_wiredAsComponent_byAnnotation}", StandardCharsets.UTF_8.toString())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
     }
@@ -71,8 +71,8 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_GET() throws Exception {
         mockMvc.perform(
-                get("/"+apiContext)
-                        .param("query","{greetingFromBeanSource_wiredAsComponent_byAnnotation}"))
+                get("/" + apiContext)
+                        .param("query", "{greetingFromBeanSource_wiredAsComponent_byAnnotation}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
     }
@@ -80,7 +80,7 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_applicationGraphql_INVALID() throws Exception {
         mockMvc.perform(
-                post("/"+apiContext)
+                post("/" + apiContext)
                         .contentType("application/graphql")
                         .content("{INVALID_QUERY}"))
                 .andExpect(status().isOk())
@@ -90,8 +90,8 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_applicationGraphql_overridingQueryParams() throws Exception {
         mockMvc.perform(
-                post("/"+apiContext)
-                        .param("query","{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
+                post("/" + apiContext)
+                        .param("query", "{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
                         .contentType("application/graphql")
                         .content("{INVALID_QUERY}"))
                 .andExpect(status().isOk())
@@ -101,7 +101,7 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_applicationJson_INVALID() throws Exception {
         mockMvc.perform(
-                post("/"+apiContext)
+                post("/" + apiContext)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null}"))
                 .andExpect(status().isOk())
@@ -111,8 +111,8 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_applicationJson_overridingQueryParams() throws Exception {
         mockMvc.perform(
-                post("/"+apiContext)
-                        .param("query","{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
+                post("/" + apiContext)
+                        .param("query", "{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null}"))
                 .andExpect(status().isOk())
@@ -122,9 +122,9 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_formUrlEncoded_INVALID() throws Exception {
         mockMvc.perform(
-                post("/"+apiContext)
+                post("/" + apiContext)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                        .content("query="+ URLEncoder.encode("{INVALID_QUERY}", StandardCharsets.UTF_8.toString())))
+                        .content("query=" + URLEncoder.encode("{INVALID_QUERY}", StandardCharsets.UTF_8.toString())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("FieldUndefined: Field 'INVALID_QUERY'")));
     }
@@ -132,10 +132,10 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_formUrlEncoded_overridingQueryParams() throws Exception {
         mockMvc.perform(
-                post("/"+apiContext)
-                        .param("query","{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
+                post("/" + apiContext)
+                        .param("query", "{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                        .content("query="+ URLEncoder.encode("{INVALID_QUERY}", StandardCharsets.UTF_8.toString())))
+                        .content("query=" + URLEncoder.encode("{INVALID_QUERY}", StandardCharsets.UTF_8.toString())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
     }
@@ -143,7 +143,7 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_spring_page() throws Exception {
 
-        String withPage ="{\n" +
+        String withPage = "{\n" +
                 "    springPageComponent_users(first:3,after:\"2id\") {\n" +
                 "        pageInfo {\n" +
                 "            startCursor\n" +
@@ -173,8 +173,8 @@ public class GraphQLControllerTest {
                 "}\n";
 
         mockMvc.perform(
-                get("/"+apiContext)
-                        .param("query",withPage))
+                get("/" + apiContext)
+                        .param("query", withPage))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalToCompressingWhiteSpace("{" +
                         "\"data\":{\"springPageComponent_users\":{\"pageInfo\":{\"startCursor\":\"1\",\"endCursor\":\"3\",\"hasNextPage\":true}," +

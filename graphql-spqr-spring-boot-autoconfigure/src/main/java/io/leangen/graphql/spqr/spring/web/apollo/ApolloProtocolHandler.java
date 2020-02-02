@@ -2,8 +2,8 @@ package io.leangen.graphql.spqr.spring.web.apollo;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
-import io.leangen.graphql.spqr.spring.web.servlet.websocket.GraphQLWebSocketExecutor;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
+import io.leangen.graphql.spqr.spring.web.servlet.websocket.GraphQLWebSocketExecutor;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;

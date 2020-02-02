@@ -14,13 +14,13 @@ public class ResolverBuilder_TestReactiveConfig {
     @GraphQLApi
     public static class AnnotatedOperationSourceReactiveBean {
         @GraphQLQuery(name = "greetingFromAnnotatedSourceReactive_mono")
-        public Mono<String> getGreetingMono(){
+        public Mono<String> getGreetingMono() {
             return Mono.just("Hello world !");
         }
 
         @GraphQLQuery(name = "greetingFromAnnotatedSourceReactive_flux")
-        public Flux<String> getGreetingFlux(){
-            return Flux.fromArray(new String[]{"First Hello world !","Second Hello world !"});
+        public Flux<String> getGreetingFlux() {
+            return Flux.fromArray(new String[] {"First Hello world !", "Second Hello world !"});
         }
     }
 }

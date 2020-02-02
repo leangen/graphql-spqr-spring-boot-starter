@@ -15,6 +15,8 @@ import java.lang.annotation.Target;
 @Repeatable(WithResolverBuilders.class)
 public @interface WithResolverBuilder {
     Class<? extends ResolverBuilder> value();
+
     String qualifierValue() default "";
+
     Class<? extends Annotation> qualifierType() default Qualifier.class;
 }

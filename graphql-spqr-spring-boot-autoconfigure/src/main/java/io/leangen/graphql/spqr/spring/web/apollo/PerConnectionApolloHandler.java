@@ -56,8 +56,7 @@ public class PerConnectionApolloHandler implements WebSocketHandler, SubProtocol
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         try {
             getHandler(session).afterConnectionClosed(session, closeStatus);
-        }
-        finally {
+        } finally {
             this.handlers.remove(session);
         }
     }

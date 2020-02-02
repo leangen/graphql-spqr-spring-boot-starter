@@ -33,8 +33,8 @@ public abstract class GraphQLController<R> {
     )
     @ResponseBody
     public Object executeJsonPost(@RequestBody GraphQLRequest requestBody,
-                                GraphQLRequest requestParams,
-                                R request) {
+                                  GraphQLRequest requestParams,
+                                  R request) {
         String query = requestParams.getQuery() == null ? requestBody.getQuery() : requestParams.getQuery();
         String operationName = requestParams.getOperationName() == null ? requestBody.getOperationName() : requestParams.getOperationName();
         Map<String, Object> variables = requestParams.getVariables().isEmpty() ? requestBody.getVariables() : requestParams.getVariables();
@@ -49,8 +49,8 @@ public abstract class GraphQLController<R> {
     )
     @ResponseBody
     public Object executeGraphQLPost(@RequestBody String queryBody,
-                                   GraphQLRequest graphQLRequest,
-                                   R request) {
+                                     GraphQLRequest graphQLRequest,
+                                     R request) {
         String query = graphQLRequest.getQuery() == null ? queryBody : graphQLRequest.getQuery();
         return executor.execute(graphQL, new GraphQLRequest(query, graphQLRequest.getOperationName(), graphQLRequest.getVariables()), request);
     }
@@ -63,8 +63,8 @@ public abstract class GraphQLController<R> {
     )
     @ResponseBody
     public Object executeFormPost(@RequestParam Map<String, String> queryParams,
-                                GraphQLRequest graphQLRequest,
-                                R request) {
+                                  GraphQLRequest graphQLRequest,
+                                  R request) {
         String queryParam = queryParams.get("query");
         String operationNameParam = queryParams.get("operationName");
 
@@ -77,7 +77,7 @@ public abstract class GraphQLController<R> {
     @GetMapping(
             value = "${graphql.spqr.http.endpoint:/graphql}",
             produces = MediaType.APPLICATION_JSON_VALUE,
-            headers = { "Connection!=Upgrade", "Connection!=keep-alive, Upgrade" }
+            headers = {"Connection!=Upgrade", "Connection!=keep-alive, Upgrade"}
     )
     @ResponseBody
     public Object executeGet(GraphQLRequest graphQLRequest, R request) {

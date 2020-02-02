@@ -176,7 +176,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         assertNotNull(valueMapperFactory);
 
-        GlobalEnvironment mockEnv = new GlobalEnvironment(null,null, null, null, null, null, null, null);
+        GlobalEnvironment mockEnv = new GlobalEnvironment(null, null, null, null, null, null, null, null);
 
         ValueMapper valueMapper = valueMapperFactory.getValueMapper(Collections.emptyMap(), mockEnv);
 
@@ -368,11 +368,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T getPrivateFieldValueFromObject(Object object, String fieldName){
+    private <T> T getPrivateFieldValueFromObject(Object object, String fieldName) {
         try {
             Field f = object.getClass().getDeclaredField(fieldName);
             f.setAccessible(true);
-            return  (T) f.get(object);
+            return (T) f.get(object);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException("Error getting private field value", e);
         }
@@ -385,7 +385,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         @GraphQLApi
         private class AnnotatedOperationSourceBean {
             @GraphQLQuery(name = "greetingFromAnnotatedSource_wiredAsComponent")
-            public String getGreeting(){
+            public String getGreeting() {
                 return "Hello world !";
             }
         }
