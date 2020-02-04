@@ -9,13 +9,16 @@ import io.leangen.graphql.spqr.spring.web.GuiController;
 import io.leangen.graphql.spqr.spring.web.reactive.DefaultGraphQLController;
 import io.leangen.graphql.spqr.spring.web.reactive.DefaultGraphQLExecutor;
 import io.leangen.graphql.spqr.spring.web.reactive.GraphQLReactiveExecutor;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.leangen.graphql.spqr.spring.web.reactive.WebFluxContext;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.util.context.Context;
+
+import java.util.Optional;
 
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
@@ -26,21 +29,18 @@ public class ReactiveAutoConfiguration {
         return new Internal<>(new ReactorModule());
     }
 
-    @Autowired(required = false)
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    private DataLoaderRegistryFactory dataLoaderRegistryFactory;
-
     @Bean
     @ConditionalOnMissingBean
     public ReactiveContextFactory globalContextFactory() {
-        return params -> new DefaultGlobalContext<>(params.getNativeRequest());
+        return params -> new WebFluxContext(params.getNativeRequest(), (Context) params.getEnvironment());
     }
 
     @Bean
     @ConditionalOnProperty(name = "graphql.spqr.http.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnMissingBean
-    public GraphQLReactiveExecutor graphQLExecutor(ReactiveContextFactory contextFactory) {
-        return new DefaultGraphQLExecutor(contextFactory, dataLoaderRegistryFactory);
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public GraphQLReactiveExecutor graphQLExecutor(ReactiveContextFactory contextFactory, Optional<DataLoaderRegistryFactory> dataLoaderRegistryFactory) {
+        return new DefaultGraphQLExecutor(contextFactory, dataLoaderRegistryFactory.orElse(null));
     }
 
     @Bean

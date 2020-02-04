@@ -6,9 +6,9 @@ import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
 import io.leangen.graphql.spqr.spring.autoconfigure.ReactiveContextFactory;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class DefaultGraphQLExecutor implements GraphQLReactiveExecutor {
 
@@ -21,8 +21,10 @@ public class DefaultGraphQLExecutor implements GraphQLReactiveExecutor {
     }
 
     @Override
-    public CompletableFuture<Map<String, Object>> execute(GraphQL graphQL, GraphQLRequest graphQLRequest, ServerWebExchange request) {
-        return graphQL.executeAsync(buildInput(graphQLRequest, request, contextFactory, dataLoaderRegistryFactory))
-                .thenApply(ExecutionResult::toSpecification);
+    public Mono<Map<String, Object>> execute(GraphQL graphQL, GraphQLRequest graphQLRequest, ServerWebExchange request) {
+        return Mono.subscriberContext().flatMap(ctx -> Mono.fromFuture(
+                graphQL.executeAsync(buildInput(graphQLRequest, request, ctx, contextFactory, dataLoaderRegistryFactory))
+                        .thenApply(ExecutionResult::toSpecification))
+        );
     }
 }

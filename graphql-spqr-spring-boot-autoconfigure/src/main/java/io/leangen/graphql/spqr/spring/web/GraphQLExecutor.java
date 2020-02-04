@@ -13,6 +13,11 @@ public interface GraphQLExecutor<R> {
     Object execute(GraphQL graphQL, GraphQLRequest graphQLRequest, R request);
 
     default ExecutionInput buildInput(GraphQLRequest graphQLRequest, R request, ContextFactory<R> contextFactory,
+                                      DataLoaderRegistryFactory loaderFactory) {
+        return buildInput(graphQLRequest, request, null, contextFactory, loaderFactory);
+    }
+
+    default ExecutionInput buildInput(GraphQLRequest graphQLRequest, R request, Object env, ContextFactory<R> contextFactory,
                                          DataLoaderRegistryFactory loaderFactory) {
         ExecutionInput.Builder inputBuilder = ExecutionInput.newExecutionInput()
                 .query(graphQLRequest.getQuery())
@@ -21,6 +26,7 @@ public interface GraphQLExecutor<R> {
                 .context(contextFactory.createGlobalContext(ContextFactoryParams.<R>builder()
                         .withGraphQLRequest(graphQLRequest)
                         .withNativeRequest(request)
+                        .withEnvironment(env)
                         .build()));
         if (loaderFactory != null) {
             inputBuilder.dataLoaderRegistry(loaderFactory.createDataLoaderRegistry());
