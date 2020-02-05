@@ -10,9 +10,9 @@ import org.springframework.data.domain.Sort;
 public class Pagination {
 
     @GraphQLQuery
-    public int pageNumber;
+    public Integer pageNumber;
     @GraphQLQuery
-    public int pageSize;
+    public Integer pageSize;
     @GraphQLQuery
     public Sorting sort;
 
@@ -26,6 +26,6 @@ public class Pagination {
     }
 
     Pageable toPageable() {
-        return PageRequest.of(pageNumber, pageSize, sort != null ? sort.toSort() : Sort.unsorted());
+        return PageRequest.of(pageNumber != null ? pageNumber : 0, pageSize != null ? pageSize : 10, sort != null ? sort.toSort() : Sort.unsorted());
     }
 }
