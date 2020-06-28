@@ -228,6 +228,7 @@ public class SpqrProperties {
         private String targetEndpoint;
         private String targetWsEndpoint;
         private String pageTitle = "GraphQL Playground";
+        private boolean offline = false;
 
         public boolean isEnabled() {
             return enabled;
@@ -267,6 +268,14 @@ public class SpqrProperties {
 
         public void setPageTitle(String pageTitle) {
             this.pageTitle = pageTitle;
+        }
+
+        public boolean isOffline() {
+            return offline;
+        }
+
+        public void setOffline(boolean offline) {
+            this.offline = offline;
         }
     }
 }

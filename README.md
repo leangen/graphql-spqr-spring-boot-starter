@@ -218,7 +218,20 @@ To do this SPQR uses `TypeInfoGenerator` on a global level. When using this star
 | graphql.spqr.gui.targetEndpoint | n/a |
 | graphql.spqr.gui.targetWsEndpoint | n/a |
 | graphql.spqr.gui.pageTitle | GraphQL Playground |
+| graphql.spqr.gui.offline | false |
 
+NOTE: If you set `graphic ql.spqr.gui.offline`=`true`, you need to download static files, such as images, CSS files, and JavaScript files, and then put these files in the static directory.
+```bash
+curl -s https://raw.githubusercontent.com/leangen/graphql-spqr-spring-boot-starter/master/graphql-spqr-spring-boot-autoconfigure/src/main/resources/playground.html | \
+ grep -oP "cdn.*?[\"|\']" | \
+ sed "s,['|\"],," | \
+ while read url ; 
+    do 
+      mkdir -p $url ; 
+      rm -rf $url ; 
+      wget -O $url  $url ;
+   done
+```   
 ### Customize mapping of GraphQL values to Java values
 
 Object in charge of doing this in SPQR is `ValueMapperFactory`. Again the simplest way to make use of this when using the starter is to wire a single bean of this type into the application context.
