@@ -10,11 +10,28 @@ import io.leangen.graphql.generator.mapping.TypeMapper;
 import io.leangen.graphql.generator.mapping.common.AbstractTypeSubstitutingMapper;
 import io.leangen.graphql.util.ClassUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 import java.lang.reflect.AnnotatedType;
+import java.util.Optional;
 import java.util.Set;
 
 public class MonoAdapter<T> extends AbstractTypeSubstitutingMapper<T> implements OutputConverter<Mono<T>, Object> {
+
+    private final Optional<Scheduler> scheduler;
+
+    public MonoAdapter() {
+        this(Optional.empty());
+    }
+
+    public MonoAdapter(Scheduler scheduler) {
+        this(Optional.of(scheduler));
+    }
+
+    public MonoAdapter(Optional<Scheduler> scheduler) {
+        this.scheduler = scheduler;
+    }
+
 
     @Override
     public GraphQLInputType toGraphQLInputType(AnnotatedType javaType, OperationMapper operationMapper, Set<Class<? extends TypeMapper>> mappersToSkip, BuildContext buildContext) {
@@ -28,7 +45,7 @@ public class MonoAdapter<T> extends AbstractTypeSubstitutingMapper<T> implements
             return original;
         }
         //For other operations it must be converted into a CompletableFuture<T>
-        return original.toFuture();
+        return scheduler.map(value -> original.subscribeOn(value).toFuture()).orElseGet(original::toFuture);
     }
 
     @Override
