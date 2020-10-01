@@ -32,7 +32,6 @@ public class MonoAdapter<T> extends AbstractTypeSubstitutingMapper<T> implements
         this.scheduler = scheduler;
     }
 
-
     @Override
     public GraphQLInputType toGraphQLInputType(AnnotatedType javaType, OperationMapper operationMapper, Set<Class<? extends TypeMapper>> mappersToSkip, BuildContext buildContext) {
         throw new UnsupportedOperationException(ClassUtils.getRawType(javaType.getType()).getSimpleName() + " can not be used as an input type");
