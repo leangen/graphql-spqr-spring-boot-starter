@@ -12,7 +12,7 @@ public class Pagination {
     @GraphQLQuery
     public int pageNumber;
     @GraphQLQuery
-    public int pageSize;
+    public Integer pageSize;
     @GraphQLQuery
     public Sorting sort;
 
