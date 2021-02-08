@@ -7,14 +7,6 @@ Spring Boot 2 starter powered by GraphQL SPQR
 [![Build Status](https://travis-ci.org/leangen/graphql-spqr-spring-boot-starter.svg?branch=master)](https://travis-ci.org/leangen/graphql-spqr-spring-boot-starter)
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg?maxAge=2592000)](https://raw.githubusercontent.com/leangen/graphql-spqr-spring-boot-starter/master/LICENSE)
 
-## NOTICE
-This project is on a temporary hiatus. I hope to resume it shortly. In doing so, I must first assess the current state. I have removed the access to issues for the time being to get a chance to clean them up and prevent people from abusing the issues to ask for new releases. I'll restore the access as soon as I can. Sorry for the inconvenience, and thanks for your patience.
-
-
-## A friendly warning
-
-This project is still in early development and, while fairly well tested, should be considered as ALPHA stage as long as the version is 0.0.X.
-
 ## Project setup / Dependencies
 
 To use this starter in a typical Spring Boot project, add the following dependencies to your project:
@@ -25,7 +17,7 @@ To use this starter in a typical Spring Boot project, add the following dependen
   <dependency>
     <groupId>io.leangen.graphql</groupId>
     <artifactId>graphql-spqr-spring-boot-starter</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
   </dependency>
   <dependency>
     <groupId>org.springframework.boot</groupId>

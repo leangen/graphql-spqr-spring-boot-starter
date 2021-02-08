@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.0.5] - 2021-02-09
+### Added
+- Support for Spring Data paging 🥳, with ot without Relay compatibility (thanks [@vjroby](https://github.com/vjroby)) [#2](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/2)
+- Spring Security support in WebFlux (preserve Spring's subscriber context) 🥳 [#69](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/69) 
+- Ability to choose a scheduler for `Mono`s
+
+### Changed
+- [Breaking] Upgraded to graphql-spqr 0.11.1 (with graphql-java v16.2)
+- [Breaking] Upgraded to Spring Boot 2.4.2
+
+### Fixed
+- WebSockets (for subscriptions) now work correctly in Firefox [#54](https://github.com/vjroby)) [#9](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/54)
+- Empty variables map handled correctly [#39](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/39)
+
 ## [0.0.4] - 2018-02-24
 ### Added
 - WebFlux support (not yet for subscriptions) (thanks [@vjroby](https://github.com/vjroby)) [#9](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/9)
