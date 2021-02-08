@@ -3,37 +3,32 @@ package io.leangen.graphql.spqr.spring.modules.reactive;
 import graphql.schema.GraphQLInputType;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.graphql.execution.ResolutionEnvironment;
-import io.leangen.graphql.generator.BuildContext;
-import io.leangen.graphql.generator.OperationMapper;
 import io.leangen.graphql.generator.mapping.OutputConverter;
 import io.leangen.graphql.generator.mapping.TypeMapper;
+import io.leangen.graphql.generator.mapping.TypeMappingEnvironment;
 import io.leangen.graphql.generator.mapping.common.AbstractTypeSubstitutingMapper;
 import io.leangen.graphql.util.ClassUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.AnnotatedType;
-import java.util.Optional;
 import java.util.Set;
 
 public class MonoAdapter<T> extends AbstractTypeSubstitutingMapper<T> implements OutputConverter<Mono<T>, Object> {
 
-    private final Optional<Scheduler> scheduler;
+    private final Scheduler scheduler;
 
     public MonoAdapter() {
-        this(Optional.empty());
+        this (null);
     }
 
     public MonoAdapter(Scheduler scheduler) {
-        this(Optional.of(scheduler));
-    }
-
-    public MonoAdapter(Optional<Scheduler> scheduler) {
         this.scheduler = scheduler;
     }
 
     @Override
-    public GraphQLInputType toGraphQLInputType(AnnotatedType javaType, OperationMapper operationMapper, Set<Class<? extends TypeMapper>> mappersToSkip, BuildContext buildContext) {
+    public GraphQLInputType toGraphQLInputType(AnnotatedType javaType, Set<Class<? extends TypeMapper>> mappersToSkip, TypeMappingEnvironment env) {
         throw new UnsupportedOperationException(ClassUtils.getRawType(javaType.getType()).getSimpleName() + " can not be used as an input type");
     }
 
@@ -44,7 +39,7 @@ public class MonoAdapter<T> extends AbstractTypeSubstitutingMapper<T> implements
             return original;
         }
         //For other operations it must be converted into a CompletableFuture<T>
-        return scheduler.map(value -> original.subscribeOn(value).toFuture()).orElseGet(original::toFuture);
+        return scheduler != null ? original.subscribeOn(scheduler).toFuture() : original.toFuture();
     }
 
     @Override
@@ -54,7 +49,7 @@ public class MonoAdapter<T> extends AbstractTypeSubstitutingMapper<T> implements
     }
 
     @Override
-    public boolean supports(AnnotatedType type) {
+    public boolean supports(AnnotatedElement element, AnnotatedType type) {
         return GenericTypeReflector.isSuperType(Mono.class, type.getType());
     }
 }

@@ -1,10 +1,13 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
 import graphql.GraphQL;
+import graphql.language.Node;
 import graphql.schema.GraphQLInputType;
+import graphql.schema.GraphQLNamedInputType;
+import graphql.schema.GraphQLNamedOutputType;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.GraphQLType;
+import graphql.schema.GraphQLSchemaElement;
 import graphql.schema.GraphQLTypeVisitor;
 import graphql.schema.GraphqlTypeComparatorRegistry;
 import graphql.util.TraversalControl;
@@ -18,14 +21,15 @@ import io.leangen.graphql.annotations.GraphQLQuery;
 import io.leangen.graphql.execution.GlobalEnvironment;
 import io.leangen.graphql.execution.ResolutionEnvironment;
 import io.leangen.graphql.generator.BuildContext;
-import io.leangen.graphql.generator.OperationMapper;
 import io.leangen.graphql.generator.mapping.ArgumentInjector;
 import io.leangen.graphql.generator.mapping.ArgumentInjectorParams;
 import io.leangen.graphql.generator.mapping.InputConverter;
 import io.leangen.graphql.generator.mapping.OutputConverter;
 import io.leangen.graphql.generator.mapping.TypeMapper;
+import io.leangen.graphql.generator.mapping.TypeMappingEnvironment;
 import io.leangen.graphql.generator.mapping.strategy.AbstractInputHandler;
 import io.leangen.graphql.generator.mapping.strategy.InterfaceMappingStrategy;
+import io.leangen.graphql.metadata.DefaultValue;
 import io.leangen.graphql.metadata.InputField;
 import io.leangen.graphql.metadata.TypedElement;
 import io.leangen.graphql.metadata.messages.MessageBundle;
@@ -44,6 +48,8 @@ import io.leangen.graphql.module.Module;
 import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
 import io.leangen.graphql.spqr.spring.localization.MessageSourceMessageBundle;
 import io.leangen.graphql.spqr.spring.localization.PropertyResolverMessageBundle;
+import io.leangen.graphql.util.ClassUtils;
+import io.leangen.graphql.util.GraphQLUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -288,8 +294,8 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         TypeMapper typeMapper = typeMappers.iterator().next();
 
         assertNotNull(typeMapper);
-        assertEquals("OK output type", typeMapper.toGraphQLType(null, null, null, null).getName());
-        assertEquals("OK input type", typeMapper.toGraphQLInputType(null, null, null, null).getName());
+        assertEquals("OK output type", GraphQLUtils.name(typeMapper.toGraphQLType(null, null, null)));
+        assertEquals("OK input type", GraphQLUtils.name(typeMapper.toGraphQLInputType(null, null, null)));
     }
 
     @Test
@@ -435,7 +441,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                 inputFieldBuilders.add(new InputFieldBuilder() {
                     @Override
                     public Set<InputField> getInputFields(InputFieldBuilderParams params) {
-                        InputField testField = new InputField("OK", "OK", new TypedElement(STRING, (AnnotatedElement) null), null, null);
+                        InputField testField = new InputField("OK", "OK", new TypedElement(STRING, ClassUtils.findMethod(Object.class, "toString").get()), null, DefaultValue.EMPTY);
                         return Collections.singleton(testField);
                     }
 
@@ -497,7 +503,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                         }
 
                         @Override
-                        public boolean supports(AnnotatedType type) {
+                        public boolean supports(AnnotatedElement element, AnnotatedType type) {
                             return false;
                         }
                     });
@@ -529,38 +535,58 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
             return (config, defaults) -> Collections.singletonList(
                     new TypeMapper() {
                         @Override
-                        public GraphQLOutputType toGraphQLType(AnnotatedType javaType, OperationMapper operationMapper, Set<Class<? extends TypeMapper>> mappersToSkip, BuildContext buildContext) {
-                            return new GraphQLOutputType() {
+                        public GraphQLOutputType toGraphQLType(AnnotatedType javaType, Set<Class<? extends TypeMapper>> mappersToSkip, TypeMappingEnvironment env) {
+                            return new GraphQLNamedOutputType() {
                                 @Override
                                 public String getName() {
                                     return "OK output type";
                                 }
 
                                 @Override
-                                public TraversalControl accept(TraverserContext<GraphQLType> context, GraphQLTypeVisitor visitor) {
-                                    return TraversalControl.CONTINUE;
+                                public String getDescription() {
+                                    return null;
+                                }
+
+                                @Override
+                                public Node getDefinition() {
+                                    return null;
+                                }
+
+                                @Override
+                                public TraversalControl accept(TraverserContext<GraphQLSchemaElement> context, GraphQLTypeVisitor visitor) {
+                                    return TraversalControl.QUIT;
                                 }
                             };
                         }
 
                         @Override
-                        public GraphQLInputType toGraphQLInputType(AnnotatedType javaType, OperationMapper operationMapper, Set<Class<? extends TypeMapper>> mappersToSkip, BuildContext buildContext) {
-                            return new GraphQLInputType() {
+                        public GraphQLInputType toGraphQLInputType(AnnotatedType javaType, Set<Class<? extends TypeMapper>> mappersToSkip, TypeMappingEnvironment env) {
+                            return new GraphQLNamedInputType() {
                                 @Override
                                 public String getName() {
                                     return "OK input type";
                                 }
 
                                 @Override
-                                public TraversalControl accept(TraverserContext<GraphQLType> context, GraphQLTypeVisitor visitor) {
-                                    return TraversalControl.CONTINUE;
+                                public String getDescription() {
+                                    return null;
+                                }
+
+                                @Override
+                                public Node getDefinition() {
+                                    return null;
+                                }
+
+                                @Override
+                                public TraversalControl accept(TraverserContext<GraphQLSchemaElement> context, GraphQLTypeVisitor visitor) {
+                                    return TraversalControl.QUIT;
                                 }
                             };
                         }
 
                         @Override
-                        public boolean supports(AnnotatedType type) {
-                            return false;
+                        public boolean supports(AnnotatedElement element, AnnotatedType type) {
+                            return true;
                         }
                     });
         }
@@ -631,7 +657,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
 
         @Override
         public boolean includeOperation(List<AnnotatedElement> elements, AnnotatedType declaringType) {
-            return false;
+            return true;
         }
 
         @Override

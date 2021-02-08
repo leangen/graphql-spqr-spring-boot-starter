@@ -6,6 +6,7 @@ import io.leangen.graphql.generator.mapping.core.PublisherAdapter;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.AnnotatedType;
 
 public class FluxAdapter<T> extends PublisherAdapter<T> {
@@ -21,7 +22,7 @@ public class FluxAdapter<T> extends PublisherAdapter<T> {
     }
 
     @Override
-    public boolean supports(AnnotatedType type) {
+    public boolean supports(AnnotatedElement element, AnnotatedType type) {
         return GenericTypeReflector.isSuperType(Flux.class, type.getType());
     }
 }

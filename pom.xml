@@ -39,8 +39,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
 
-        <spqr.version>0.10.1</spqr.version>
-        <spring-boot.version>2.2.2.RELEASE</spring-boot.version>
+        <spqr.version>0.11.1</spqr.version>
+        <spring-boot.version>2.4.2</spring-boot.version>
     </properties>
 
     <modules>

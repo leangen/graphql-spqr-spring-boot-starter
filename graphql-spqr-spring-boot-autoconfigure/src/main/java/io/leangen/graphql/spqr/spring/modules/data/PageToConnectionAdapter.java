@@ -9,6 +9,7 @@ import io.leangen.graphql.generator.mapping.common.AbstractTypeSubstitutingMappe
 import io.leangen.graphql.util.ClassUtils;
 import org.springframework.data.domain.Slice;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.AnnotatedType;
 
 public class PageToConnectionAdapter<T> extends AbstractTypeSubstitutingMapper<io.leangen.graphql.execution.relay.Page<T>>
@@ -27,7 +28,7 @@ public class PageToConnectionAdapter<T> extends AbstractTypeSubstitutingMapper<i
     }
 
     @Override
-    public boolean supports(AnnotatedType type) {
+    public boolean supports(AnnotatedElement element, AnnotatedType type) {
         return ClassUtils.isSuperClass(Slice.class, type);
     }
 }
