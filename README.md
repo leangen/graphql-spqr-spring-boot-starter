@@ -1,11 +1,19 @@
 # graphql-spqr-spring-boot-starter
-Spring Boot 2 starter powered by GraphQL SPQR
+> Spring Boot starter powered by [GraphQL SPQR](https://github.com/leangen/graphql-spqr)
 
 [![Join the chat at https://gitter.im/leangen/graphql-spqr](https://badges.gitter.im/leangen/graphql-spqr.svg)](https://gitter.im/leangen/graphql-spqr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.leangen.graphql/graphql-spqr-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.leangen.graphql/graphql-spqr-spring-boot-starter)
 [![Javadoc](http://javadoc-badge.appspot.com/io.leangen.graphql/graphql-spqr-spring-boot-starter.svg?label=javadoc)](http://www.javadoc.io/doc/io.leangen.graphql/graphql-spqr-spring-boot-starter)
 [![Build Status](https://travis-ci.org/leangen/graphql-spqr-spring-boot-starter.svg?branch=master)](https://travis-ci.org/leangen/graphql-spqr-spring-boot-starter)
 [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg?maxAge=2592000)](https://raw.githubusercontent.com/leangen/graphql-spqr-spring-boot-starter/master/LICENSE)
+
+## Intro
+
+GraphQL SPQR Spring Boot starter aims to make it dead simple to add a GraphQL API to any Spring Boot project.
+ * Add `@GraphQLApi` to any Spring managed component, and you're good to go 🚀
+ * GraphQL endpoint available at `/graphql` by default
+ * GraphQL Playground IDE (if enabled, see the properties below) available at `/ide`
+ * Fully customizable in seconds by providing simple beans (any SPQR SPI can be exposed as a bean)
 
 ## Project setup / Dependencies
 
