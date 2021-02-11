@@ -1,0 +1,38 @@
+schema {
+    query: Query
+}
+
+type Page_User {
+    totalElements: Long!
+    totalPages: Int!
+}
+
+#Query root
+type Query {
+    greetingFromAnnotatedSource_wiredAsBean: String
+    greetingFromAnnotatedSource_wiredAsComponent: String
+    greetingFromBeanSource_wiredAsBean_byAnnotation: String
+    greetingFromBeanSource_wiredAsBean_byAnnotationQualifiedCustomResolverBuilder_wiredAsBean: String
+    greetingFromBeanSource_wiredAsBean_byAnnotationQualifiedCustomResolverBuilder_wiredAsComponent: String
+    greetingFromBeanSource_wiredAsBean_byCustomGlobalResolverBuilder: String
+    greetingFromBeanSource_wiredAsBean_byMethodName: String
+    greetingFromBeanSource_wiredAsBean_byNamedCustomResolverBuilder_wiredAsBean: String
+    greetingFromBeanSource_wiredAsBean_byNamedCustomResolverBuilder_wiredAsComponent: String
+    greetingFromBeanSource_wiredAsBean_byStringQualifiedCustomResolverBuilder_wiredAsBean: String
+    greetingFromBeanSource_wiredAsBean_byStringQualifiedCustomResolverBuilder_wiredAsComponent: String
+    greetingFromBeanSource_wiredAsComponent_byAnnotation: String
+    greetingFromBeanSource_wiredAsComponent_byAnnotationQualifiedCustomResolverBuilder_wiredAsBean: String
+    greetingFromBeanSource_wiredAsComponent_byAnnotationQualifiedCustomResolverBuilder_wiredAsComponent: String
+    greetingFromBeanSource_wiredAsComponent_byCustomGlobalResolverBuilder: String
+    greetingFromBeanSource_wiredAsComponent_byMethodName: String
+    greetingFromBeanSource_wiredAsComponent_byNamedCustomResolverBuilder_wiredAsBean: String
+    greetingFromBeanSource_wiredAsComponent_byNamedCustomResolverBuilder_wiredAsComponent: String
+    greetingFromBeanSource_wiredAsComponent_byStringQualifiedCustomResolverBuilder_wiredAsBean: String
+    greetingFromBeanSource_wiredAsComponent_byStringQualifiedCustomResolverBuilder_wiredAsComponent: String
+    springPageComponent_users(after: String, first: Int!): Page_User
+    upload(file1: FileUpload, file2: FileUpload): [String]
+    uploadFiles(files: [FileUpload]): [String]
+}
+
+#An apollo upload compatible scalar for multipart uploads
+scalar FileUpload

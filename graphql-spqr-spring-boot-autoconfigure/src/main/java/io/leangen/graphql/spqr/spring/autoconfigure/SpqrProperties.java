@@ -1,9 +1,9 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
-
-import javax.annotation.PostConstruct;
 
 @ConfigurationProperties(prefix = "graphql.spqr")
 @SuppressWarnings("WeakerAccess")
@@ -16,6 +16,7 @@ public class SpqrProperties {
     private String[] basePackages;
     private boolean abstractInputTypeResolution;
     private Relay relay = new Relay();
+    private MultipartUpload multipartUpload = new MultipartUpload();
 
     // Web properties
     private Http http = new Http();
@@ -86,6 +87,14 @@ public class SpqrProperties {
 
     public void setGui(Gui gui) {
         this.gui = gui;
+    }
+
+    public MultipartUpload getMultipartUpload() {
+        return multipartUpload;
+    }
+
+    public void setMultipartUpload(MultipartUpload multipartUpload) {
+        this.multipartUpload = multipartUpload;
     }
 
     public static class Relay {
@@ -267,6 +276,22 @@ public class SpqrProperties {
 
         public void setPageTitle(String pageTitle) {
             this.pageTitle = pageTitle;
+        }
+    }
+
+    public static class MultipartUpload {
+
+        private boolean enabled;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        /**
+         * @param enabled if enabled a multipart file upload will be activated
+         */
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
         }
     }
 }
