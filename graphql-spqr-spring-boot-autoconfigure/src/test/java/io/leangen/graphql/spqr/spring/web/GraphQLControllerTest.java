@@ -1,5 +1,8 @@
 package io.leangen.graphql.spqr.spring.web;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import io.leangen.graphql.spqr.spring.autoconfigure.BaseAutoConfiguration;
 import io.leangen.graphql.spqr.spring.autoconfigure.MvcAutoConfiguration;
 import io.leangen.graphql.spqr.spring.autoconfigure.SpringDataAutoConfiguration;
@@ -14,9 +17,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
@@ -111,12 +111,35 @@ public class GraphQLControllerTest {
     @Test
     public void defaultControllerTest_POST_applicationJson_overridingQueryParams() throws Exception {
         mockMvc.perform(
-                post("/"+apiContext)
-                        .param("query","{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
+                post("/" + apiContext)
+                        .param("query", "{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
+    }
+
+    @Test
+    public void defaultControllerTest_GET_with_variables() throws Exception {
+        mockMvc.perform(
+                get("/" + apiContext)
+                        .param("query", "query Echo($contentInput: String){ echo(content: $contentInput)}")
+                        .param("variables", "{\"contentInput\": \"Hello world\"}")
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"data\":{\"echo\":\"Hello world\"}}", true));
+    }
+
+    @Test
+    public void defaultControllerTest_POST_with_variables() throws Exception {
+        mockMvc.perform(
+                post("/" + apiContext)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":{\"contentInput\": \"Hello world2\"},\"operationName\":null}")
+                        .param("query", "query Echo($contentInput: String){ echo(content: $contentInput)}")
+                        .param("variables", "{\"contentInput\": \"Hello world1\"}"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"data\":{\"echo\":\"Hello world1\"}}", true));
     }
 
     @Test

@@ -1,5 +1,7 @@
 package io.leangen.graphql.spqr.spring.web.reactive;
 
+import java.net.URI;
+
 import io.leangen.graphql.spqr.spring.autoconfigure.BaseAutoConfiguration;
 import io.leangen.graphql.spqr.spring.autoconfigure.ReactiveAutoConfiguration;
 import io.leangen.graphql.spqr.spring.test.ResolverBuilder_TestReactiveConfig;
@@ -17,8 +19,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
-
-import java.net.URI;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
@@ -73,5 +73,29 @@ public class GraphQLReactiveControllerTest {
                     assertThat("", c.getResponseBody(), containsString("First Hello world !"));
                     assertThat("", c.getResponseBody(), containsString("Second Hello world !"));
                 });
+    }
+
+    @Test
+    public void defaultControllerTest_GET_with_variables() {
+        webTestClient.get().uri("/" + apiContext + "?query={query}&variables={variables}",
+                "query Echo($contentInput: String){ echo(content: $contentInput)}",
+                "{\"contentInput\": \"Hello world\"}")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(c -> assertThat("", c.getResponseBody(), containsString("Hello world")));
+    }
+
+    @Test
+    public void defaultControllerTest_POST_with_variables() {
+        webTestClient.post().uri("/" + apiContext + "?query={query}&variables={variables}",
+                "query Echo($contentInput: String){ echo(content: $contentInput)}",
+                "{\"contentInput\": \"Hello world1\"}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue("{\"query\":\"{INVALID_QUERY}\",\"variables\":{\"contentInput\": \"Hello world2\"},\"operationName\":null}"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(c -> assertThat("", c.getResponseBody(), containsString("Hello world1")));
     }
 }
