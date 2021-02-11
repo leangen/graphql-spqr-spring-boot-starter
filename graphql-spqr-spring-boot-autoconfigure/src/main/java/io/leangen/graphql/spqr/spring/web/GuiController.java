@@ -22,9 +22,13 @@ public class GuiController {
     @ResponseBody
     @RequestMapping(value = "${graphql.spqr.gui.endpoint:/gui}", produces = "text/html; charset=utf-8")
     public String gui() throws IOException {
-        return StreamUtils.copyToString(new ClassPathResource("playground.html").getInputStream(), StandardCharsets.UTF_8)
+        String playgroundHtml = StreamUtils.copyToString(new ClassPathResource("playground.html")
+                .getInputStream(), StandardCharsets.UTF_8)
                 .replace("${pageTitle}", config.getGui().getPageTitle())
                 .replace("${graphQLEndpoint}", config.getGui().getTargetEndpoint())
                 .replace("${webSocketEndpoint}", config.getGui().getTargetWsEndpoint());
+
+        return config.getGui().isOffline() ? playgroundHtml.replace("//", "/")
+                : playgroundHtml;
     }
 }
