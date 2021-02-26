@@ -5,12 +5,13 @@ import graphql.GraphQL;
 import io.leangen.graphql.spqr.spring.autoconfigure.ContextFactory;
 import io.leangen.graphql.spqr.spring.autoconfigure.ContextFactoryParams;
 import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
+import io.leangen.graphql.spqr.spring.web.dto.ExecutorParams;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
 
 @FunctionalInterface
 public interface GraphQLExecutor<R> {
 
-    Object execute(GraphQL graphQL, GraphQLRequest graphQLRequest, R request);
+    Object execute(GraphQL graphQL, ExecutorParams<R> params);
 
     default ExecutionInput buildInput(GraphQLRequest graphQLRequest, R request, ContextFactory<R> contextFactory,
                                       DataLoaderRegistryFactory loaderFactory) {

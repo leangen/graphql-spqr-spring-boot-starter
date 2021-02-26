@@ -10,6 +10,6 @@ public class MonoInterceptor implements ResolverInterceptor {
     @Override
     public Object aroundInvoke(InvocationContext context, Continuation continuation) throws Exception {
         WebFluxContext reactiveContext = (WebFluxContext) context.getResolutionEnvironment().rootContext;
-        return ((Mono<?>) continuation.proceed(context)).subscriberContext(reactiveContext.getSubscriberContext());
+        return ((Mono<?>) continuation.proceed(context)).contextWrite(reactiveContext.getSubscriberContext());
     }
 }

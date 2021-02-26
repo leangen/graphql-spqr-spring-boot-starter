@@ -4,7 +4,7 @@ import graphql.ExecutionResult;
 import graphql.GraphQL;
 import io.leangen.graphql.spqr.spring.autoconfigure.DataLoaderRegistryFactory;
 import io.leangen.graphql.spqr.spring.autoconfigure.WebSocketContextFactory;
-import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
+import io.leangen.graphql.spqr.spring.web.dto.ExecutorParams;
 import org.springframework.web.socket.WebSocketSession;
 
 public class DefaultGraphQLExecutor implements GraphQLWebSocketExecutor {
@@ -18,7 +18,7 @@ public class DefaultGraphQLExecutor implements GraphQLWebSocketExecutor {
     }
 
     @Override
-    public ExecutionResult execute(GraphQL graphQL, GraphQLRequest graphQLRequest, WebSocketSession request) {
-        return graphQL.execute(buildInput(graphQLRequest, request, contextFactory, dataLoaderRegistryFactory));
+    public ExecutionResult execute(GraphQL graphQL, ExecutorParams<WebSocketSession> params) {
+        return graphQL.execute(buildInput(params.graphQLRequest, params.request, contextFactory, dataLoaderRegistryFactory));
     }
 }

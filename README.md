@@ -214,14 +214,16 @@ To do this SPQR uses `TypeInfoGenerator` on a global level. When using this star
 | graphql.spqr.http.endpoint | /graphql |
 | graphql.spqr.ws.enabled | true |
 | graphql.spqr.ws.endpoint | n/a |
-| graphql.spqr.ws.allowedOrigins | * |
-| graphql.spqr.ws.keepAlive.enabled | false |
-| graphql.spqr.ws.keepAlive.intervalMillis | 10000 |
+| graphql.spqr.ws.send-time-limit | 10000 |
+| graphql.spqr.ws.send-buffer-size-limit | 512 * 1024 |
+| graphql.spqr.ws.allowed-origins | * |
+| graphql.spqr.ws.keep-alive.enabled | false |
+| graphql.spqr.ws.keep-alive.interval-millis | 10000 |
 | graphql.spqr.gui.enabled | true |
 | graphql.spqr.gui.endpoint | /gui |
-| graphql.spqr.gui.targetEndpoint | n/a |
-| graphql.spqr.gui.targetWsEndpoint | n/a |
-| graphql.spqr.gui.pageTitle | GraphQL Playground |
+| graphql.spqr.gui.target-endpoint | n/a |
+| graphql.spqr.gui.target-ws-endpoint | n/a |
+| graphql.spqr.gui.page-title | GraphQL Playground |
 
 ### Customize mapping of GraphQL values to Java values
 

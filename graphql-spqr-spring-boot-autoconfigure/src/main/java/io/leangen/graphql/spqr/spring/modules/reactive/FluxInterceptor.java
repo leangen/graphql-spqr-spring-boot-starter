@@ -10,6 +10,6 @@ public class FluxInterceptor implements ResolverInterceptor {
     @Override
     public Object aroundInvoke(InvocationContext context, Continuation continuation) throws Exception {
         WebFluxContext reactiveContext = (WebFluxContext) context.getResolutionEnvironment().rootContext;
-        return ((Flux<?>) continuation.proceed(context)).subscriberContext(reactiveContext.getSubscriberContext());
+        return ((Flux<?>) continuation.proceed(context)).contextWrite(reactiveContext.getSubscriberContext());
     }
 }

@@ -35,7 +35,7 @@ public class WebSocketAutoConfiguration implements WebSocketConfigurer {
     private final DataLoaderRegistryFactory dataLoaderRegistryFactory;
 
     @Autowired
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "SpringJavaInjectionPointsAutowiringInspection"})
     public WebSocketAutoConfiguration(GraphQL graphQL, SpqrProperties config,
                                       Optional<DataLoaderRegistryFactory> dataLoaderRegistryFactory) {
         this.graphQL = graphQL;
@@ -70,8 +70,11 @@ public class WebSocketAutoConfiguration implements WebSocketConfigurer {
     public PerConnectionApolloHandler webSocketHandler(GraphQLWebSocketExecutor executor) {
         boolean keepAliveEnabled = config.getWs().getKeepAlive().isEnabled();
         int keepAliveInterval = config.getWs().getKeepAlive().getIntervalMillis();
+        int sendTimeLimit = config.getWs().getSendTimeLimit();
+        int sendBufferSizeLimit = config.getWs().getSendBufferSizeLimit();
         return new PerConnectionApolloHandler(graphQL, executor,
-                keepAliveEnabled ? defaultTaskScheduler() : null, keepAliveInterval);
+                keepAliveEnabled ? defaultTaskScheduler() : null, keepAliveInterval,
+                sendTimeLimit, sendBufferSizeLimit);
     }
 
     private TaskScheduler defaultTaskScheduler() {

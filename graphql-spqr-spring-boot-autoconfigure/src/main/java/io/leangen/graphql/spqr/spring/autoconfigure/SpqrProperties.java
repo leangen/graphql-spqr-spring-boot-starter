@@ -1,7 +1,7 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
+import io.leangen.graphql.util.Utils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 
@@ -29,13 +29,13 @@ public class SpqrProperties {
 
     @PostConstruct
     public void setDefaults() {
-        if (StringUtils.isEmpty(ws.getEndpoint())) {
+        if (Utils.isEmpty(ws.getEndpoint())) {
             ws.setEndpoint(http.endpoint);
         }
-        if (StringUtils.isEmpty(gui.getTargetEndpoint())) {
+        if (Utils.isEmpty(gui.getTargetEndpoint())) {
             gui.setTargetEndpoint(http.endpoint);
         }
-        if (StringUtils.isEmpty(gui.getTargetWsEndpoint())) {
+        if (Utils.isEmpty(gui.getTargetWsEndpoint())) {
             gui.setTargetWsEndpoint(ws.endpoint);
         }
     }
@@ -163,6 +163,8 @@ public class SpqrProperties {
 
         private boolean enabled = true;
         private String endpoint;
+        private int sendTimeLimit = 10 * 1000;
+        private int sendBufferSizeLimit = 512 * 1024;
         private String[] allowedOrigins = new String[] {"*"};
         private KeepAlive keepAlive = new KeepAlive();
 
@@ -180,6 +182,22 @@ public class SpqrProperties {
 
         public void setEndpoint(String endpoint) {
             this.endpoint = endpoint;
+        }
+
+        public int getSendTimeLimit() {
+            return sendTimeLimit;
+        }
+
+        public void setSendTimeLimit(int sendTimeLimit) {
+            this.sendTimeLimit = sendTimeLimit;
+        }
+
+        public int getSendBufferSizeLimit() {
+            return sendBufferSizeLimit;
+        }
+
+        public void setSendBufferSizeLimit(int sendBufferSizeLimit) {
+            this.sendBufferSizeLimit = sendBufferSizeLimit;
         }
 
         public String[] getAllowedOrigins() {
