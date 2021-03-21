@@ -1,4 +1,4 @@
-package io.leangen.graphql.spqr.spring.web.servlet;
+package io.leangen.graphql.spqr.spring.web.mvc;
 
 import graphql.GraphQL;
 import io.leangen.graphql.spqr.spring.web.GraphQLController;
@@ -12,7 +12,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 public class DefaultGraphQLController extends GraphQLController<NativeWebRequest> {
 
     @Autowired
-    public DefaultGraphQLController(GraphQL graphQL, GraphQLServletExecutor executor) {
+    public DefaultGraphQLController(GraphQL graphQL, GraphQLMvcExecutor executor) {
         super(graphQL, executor);
     }
 }

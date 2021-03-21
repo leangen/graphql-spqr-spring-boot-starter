@@ -5,7 +5,7 @@ import graphql.GraphQL;
 import io.leangen.graphql.spqr.spring.web.dto.ExecutorParams;
 import io.leangen.graphql.spqr.spring.web.dto.GraphQLRequest;
 import io.leangen.graphql.spqr.spring.web.dto.TransportType;
-import io.leangen.graphql.spqr.spring.web.servlet.websocket.GraphQLWebSocketExecutor;
+import io.leangen.graphql.spqr.spring.web.mvc.websocket.GraphQLWebSocketExecutor;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

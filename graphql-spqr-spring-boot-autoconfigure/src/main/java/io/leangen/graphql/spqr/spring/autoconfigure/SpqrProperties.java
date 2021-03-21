@@ -141,6 +141,7 @@ public class SpqrProperties {
 
         private boolean enabled = true;
         private String endpoint = DEFAULT_ENDPOINT;
+        private Mvc mvc = new Mvc();
 
         public boolean isEnabled() {
             return enabled;
@@ -156,6 +157,30 @@ public class SpqrProperties {
 
         public void setEndpoint(String endpoint) {
             this.endpoint = endpoint;
+        }
+
+        public Mvc getMvc() {
+            return mvc;
+        }
+
+        public void setMvc(Mvc mvc) {
+            this.mvc = mvc;
+        }
+
+        public static class Mvc {
+            private Executor executor = Executor.ASYNC;
+
+            public Executor getExecutor() {
+                return executor;
+            }
+
+            public void setExecutor(Executor executor) {
+                this.executor = executor;
+            }
+
+            public enum Executor {
+                ASYNC, BLOCKING
+            }
         }
     }
 

@@ -1,8 +1,8 @@
-package io.leangen.graphql.spqr.spring.web.servlet;
+package io.leangen.graphql.spqr.spring.web.mvc;
 
 import io.leangen.graphql.spqr.spring.web.GraphQLExecutor;
 import org.springframework.web.context.request.NativeWebRequest;
 
 @FunctionalInterface
-public interface GraphQLServletExecutor extends GraphQLExecutor<NativeWebRequest> {
+public interface GraphQLMvcExecutor extends GraphQLExecutor<NativeWebRequest> {
 }

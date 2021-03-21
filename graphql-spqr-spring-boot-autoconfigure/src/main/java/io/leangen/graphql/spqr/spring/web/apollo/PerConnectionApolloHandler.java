@@ -1,7 +1,7 @@
 package io.leangen.graphql.spqr.spring.web.apollo;
 
 import graphql.GraphQL;
-import io.leangen.graphql.spqr.spring.web.servlet.websocket.GraphQLWebSocketExecutor;
+import io.leangen.graphql.spqr.spring.web.mvc.websocket.GraphQLWebSocketExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.SubProtocolCapable;

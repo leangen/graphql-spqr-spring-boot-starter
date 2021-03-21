@@ -17,8 +17,10 @@ import io.leangen.graphql.generator.mapping.strategy.AbstractInputHandler;
 import io.leangen.graphql.generator.mapping.strategy.InterfaceMappingStrategy;
 import io.leangen.graphql.metadata.messages.MessageBundle;
 import io.leangen.graphql.metadata.strategy.InclusionStrategy;
+import io.leangen.graphql.metadata.strategy.query.AbstractResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.BeanResolverBuilder;
+import io.leangen.graphql.metadata.strategy.query.MethodInvokerFactory;
 import io.leangen.graphql.metadata.strategy.query.PublicResolverBuilder;
 import io.leangen.graphql.metadata.strategy.query.ResolverBuilder;
 import io.leangen.graphql.metadata.strategy.type.TypeInfoGenerator;
@@ -27,7 +29,8 @@ import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
 import io.leangen.graphql.module.Module;
 import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
 import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilder;
-import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilders;
+import io.leangen.graphql.util.Utils;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
@@ -41,21 +44,22 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.type.StandardMethodMetadata;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Configuration
 @ConditionalOnClass(GraphQLSchemaGenerator.class)
@@ -64,6 +68,7 @@ import java.util.Set;
 public class BaseAutoConfiguration {
 
     private final ConfigurableApplicationContext context;
+    private final MethodInvokerFactory aopAwareFactory = new AopAwareMethodInvokerFactory();
 
     @Autowired(required = false)
     private ExtensionProvider<GeneratorConfiguration, ResolverBuilder> globalResolverBuilderExtensionProvider;
@@ -121,19 +126,19 @@ public class BaseAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public AnnotatedResolverBuilder defaultAnnotatedResolverBuilder() {
-        return new AnnotatedResolverBuilder();
+        return (AnnotatedResolverBuilder) new AnnotatedResolverBuilder().withMethodInvokerFactory(aopAwareFactory);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public BeanResolverBuilder defaultBeanResolverBuilder() {
-        return new BeanResolverBuilder();
+        return (BeanResolverBuilder) new BeanResolverBuilder().withMethodInvokerFactory(aopAwareFactory);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public PublicResolverBuilder defaultPublicResolverBuilder() {
-        return new PublicResolverBuilder();
+        return (PublicResolverBuilder) new PublicResolverBuilder().withMethodInvokerFactory(aopAwareFactory);
     }
 
     @Bean
@@ -144,7 +149,7 @@ public class BaseAutoConfiguration {
         schemaGenerator.withBasePackages(spqrProperties.getBasePackages());
 
         if (spqrProperties.getRelay().isEnabled()) {
-            if (!StringUtils.isEmpty(spqrProperties.getRelay().getMutationWrapper())) {
+            if (Utils.isNotEmpty(spqrProperties.getRelay().getMutationWrapper())) {
                 schemaGenerator.withRelayCompliantMutations(
                         spqrProperties.getRelay().getMutationWrapper(), spqrProperties.getRelay().getMutationWrapperDescription()
                 );
@@ -153,11 +158,8 @@ public class BaseAutoConfiguration {
             }
         }
 
-        Map<String, SpqrBean> beansWiredAsComponent = findGraphQLApiComponents();
-        addOperationSources(schemaGenerator, beansWiredAsComponent.values());
-
-        List<SpqrBean> beansWiredWithAsBeans = findGraphQLApiBeans();
-        addOperationSources(schemaGenerator, beansWiredWithAsBeans);
+        Map<String, SpqrBean> apiComponents = findGraphQLApiComponents();
+        addOperationSources(schemaGenerator, apiComponents.values());
 
         // Modules should be registered first, so that extension providers have a chance to override what they need
         // Built-in modules must go before the user-provided ones for similar reasons
@@ -171,6 +173,8 @@ public class BaseAutoConfiguration {
 
         if (globalResolverBuilderExtensionProvider != null) {
             schemaGenerator.withResolverBuilders(globalResolverBuilderExtensionProvider);
+        } else {
+            schemaGenerator.withResolverBuilders(defaultAnnotatedResolverBuilder());
         }
 
         if (typeMapperExtensionProvider != null) {
@@ -237,20 +241,24 @@ public class BaseAutoConfiguration {
     }
 
     private void addOperationSources(GraphQLSchemaGenerator schemaGenerator, Collection<SpqrBean> spqrBeans) {
-        spqrBeans.stream()
-                .filter(spqrBean -> spqrBean.getScope().equals(BeanScope.SINGLETON))
-                .forEach(
-                        spqrBean ->
-                                schemaGenerator.withOperationsFromSingleton(
-                                        spqrBean.getSpringBean(),
-                                        spqrBean.getType(),
-                                        spqrBean.resolverBuilders.stream()
-                                                .map(resolverBuilderBeanIdentity -> findQualifiedBeanByType(resolverBuilderBeanIdentity.getResolverType(),
-                                                        resolverBuilderBeanIdentity.getValue(),
-                                                        resolverBuilderBeanIdentity.getQualifierType()))
-                                                .toArray(ResolverBuilder[]::new)
-                                )
-                );
+        spqrBeans.forEach(spqrBean ->
+                schemaGenerator.withOperationsFromBean(
+                        spqrBean.beanSupplier,
+                        spqrBean.type,
+                        spqrBean.exposedType,
+                        spqrBean.resolverBuilders.stream()
+                                .map(criteria -> findQualifiedBeanByType(
+                                        criteria.getResolverType(),
+                                        criteria.getValue(),
+                                        criteria.getQualifierType()))
+                                .peek(resolverBuilder -> {
+                                    if (resolverBuilder instanceof AbstractResolverBuilder) {
+                                        ((AbstractResolverBuilder) resolverBuilder).withMethodInvokerFactory(aopAwareFactory);
+                                    }
+                                })
+                                .toArray(ResolverBuilder[]::new)
+                )
+        );
     }
 
     @Bean
@@ -270,8 +278,7 @@ public class BaseAutoConfiguration {
         final NoSuchBeanDefinitionException noSuchBeanDefinitionException = new NoSuchBeanDefinitionException(qualifierValue, "No matching " + type.getSimpleName() +
                 " bean found for qualifier " + qualifierValue + " of type " + qualifierType.getSimpleName() + " !");
         try {
-
-            if (StringUtils.isEmpty(qualifierValue)) {
+            if (Utils.isEmpty(qualifierValue)) {
                 if (qualifierType.equals(Qualifier.class)) {
                     return Optional.of(
                             context.getBean(type))
@@ -313,113 +320,73 @@ public class BaseAutoConfiguration {
         }
     }
 
-    @SuppressWarnings({"unchecked"})
-    private List<SpqrBean> findGraphQLApiBeans() {
-        ConfigurableListableBeanFactory factory = context.getBeanFactory();
-
-        List<SpqrBean> spqrBeans = new ArrayList<>();
-
-        for (String beanName : factory.getBeanDefinitionNames()) {
-            BeanDefinition bd = factory.getBeanDefinition(beanName);
-
-            if (bd.getSource() instanceof StandardMethodMetadata) {
-                StandardMethodMetadata metadata = (StandardMethodMetadata) bd.getSource();
-
-                Map<String, Object> attributes = metadata.getAnnotationAttributes(GraphQLApi.class.getName());
-                if (null == attributes) {
-                    continue;
-                }
-
-                SpqrBean spqrBean = new SpqrBean(context, beanName, metadata.getIntrospectedMethod().getAnnotatedReturnType());
-
-                Map<String, Object> withResolverBuildersAttributes = metadata.getAnnotationAttributes(WithResolverBuilders.class.getTypeName());
-                if (withResolverBuildersAttributes != null) {
-                    AnnotationAttributes[] annotationAttributesArray = (AnnotationAttributes[]) withResolverBuildersAttributes.get("value");
-                    Arrays.stream(annotationAttributesArray)
-                            .forEach(annotationAttributes ->
-                                    spqrBean.getResolverBuilders().add(
-                                            new ResolverBuilderBeanIdentity(
-                                                    (Class<? extends ResolverBuilder>) annotationAttributes.get("value"),
-                                                    (String) annotationAttributes.get("qualifierValue"),
-                                                    (Class<? extends Annotation>) annotationAttributes.get("qualifierType"))
-                                    )
-                            );
-                } else {
-                    Map<String, Object> withResolverBuilderAttributes = metadata.getAnnotationAttributes(WithResolverBuilder.class.getTypeName());
-                    if (withResolverBuilderAttributes != null) {
-                        spqrBean.getResolverBuilders().add(
-                                new ResolverBuilderBeanIdentity(
-                                        (Class<? extends ResolverBuilder>) withResolverBuilderAttributes.get("value"),
-                                        (String) withResolverBuilderAttributes.get("qualifierValue"),
-                                        (Class<? extends Annotation>) withResolverBuilderAttributes.get("qualifierType"))
-                        );
-                    }
-                }
-
-                spqrBeans.add(spqrBean);
-            }
-        }
-
-        return spqrBeans;
-    }
-
     private Map<String, SpqrBean> findGraphQLApiComponents() {
-        final Map<String, Object> operationSourcesBeans = context.getBeansWithAnnotation(GraphQLApi.class);
+        final String[] apiBeanNames = context.getBeanNamesForAnnotation(GraphQLApi.class);
+        final ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
 
         Map<String, SpqrBean> result = new HashMap<>();
-        for (String beanName : operationSourcesBeans.keySet()) {
-            Class<?> operationSourceBeanClass = operationSourcesBeans.get(beanName).getClass();
-            result.put(beanName, new SpqrBean(context, beanName, GenericTypeReflector.annotate(ClassUtils.getUserClass(operationSourceBeanClass))));
-
-            if (operationSourceBeanClass.isAnnotationPresent(WithResolverBuilder.class)) {
-                WithResolverBuilder withResolverBuilder = operationSourceBeanClass.getAnnotation(WithResolverBuilder.class);
-                result.get(beanName).resolverBuilders.add(new ResolverBuilderBeanIdentity(withResolverBuilder.value(), withResolverBuilder.qualifierValue(), withResolverBuilder.qualifierType()));
-            } else if (operationSourceBeanClass.isAnnotationPresent(WithResolverBuilders.class)) {
-                for (WithResolverBuilder withResolverBuilder : operationSourceBeanClass.getAnnotation(WithResolverBuilders.class).value()) {
-                    result.get(beanName).resolverBuilders.add(new ResolverBuilderBeanIdentity(withResolverBuilder.value(), withResolverBuilder.qualifierValue(), withResolverBuilder.qualifierType()));
+        for (String beanName : apiBeanNames) {
+            BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
+            AnnotatedType beanType;
+            Set<WithResolverBuilder> resolverBuilders;
+            if (beanDefinition.getSource() instanceof StandardMethodMetadata) {
+                StandardMethodMetadata metadata = (StandardMethodMetadata) beanDefinition.getSource();
+                beanType = metadata.getIntrospectedMethod().getAnnotatedReturnType();
+                resolverBuilders = AnnotatedElementUtils.findMergedRepeatableAnnotations(metadata.getIntrospectedMethod(), WithResolverBuilder.class);
+            } else {
+                BeanDefinition current = beanDefinition;
+                BeanDefinition originatingBeanDefinition = current;
+                while (current != null) {
+                    originatingBeanDefinition = current;
+                    current = current.getOriginatingBeanDefinition();
                 }
-
+                ResolvableType resolvableType = originatingBeanDefinition.getResolvableType();
+                if (resolvableType != ResolvableType.NONE && Utils.isNotEmpty(originatingBeanDefinition.getBeanClassName())
+                        //Sanity check only -- should never happen
+                        && !originatingBeanDefinition.getBeanClassName().startsWith("org.springframework.")) {
+                    beanType = GenericTypeReflector.annotate(resolvableType.getType());
+                } else {
+                    beanType = GenericTypeReflector.annotate(AopUtils.getTargetClass(context.getBean(beanName)));
+                }
+                resolverBuilders = AnnotatedElementUtils.findMergedRepeatableAnnotations(beanType, WithResolverBuilder.class);
             }
+            List<ResolverBuilderBeanCriteria> builders = resolverBuilders.stream()
+                    .map(builder -> new ResolverBuilderBeanCriteria(builder.value(), builder.qualifierValue(), builder.qualifierType()))
+                    .collect(Collectors.toList());
+            result.put(beanName, new SpqrBean(context, beanName, beanType, builders));
         }
         return result;
     }
 
     private static class SpqrBean {
-        private final BeanScope scope;
-        private final Object springBean;
-        private final AnnotatedType type;
-        private final List<ResolverBuilderBeanIdentity> resolverBuilders;
 
-        SpqrBean(ApplicationContext context, String beanName, AnnotatedType type) {
-            this.springBean = context.getBean(beanName);
-            this.scope = BeanScope.findBeanScope(context, beanName);
+        final BeanScope scope;
+        final Supplier<Object> beanSupplier;
+        final AnnotatedType type;
+        final Class<?> exposedType;
+        final List<ResolverBuilderBeanCriteria> resolverBuilders;
+
+        SpqrBean(ApplicationContext context, String beanName, AnnotatedType type, List<ResolverBuilderBeanCriteria> resolverBuilders) {
+            BeanScope beanScope = BeanScope.findBeanScope(context, beanName);
+            if (beanScope == BeanScope.SINGLETON) {
+                Object bean = context.getBean(beanName);
+                this.beanSupplier = () -> bean;
+            } else {
+                this.beanSupplier = () -> context.getBean(beanName);
+            }
+            this.scope = beanScope;
             this.type = type;
-            this.resolverBuilders = new ArrayList<>();
-        }
-
-        BeanScope getScope() {
-            return scope;
-        }
-
-        Object getSpringBean() {
-            return springBean;
-        }
-
-        public AnnotatedType getType() {
-            return type;
-        }
-
-        List<ResolverBuilderBeanIdentity> getResolverBuilders() {
-            return resolverBuilders;
+            this.exposedType = context.getType(beanName);
+            this.resolverBuilders = Collections.unmodifiableList(resolverBuilders);
         }
     }
 
-    private class ResolverBuilderBeanIdentity {
+    private static class ResolverBuilderBeanCriteria {
         private final Class<? extends ResolverBuilder> resolverType;
         private final String value;
         private final Class<? extends Annotation> qualifierType;
 
-        private ResolverBuilderBeanIdentity(Class<? extends ResolverBuilder> resolverType, String value, Class<? extends Annotation> qualifierType) {
+        private ResolverBuilderBeanCriteria(Class<? extends ResolverBuilder> resolverType, String value, Class<? extends Annotation> qualifierType) {
             this.resolverType = resolverType;
             this.value = value;
             this.qualifierType = qualifierType;
@@ -440,16 +407,16 @@ public class BaseAutoConfiguration {
 
     private enum BeanScope {
         SINGLETON,
-        PROTOTYPE;
+        PROTOTYPE,
+        UNKNOWN;
 
         static BeanScope findBeanScope(ApplicationContext context, String beanName) {
             if (context.isSingleton(beanName)) {
-                return BeanScope.SINGLETON;
+                return SINGLETON;
             } else if (context.isPrototype(beanName)) {
-                return BeanScope.PROTOTYPE;
+                return PROTOTYPE;
             } else {
-                //TODO log warning and proceed
-                throw new RuntimeException("Unsupported bean scope");
+                return UNKNOWN;
             }
         }
     }

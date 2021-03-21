@@ -2,9 +2,9 @@ package io.leangen.graphql.spqr.spring.autoconfigure;
 
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
-import io.leangen.graphql.spqr.spring.web.servlet.websocket.GraphQLWebSocketExecutor;
+import io.leangen.graphql.spqr.spring.web.mvc.websocket.GraphQLWebSocketExecutor;
 import io.leangen.graphql.spqr.spring.web.apollo.PerConnectionApolloHandler;
-import io.leangen.graphql.spqr.spring.web.servlet.websocket.DefaultGraphQLExecutor;
+import io.leangen.graphql.spqr.spring.web.mvc.websocket.DefaultGraphQLExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

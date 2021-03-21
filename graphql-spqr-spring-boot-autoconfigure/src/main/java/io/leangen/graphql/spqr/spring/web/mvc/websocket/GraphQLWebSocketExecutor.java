@@ -1,4 +1,4 @@
-package io.leangen.graphql.spqr.spring.web.servlet.websocket;
+package io.leangen.graphql.spqr.spring.web.mvc.websocket;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
