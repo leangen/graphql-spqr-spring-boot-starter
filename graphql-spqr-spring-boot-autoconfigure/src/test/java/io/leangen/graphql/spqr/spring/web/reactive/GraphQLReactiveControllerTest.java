@@ -21,7 +21,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import java.net.URI;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringRunner.class)
 @WebFluxTest

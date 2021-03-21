@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultGlobalContext<R> {
 
     private final R nativeRequest;
-    private final Map<String, Object> extensions;
+    private final Map<Object, Object> extensions;
 
     public DefaultGlobalContext(R request) {
         this.nativeRequest = request;
@@ -18,12 +18,12 @@ public class DefaultGlobalContext<R> {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getExtension(String key) {
+    public <T> T getExtension(Object key) {
         return (T) extensions.get(key);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T setExtension(String key, T value) {
+    public <T> T setExtension(Object key, T value) {
         return (T) extensions.put(key, value);
     }
 }

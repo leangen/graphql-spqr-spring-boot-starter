@@ -1,11 +1,13 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
 import graphql.GraphQL;
+import graphql.execution.instrumentation.Instrumentation;
 import graphql.schema.GraphQLSchema;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.graphql.ExtendedGeneratorConfiguration;
 import io.leangen.graphql.ExtensionProvider;
 import io.leangen.graphql.GeneratorConfiguration;
+import io.leangen.graphql.GraphQLRuntime;
 import io.leangen.graphql.GraphQLSchemaGenerator;
 import io.leangen.graphql.execution.ResolverInterceptorFactory;
 import io.leangen.graphql.generator.mapping.ArgumentInjector;
@@ -269,8 +271,12 @@ public class BaseAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public GraphQL graphQL(GraphQLSchema schema) {
-        GraphQL.Builder builder = GraphQL.newGraphQL(schema);
+    public GraphQL graphQL(GraphQLSchema schema, SpqrProperties spqrProperties, List<Instrumentation> instrumentations) {
+        GraphQLRuntime.Builder builder = GraphQLRuntime.newGraphQL(schema);
+        instrumentations.forEach(builder::instrumentation);
+        if (spqrProperties.getMaxComplexity() > 1) {
+            builder.maximumQueryComplexity(spqrProperties.getMaxComplexity());
+        }
         return builder.build();
     }
 

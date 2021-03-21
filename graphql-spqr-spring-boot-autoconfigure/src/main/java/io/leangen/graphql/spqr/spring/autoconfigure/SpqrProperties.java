@@ -15,6 +15,7 @@ public class SpqrProperties {
     // Core properties
     private String[] basePackages;
     private boolean abstractInputTypeResolution;
+    private int maxComplexity = -1;
     private Relay relay = new Relay();
 
     // Web properties
@@ -54,6 +55,14 @@ public class SpqrProperties {
 
     public void setAbstractInputTypeResolution(boolean abstractInputTypeResolution) {
         this.abstractInputTypeResolution = abstractInputTypeResolution;
+    }
+
+    public int getMaxComplexity() {
+        return maxComplexity;
+    }
+
+    public void setMaxComplexity(int maxComplexity) {
+        this.maxComplexity = maxComplexity;
     }
 
     public Relay getRelay() {
