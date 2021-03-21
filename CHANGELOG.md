@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Support subscriptions over SSE [#97](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/97)
 
 ### Changed
+- [Breaking] Renamed all `Servlet*` classes to `Mvc*` (e.g. `ServletContextFactory` ➝ `MvcContextFactory`)
 - [Breaking] Make async execution the default [#99](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/99)
 - Rewrite the WebSocket-based subscriptions implementation [#98](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/98)
 
