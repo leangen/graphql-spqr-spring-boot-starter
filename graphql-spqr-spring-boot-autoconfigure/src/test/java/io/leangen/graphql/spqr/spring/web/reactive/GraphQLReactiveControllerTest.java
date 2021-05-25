@@ -19,6 +19,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.net.URI;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,6 +43,34 @@ public class GraphQLReactiveControllerTest {
     @Before
     public void setUp() {
         webTestClient = WebTestClient.bindToApplicationContext(context).build();
+    }
+
+    @Test
+    public void defaultControllerTest_GET_mono() {
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/" + apiContext)
+                        .queryParam("query", "{query}")
+                        .build("{greetingFromAnnotatedSourceReactive_mono}"))
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(c -> assertThat("", c.getResponseBody(), containsString("Hello world !")));
+    }
+
+    @Test
+    public void defaultControllerTest_GET_persistedQuery_mono() {
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/" + apiContext)
+                        .queryParam("extensions", "{persisted}")
+                        .build("{\"persistedQuery\":{\"version\":1,\"sha256Hash\":\"4b758938f2d00323147290e3b0d041e6a0952e2c694ab2c0ea7212ca08f337b3\"}}"))
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(c -> assertThat("", c.getResponseBody(), containsString("Invalid Syntax : offending token '<EOF>' at line 1 column 1\"")));
     }
 
     @Test

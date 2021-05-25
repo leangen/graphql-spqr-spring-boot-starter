@@ -1,5 +1,6 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import io.leangen.graphql.spqr.spring.web.GraphQLController;
@@ -43,8 +44,8 @@ public class MvcAutoConfiguration {
     @ConditionalOnProperty(name = "graphql.spqr.http.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnMissingBean(GraphQLController.class)
     @ConditionalOnBean(GraphQLSchema.class)
-    public DefaultGraphQLController graphQLController(GraphQL graphQL, GraphQLMvcExecutor executor) {
-        return new DefaultGraphQLController(graphQL, executor);
+    public DefaultGraphQLController graphQLController(GraphQL graphQL, GraphQLMvcExecutor executor, ObjectMapper objectMapper) {
+        return new DefaultGraphQLController(graphQL, executor, objectMapper);
     }
 
     @Bean
