@@ -42,7 +42,7 @@ public class PageableAdapter extends AbstractTypeAdapter<Pageable, Pagination> i
 
     @Override
     public Object getDefaultValue() {
-        return defaultPageable;
+        return new Pagination(defaultPageable);
     }
 
     @Override
