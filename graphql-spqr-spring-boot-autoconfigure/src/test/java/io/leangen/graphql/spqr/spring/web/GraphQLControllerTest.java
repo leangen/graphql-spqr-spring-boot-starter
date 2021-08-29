@@ -3,6 +3,7 @@ package io.leangen.graphql.spqr.spring.web;
 import io.leangen.graphql.spqr.spring.autoconfigure.BaseAutoConfiguration;
 import io.leangen.graphql.spqr.spring.autoconfigure.MvcAutoConfiguration;
 import io.leangen.graphql.spqr.spring.autoconfigure.SpringDataAutoConfiguration;
+import io.leangen.graphql.spqr.spring.autoconfigure.SpringSecurityAutoConfiguration;
 import io.leangen.graphql.spqr.spring.test.ResolverBuilder_TestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @WebMvcTest
 @ContextConfiguration(classes = {BaseAutoConfiguration.class, MvcAutoConfiguration.class,
-        SpringDataAutoConfiguration.class, ResolverBuilder_TestConfig.class})
+        SpringDataAutoConfiguration.class, SpringSecurityAutoConfiguration.class, ResolverBuilder_TestConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 public class GraphQLControllerTest {
 
@@ -219,6 +220,21 @@ public class GraphQLControllerTest {
                         .param("query", withPage))
                 .andExpect(status().isOk())
                 .andExpect(content().string(not(containsString("Page request [number: 0, size 20, sort: UNSORTED]"))))
-                .andExpect(content().string(allOf(containsString("5id"), allOf(containsString("9id")))));
+                .andExpect(content().string(allOf(containsString("5id"), containsString("9id"))));
+    }
+
+    @Test
+    public void defaultControllerTest_POST_spring_access_denied() throws Exception {
+        String withPage = "{\n" +
+                "  springAccessDeniedComponent_query {\n" +
+                "    id\n" +
+                "    name\n" +
+                "  }\n" +
+                "}";
+
+        mockMvc.perform(get("/" + apiContext)
+                        .param("query", withPage))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"classification\":\"FORBIDDEN\"")));
     }
 }

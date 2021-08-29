@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -267,6 +268,35 @@ public class ResolverBuilder_TestConfig {
             public Integer getAge() {
                 return age;
             }
+        }
+    }
+
+    @Component
+    @GraphQLApi
+    public static class SpringAccessDeniedComponent {
+
+        @GraphQLQuery(name = "springAccessDeniedComponent_query")
+        public List<Result> users() {
+            throw new AccessDeniedException("Access Denied");
+        }
+
+        public static class Result {
+            private final String id;
+            private final String name;
+
+            Result(String id, String name) {
+                this.id = id;
+                this.name = name;
+            }
+
+            public String getId() {
+                return id;
+            }
+
+            public String getName() {
+                return name;
+            }
+
         }
     }
 
