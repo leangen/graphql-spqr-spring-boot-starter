@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -35,7 +37,7 @@ public class ResolverBuilder_TestConfig {
         return (config, defaults) -> defaults.insert(0, new PublicResolverBuilder() {
             @Override
             protected boolean isQuery(Method method, ResolverBuilderParams params) {
-                final String[] expectedFragments = new String[] {
+                final String[] expectedFragments = new String[]{
                         "byCustomGlobalResolverBuilder"};
 
                 return super.isQuery(method, params) && Arrays.stream(expectedFragments).parallel().allMatch(method.getName()::contains);
@@ -180,7 +182,7 @@ public class ResolverBuilder_TestConfig {
 
         static List<Project> projects = IntStream.range(0, 20)
                 .boxed()
-                .map(i -> new Project("Project"+i))
+                .map(i -> new Project("Project" + i))
                 .collect(Collectors.toList());
 
 
@@ -231,6 +233,73 @@ public class ResolverBuilder_TestConfig {
         }
     }
 
+    @Component
+    @GraphQLApi
+    public static class SpringPageableComponent {
+
+        static List<PageableUser> users = IntStream.range(0, 20)
+                .mapToObj(i -> new PageableUser(i + "id", "Duncan Idaho" + i, i + 10))
+                .collect(Collectors.toList());
+
+        @GraphQLQuery(name = "springPageableComponent_users")
+        public List<PageableUser> users(@GraphQLArgument(name = "page") Pageable page) {
+            return users.subList((int) page.getOffset(), (int) (page.getOffset() + page.getPageSize()));
+        }
+
+        public static class PageableUser {
+            private final String id;
+            private final String name;
+            private final Integer age;
+
+            PageableUser(String id, String name, Integer age) {
+                this.id = id;
+                this.name = name;
+                this.age = age;
+            }
+
+            public String getId() {
+                return id;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public Integer getAge() {
+                return age;
+            }
+        }
+    }
+
+    @Component
+    @GraphQLApi
+    public static class SpringAccessDeniedComponent {
+
+        @GraphQLQuery(name = "springAccessDeniedComponent_query")
+        public List<Result> users() {
+            throw new AccessDeniedException("Access Denied");
+        }
+
+        public static class Result {
+            private final String id;
+            private final String name;
+
+            Result(String id, String name) {
+                this.id = id;
+                this.name = name;
+            }
+
+            public String getId() {
+                return id;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+        }
+    }
+
 
     //------------------------------------------------------------------------------
     //--------------------- ResolverBuilders ---------------------------------------
@@ -242,7 +311,7 @@ public class ResolverBuilder_TestConfig {
         return new PublicResolverBuilder() {
             @Override
             protected boolean isQuery(Method method, ResolverBuilderParams params) {
-                final String[] expectedFragments = new String[] {
+                final String[] expectedFragments = new String[]{
                         "greetingFromBeanSource", "byStringQualified",
                         "ResolverBuilder_wiredAsBean"};
 
@@ -257,7 +326,7 @@ public class ResolverBuilder_TestConfig {
         return new PublicResolverBuilder() {
             @Override
             protected boolean isQuery(Method method, ResolverBuilderParams params) {
-                final String[] expectedFragments = new String[] {
+                final String[] expectedFragments = new String[]{
                         "greetingFromBeanSource", "byAnnotationQualified",
                         "ResolverBuilder_wiredAsBean"};
 
@@ -271,7 +340,7 @@ public class ResolverBuilder_TestConfig {
         return new PublicResolverBuilder() {
             @Override
             protected boolean isQuery(Method method, ResolverBuilderParams params) {
-                final String[] expectedFragments = new String[] {
+                final String[] expectedFragments = new String[]{
                         "greetingFromBeanSource", "byNamed",
                         "ResolverBuilder_wiredAsBean"};
 
@@ -285,7 +354,7 @@ public class ResolverBuilder_TestConfig {
     public static class CustomStringQualifiedResolverBuilderComponent extends PublicResolverBuilder {
         @Override
         protected boolean isQuery(Method method, ResolverBuilderParams params) {
-            final String[] expectedFragments = new String[] {
+            final String[] expectedFragments = new String[]{
                     "greetingFromBeanSource", "byStringQualified",
                     "ResolverBuilder_wiredAsComponent"};
 
@@ -298,7 +367,7 @@ public class ResolverBuilder_TestConfig {
     public static class CustomAnnotationQualifiedResolverBuilderComponent extends PublicResolverBuilder {
         @Override
         protected boolean isQuery(Method method, ResolverBuilderParams params) {
-            final String[] expectedFragments = new String[] {
+            final String[] expectedFragments = new String[]{
                     "greetingFromBeanSource",
                     "byAnnotationQualified", "ResolverBuilder_wiredAsComponent"};
 
@@ -310,7 +379,7 @@ public class ResolverBuilder_TestConfig {
     public static class CustomNamedResolverBuilderComponent extends PublicResolverBuilder {
         @Override
         protected boolean isQuery(Method method, ResolverBuilderParams params) {
-            final String[] expectedFragments = new String[] {
+            final String[] expectedFragments = new String[]{
                     "greetingFromBeanSource",
                     "byNamed", "ResolverBuilder_wiredAsComponent"};
 

@@ -22,7 +22,7 @@ public class SortAdapter extends AbstractTypeAdapter<Sort, Sorting> implements D
 
     @Override
     public Object getDefaultValue() {
-        return Sort.unsorted();
+        return new Sorting(Sort.unsorted());
     }
 
     @Override
