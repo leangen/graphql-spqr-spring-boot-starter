@@ -57,6 +57,70 @@ or
         return new UserService(...);
     }
 ```
+### Repository interfaces extending Repository<T, ID>
+Spring Data beans found through scanning based on `@EnableJpaRepositories/@EnableR2dbcRepositories` and similar strategies that extend `org.springframework.data.repository.Repository<T, ID>` are supported with the `SpringDataRepositoryResolverBuilder.class`.  Both the default and custom methods are supported as illustrated in the following interface.
+
+```java
+@GraphQLApi
+@WithResolverBuilder(SpringDataRepositoryResolverBuilder.class)
+public interface ItemRepository extends R2dbcRepository<Item, Long> {
+  Flux<Item> findAllByName(String name);
+
+  @Modifying
+  @Query("UPDATE item SET name = :name where id = :id")
+  Mono<Integer> updateNameById(String name, Long id);
+
+}
+
+@Data
+public class Item implements Persistable<Long> {
+  @Id
+  @GraphQLQuery(description = "Item identifier")
+  Long id;
+  @GraphQLQuery(description = "Item name")
+  String name;
+
+  @Override
+  @JsonIgnore
+  @GraphQLIgnore
+  public boolean isNew() {
+    return id == null;
+  }
+}
+```
+
+By convention repository methods will be categorized or discarded in the following ways:
+1. Methods with `org.reactivestreams.Publisher/org.springframework.data.domain.Example` parameters are discarded.
+1. Mutations are defined as methods containing delete, save or update.
+1. Queries are methods that remain.
+1. Subscriptions are not supported.
+
+Method names are altered to avoid collisions between multiple repositories.  The repository type parameter is used to make each method exposed as a GraphQL operation unique.  If the type were Item then here are some example names for queries and mutations:
+
+#### Queries
+
+* ItemExistsById(...): [Boolean]
+* findAllItemsSorted(...): [Item]
+* countItems: [Long]
+* findAllItems: [Item]
+* findAllItemsById(...): [Item]
+* findItemById(...): [Item]
+
+#### Mutations
+
+* saveItem(...): [Item]
+* deleteAllItems(...): [Boolean]
+* deleteItem(...): [Boolean]
+* deleteAllItemsById(...): [Boolean]
+* deleteItemById(...): [Boolean]
+* saveAllItems(...): [Item]
+
+#### Custom method conventions
+
+It is important to name methods in a similar fashion to the default names to ensure naming is acceptable.
+
+* `Flux<Item> findAllByName(String name)` becomes findAllItemsByName(...): [Item]
+* `Mono<Integer> updateNameById(String name, Long id);` becomes updateItemNameById(...): [Int]
 
 ## Choosing which methods get exposed through the API
 

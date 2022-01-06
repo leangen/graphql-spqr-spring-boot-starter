@@ -31,6 +31,8 @@ import io.leangen.graphql.metadata.strategy.value.ValueMapperFactory;
 import io.leangen.graphql.module.Module;
 import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
 import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilder;
+import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilders;
+import io.leangen.graphql.spqr.spring.modules.data.SpringDataRepositoryResolverBuilder;
 import io.leangen.graphql.util.Utils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -45,9 +47,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.core.type.StandardMethodMetadata;
 
 import java.lang.annotation.Annotation;
@@ -135,6 +141,41 @@ public class BaseAutoConfiguration {
     @ConditionalOnMissingBean
     public BeanResolverBuilder defaultBeanResolverBuilder() {
         return (BeanResolverBuilder) new BeanResolverBuilder().withMethodInvokerFactory(aopAwareFactory);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @Conditional(UsesSpringDataRepositoryResolverBuilderWithResolverBuilder.class)
+    public SpringDataRepositoryResolverBuilder defaultSpringDataRepositoryResolverBuilder() {
+        return (SpringDataRepositoryResolverBuilder) new SpringDataRepositoryResolverBuilder().withMethodInvokerFactory(aopAwareFactory);
+    }
+
+    private static class UsesSpringDataRepositoryResolverBuilderWithResolverBuilder implements Condition {
+
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            boolean answer = true;
+            for (String beanName : context.getBeanFactory().getBeanNamesForAnnotation(WithResolverBuilder.class)) {
+                answer = answer && hasSpringDataRepositoryResolverBuilder(
+                context.getBeanFactory().findAnnotationOnBean(beanName, WithResolverBuilder.class));
+            }
+            if (answer) {
+                for (String beanName : context.getBeanFactory().getBeanNamesForAnnotation(WithResolverBuilders.class)) {
+                    answer = answer && hasSpringDataRepositoryResolverBuilder(
+                    context.getBeanFactory().findAnnotationOnBean(beanName, WithResolverBuilders.class).value());
+                }
+            }
+            return answer;
+        }
+
+        private boolean hasSpringDataRepositoryResolverBuilder(WithResolverBuilder... builders) {
+            for (WithResolverBuilder builder : builders) {
+                if (SpringDataRepositoryResolverBuilder.class.equals(builder.value())) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     @Bean
@@ -351,6 +392,8 @@ public class BaseAutoConfiguration {
                         //Sanity check only -- should never happen
                         && !originatingBeanDefinition.getBeanClassName().startsWith("org.springframework.")) {
                     beanType = GenericTypeReflector.annotate(resolvableType.getType());
+                } else if (resolvableType == ResolvableType.NONE && originatingBeanDefinition.getBeanClassName().startsWith("org.springframework.data.")) {
+                    beanType = GenericTypeReflector.annotate(context.getType(beanName));
                 } else {
                     beanType = GenericTypeReflector.annotate(AopUtils.getTargetClass(context.getBean(beanName)));
                 }
