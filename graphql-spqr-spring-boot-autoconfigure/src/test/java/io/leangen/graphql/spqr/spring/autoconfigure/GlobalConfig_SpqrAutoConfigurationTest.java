@@ -556,6 +556,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                                 public TraversalControl accept(TraverserContext<GraphQLSchemaElement> context, GraphQLTypeVisitor visitor) {
                                     return TraversalControl.QUIT;
                                 }
+
+                                @Override
+                                public GraphQLSchemaElement copy() {
+                                    throw new UnsupportedOperationException("copy");
+                                }
                             };
                         }
 
@@ -580,6 +585,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                                 @Override
                                 public TraversalControl accept(TraverserContext<GraphQLSchemaElement> context, GraphQLTypeVisitor visitor) {
                                     return TraversalControl.QUIT;
+                                }
+
+                                @Override
+                                public GraphQLSchemaElement copy() {
+                                    throw new UnsupportedOperationException("copy");
                                 }
                             };
                         }
