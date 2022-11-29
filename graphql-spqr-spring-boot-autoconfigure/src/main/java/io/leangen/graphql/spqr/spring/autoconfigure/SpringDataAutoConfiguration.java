@@ -4,12 +4,12 @@ import io.leangen.graphql.module.Module;
 import io.leangen.graphql.spqr.spring.modules.data.SpringDataModule;
 import io.leangen.graphql.spqr.spring.modules.data.SpringDataRelayModule;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@AutoConfiguration
 @ConditionalOnClass(name = "org.springframework.data.domain.Slice")
 public class SpringDataAutoConfiguration {
 
