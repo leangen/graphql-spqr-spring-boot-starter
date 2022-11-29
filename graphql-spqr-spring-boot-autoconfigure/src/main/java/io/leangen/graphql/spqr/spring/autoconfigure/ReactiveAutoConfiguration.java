@@ -10,17 +10,18 @@ import io.leangen.graphql.spqr.spring.web.reactive.DefaultGraphQLController;
 import io.leangen.graphql.spqr.spring.web.reactive.DefaultGraphQLExecutor;
 import io.leangen.graphql.spqr.spring.web.reactive.GraphQLReactiveExecutor;
 import io.leangen.graphql.spqr.spring.web.reactive.WebFluxContext;
+
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import reactor.util.context.Context;
 
 import java.util.Optional;
 
-@Configuration
+@AutoConfiguration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 public class ReactiveAutoConfiguration {
 

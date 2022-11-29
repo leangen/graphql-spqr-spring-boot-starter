@@ -8,16 +8,16 @@ import io.leangen.graphql.spqr.spring.web.GuiController;
 import io.leangen.graphql.spqr.spring.web.mvc.DefaultGraphQLExecutor;
 import io.leangen.graphql.spqr.spring.web.mvc.DefaultGraphQLController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import static io.leangen.graphql.spqr.spring.autoconfigure.SpqrProperties.Http.Mvc.Executor.BLOCKING;
 
-@Configuration
+@AutoConfiguration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class MvcAutoConfiguration {
 
