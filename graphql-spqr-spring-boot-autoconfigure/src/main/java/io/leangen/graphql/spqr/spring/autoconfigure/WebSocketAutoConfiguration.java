@@ -28,7 +28,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @ConditionalOnClass(WebSocketConfigurer.class)
 @ConditionalOnProperty(name = "graphql.spqr.ws.enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnBean(GraphQLSchema.class)
-public class WebSocketAutoConfiguration implements WebSocketConfigurer {
+public class WebSocketAutoConfiguration {
 
     private final GraphQL graphQL;
     private final SpqrProperties config;
@@ -43,14 +43,16 @@ public class WebSocketAutoConfiguration implements WebSocketConfigurer {
         this.dataLoaderRegistryFactory = dataLoaderRegistryFactory.orElse(null);
     }
 
-    @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
-        String webSocketEndpoint = config.getWs().getEndpoint();
-        String graphQLEndpoint = config.getHttp().getEndpoint();
-        String endpointUrl = webSocketEndpoint == null ? graphQLEndpoint : webSocketEndpoint;
-        webSocketHandlerRegistry
-                .addHandler(webSocketHandler(webSocketExecutor(webSocketContextFactory())), endpointUrl)
+    @Bean
+    WebSocketConfigurer webSocketConfigurer(GraphQLWebSocketExecutor webSocketExecutor) {
+        return webSocketHandlerRegistry -> {
+            String webSocketEndpoint = config.getWs().getEndpoint();
+            String graphQLEndpoint = config.getHttp().getEndpoint();
+            String endpointUrl = webSocketEndpoint == null ? graphQLEndpoint : webSocketEndpoint;
+            webSocketHandlerRegistry
+                .addHandler(webSocketHandler(webSocketExecutor), endpointUrl)
                 .setAllowedOrigins(config.getWs().getAllowedOrigins());
+        };
     }
 
     @Bean
