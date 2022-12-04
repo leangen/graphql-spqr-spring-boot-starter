@@ -47,7 +47,7 @@ public class PageableAdapter extends AbstractTypeAdapter<Pageable, Pagination> i
 
     @Override
     public GraphQLInputObjectField transformInputField(GraphQLInputObjectField field, InputField inputField, OperationMapper operationMapper, BuildContext buildContext) {
-        if (field.getName().equals("pageSize") && field.getInputFieldDefaultValue() == null && !(field.getType() instanceof GraphQLNonNull)) {
+        if (field.getName().equals("pageSize") && field.getInputFieldDefaultValue().getValue() == null && !(field.getType() instanceof GraphQLNonNull)) {
             return defaultPageable.isPaged()
                     ? field.transform(builder -> builder.defaultValue(defaultPageable.getPageSize()))
                     : field.transform(builder -> builder.type(GraphQLNonNull.nonNull(field.getType())));
