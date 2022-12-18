@@ -14,7 +14,7 @@ public interface DefaultValueSchemaTransformer extends SchemaTransformer {
     @Override
     default GraphQLArgument transformArgument(GraphQLArgument argument, OperationArgument operationArgument, OperationMapper operationMapper, BuildContext buildContext) {
         if (supports(operationArgument.getJavaType()) && !(argument.getType() instanceof GraphQLNonNull) && argument.getArgumentDefaultValue().getValue() == null) {
-            return argument.transform(builder -> builder.defaultValue(getDefaultValue()));
+            return argument.transform(builder -> builder.defaultValueProgrammatic(getDefaultValue()));
         }
         return argument;
     }

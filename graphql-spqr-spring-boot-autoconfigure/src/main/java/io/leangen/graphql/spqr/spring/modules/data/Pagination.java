@@ -26,6 +26,9 @@ public class Pagination {
     }
 
     Pageable toPageable() {
+        if (pageSize == Integer.MAX_VALUE) {
+            return Pageable.unpaged();
+        }
         return PageRequest.of(pageNumber, pageSize, sort != null ? sort.toSort() : Sort.unsorted());
     }
 }

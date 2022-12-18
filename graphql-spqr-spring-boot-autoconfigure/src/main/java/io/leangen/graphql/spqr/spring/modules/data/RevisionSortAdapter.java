@@ -23,7 +23,7 @@ public class RevisionSortAdapter extends AbstractTypeAdapter<RevisionSort, Sort.
 
     @Override
     public Object getDefaultValue() {
-        return RevisionSort.asc();
+        return Sort.Direction.ASC;
     }
 
     @Override

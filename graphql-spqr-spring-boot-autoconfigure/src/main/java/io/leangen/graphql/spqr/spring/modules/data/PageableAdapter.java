@@ -15,15 +15,17 @@ import org.springframework.data.domain.Pageable;
 
 import java.lang.reflect.AnnotatedType;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 public class PageableAdapter extends AbstractTypeAdapter<Pageable, Pagination> implements DefaultValueSchemaTransformer {
 
-    private final Pageable defaultPageable;
+    private final DefaultPagination defaultPageable;
 
     public PageableAdapter(int defaultPageSize) {
-        this.defaultPageable = defaultPageSize < 1 ? Pageable.unpaged() : PageRequest.of(0, defaultPageSize);
+        this.defaultPageable = new DefaultPagination(defaultPageSize);
     }
 
     private static final Set<Class<?>> SUPPORTED_CLASSES = new HashSet<>(Arrays.asList(
@@ -49,7 +51,7 @@ public class PageableAdapter extends AbstractTypeAdapter<Pageable, Pagination> i
     public GraphQLInputObjectField transformInputField(GraphQLInputObjectField field, InputField inputField, OperationMapper operationMapper, BuildContext buildContext) {
         if (field.getName().equals("pageSize") && field.getInputFieldDefaultValue().getValue() == null && !(field.getType() instanceof GraphQLNonNull)) {
             return defaultPageable.isPaged()
-                    ? field.transform(builder -> builder.defaultValue(defaultPageable.getPageSize()))
+                    ? field.transform(builder -> builder.defaultValueProgrammatic(defaultPageable.getPageSize()))
                     : field.transform(builder -> builder.type(GraphQLNonNull.nonNull(field.getType())));
         }
         return field;
@@ -59,5 +61,27 @@ public class PageableAdapter extends AbstractTypeAdapter<Pageable, Pagination> i
     @SuppressWarnings("SuspiciousMethodCalls")
     public boolean supports(AnnotatedType type) {
         return SUPPORTED_CLASSES.contains(type.getType());
+    }
+
+    private static class DefaultPagination extends HashMap<String, Object> {
+
+        DefaultPagination(int pageSize) {
+            super(4);
+            put("pageNumber", 0);
+            put("pageSize", pageSize);
+            put("sort", Collections.singletonMap("orders", Collections.emptyList()));
+        }
+
+        int getPageNumber() {
+            return (int) get("pageNumber");
+        }
+
+        int getPageSize() {
+            return (int) get("pageSize");
+        }
+
+        boolean isPaged() {
+            return getPageSize() < Integer.MAX_VALUE;
+        }
     }
 }

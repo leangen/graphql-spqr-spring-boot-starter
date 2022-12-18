@@ -1,17 +1,13 @@
 package io.leangen.graphql.spqr.spring.autoconfigure;
 
 import graphql.GraphQL;
-import graphql.language.Node;
+import graphql.Scalars;
+import graphql.schema.GraphQLInputObjectType;
 import graphql.schema.GraphQLInputType;
-import graphql.schema.GraphQLNamedInputType;
-import graphql.schema.GraphQLNamedOutputType;
+import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.GraphQLSchemaElement;
-import graphql.schema.GraphQLTypeVisitor;
 import graphql.schema.GraphqlTypeComparatorRegistry;
-import graphql.util.TraversalControl;
-import graphql.util.TraverserContext;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.graphql.ExtendedGeneratorConfiguration;
 import io.leangen.graphql.ExtensionProvider;
@@ -86,7 +82,7 @@ import static org.junit.Assert.assertTrue;
 @TestPropertySource(locations = "classpath:application.properties")
 public class GlobalConfig_SpqrAutoConfigurationTest {
 
-    private static AnnotatedType STRING = GenericTypeReflector.annotate(String.class);
+    private static final AnnotatedType STRING = GenericTypeReflector.annotate(String.class);
 
     @Autowired
     private SpqrProperties spqrProperties;
@@ -177,7 +173,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void valueMapperFactory_schemaGeneratorConfigTest() {
         assertNotNull(schemaGenerator);
 
-        ValueMapperFactory valueMapperFactory =
+        ValueMapperFactory<?> valueMapperFactory =
                 getPrivateFieldValueFromObject(schemaGenerator, "valueMapperFactory");
 
         assertNotNull(valueMapperFactory);
@@ -223,18 +219,18 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void outputConverterExtensionProvider_schemaGeneratorConfigTest() {
         assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GeneratorConfiguration, OutputConverter>> outputConverterProviders =
+        List<ExtensionProvider<GeneratorConfiguration, OutputConverter<?,?>>> outputConverterProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "outputConverterProviders");
 
         assertNotNull(outputConverterProviders);
 
         assertEquals(1, outputConverterProviders.size());
 
-        ExtensionProvider<GeneratorConfiguration, OutputConverter> outputConverterExtensionProvider = outputConverterProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, OutputConverter<?, ?>> outputConverterExtensionProvider = outputConverterProviders.iterator().next();
 
         assertNotNull(outputConverterExtensionProvider);
 
-        List<OutputConverter> outputConverters = outputConverterExtensionProvider.getExtensions(null, null);
+        List<OutputConverter<?, ?>> outputConverters = outputConverterExtensionProvider.getExtensions(null, null);
 
         assertNotNull(outputConverters);
         assertEquals(1, outputConverters.size());
@@ -249,18 +245,18 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void inputConverterExtensionProvider_schemaGeneratorConfigTest() {
         assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GeneratorConfiguration, InputConverter>> inputConverterProviders =
+        List<ExtensionProvider<GeneratorConfiguration, InputConverter<?, ?>>> inputConverterProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "inputConverterProviders");
 
         assertNotNull(inputConverterProviders);
 
         assertEquals(1, inputConverterProviders.size());
 
-        ExtensionProvider<GeneratorConfiguration, InputConverter> inputConverterExtensionProvider = inputConverterProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, InputConverter<?, ?>> inputConverterExtensionProvider = inputConverterProviders.iterator().next();
 
         assertNotNull(inputConverterExtensionProvider);
 
-        List<InputConverter> inputConverters = inputConverterExtensionProvider.getExtensions(null, null);
+        List<InputConverter<?, ?>> inputConverters = inputConverterExtensionProvider.getExtensions(null, null);
 
         assertNotNull(inputConverters);
         assertEquals(1, inputConverters.size());
@@ -294,8 +290,8 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         TypeMapper typeMapper = typeMappers.iterator().next();
 
         assertNotNull(typeMapper);
-        assertEquals("OK output type", GraphQLUtils.name(typeMapper.toGraphQLType(null, null, null)));
-        assertEquals("OK input type", GraphQLUtils.name(typeMapper.toGraphQLInputType(null, null, null)));
+        assertEquals("OK_output_type", GraphQLUtils.name(typeMapper.toGraphQLType(null, null, null)));
+        assertEquals("OK_input_type", GraphQLUtils.name(typeMapper.toGraphQLInputType(null, null, null)));
     }
 
     @Test
@@ -389,7 +385,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     static class TypeMapper_TestConfig {
         @Component("annotatedOperationSourceBean")
         @GraphQLApi
-        private class AnnotatedOperationSourceBean {
+        private static class AnnotatedOperationSourceBean {
             @GraphQLQuery(name = "greetingFromAnnotatedSource_wiredAsComponent")
             public String getGreeting(){
                 return "Hello world !";
@@ -456,7 +452,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ValueMapperFactory testValueMapperFactory() {
+        public ValueMapperFactory<?> testValueMapperFactory() {
             return (abstractTypes, environment) -> new ValueMapper() {
                 @Override
                 public <T> T fromInput(Object graphQLInput, Type sourceType, AnnotatedType outputType) {
@@ -494,11 +490,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GeneratorConfiguration, OutputConverter> testOutputConverterExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, OutputConverter<?, ?>> testOutputConverterExtensionProvider() {
             return (config, defaults) -> Collections.singletonList(
-                    new OutputConverter() {
+                    new OutputConverter<Object, String>() {
                         @Override
-                        public Object convertOutput(Object original, AnnotatedType type, ResolutionEnvironment resolutionEnvironment) {
+                        public String convertOutput(Object original, AnnotatedType type, ResolutionEnvironment resolutionEnvironment) {
                             return "OK output converter";
                         }
 
@@ -510,11 +506,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GeneratorConfiguration, InputConverter> testInputConverterExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, InputConverter<? ,?>> testInputConverterExtensionProvider() {
             return (config, defaults) -> Collections.singletonList(
-                    new InputConverter() {
+                    new InputConverter<String, Object>() {
                         @Override
-                        public Object convertInput(Object substitute, AnnotatedType type, GlobalEnvironment environment, ValueMapper valueMapper) {
+                        public String convertInput(Object substitute, AnnotatedType type, GlobalEnvironment environment, ValueMapper valueMapper) {
                             return "OK input converter";
                         }
 
@@ -536,62 +532,18 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
                     new TypeMapper() {
                         @Override
                         public GraphQLOutputType toGraphQLType(AnnotatedType javaType, Set<Class<? extends TypeMapper>> mappersToSkip, TypeMappingEnvironment env) {
-                            return new GraphQLNamedOutputType() {
-                                @Override
-                                public String getName() {
-                                    return "OK output type";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return null;
-                                }
-
-                                @Override
-                                public Node getDefinition() {
-                                    return null;
-                                }
-
-                                @Override
-                                public TraversalControl accept(TraverserContext<GraphQLSchemaElement> context, GraphQLTypeVisitor visitor) {
-                                    return TraversalControl.QUIT;
-                                }
-
-                                @Override
-                                public GraphQLSchemaElement copy() {
-                                    throw new UnsupportedOperationException();
-                                }
-                            };
+                            return GraphQLObjectType.newObject()
+                                    .name("OK_output_type")
+                                    .field(dummy -> dummy.name("dummy").type(Scalars.GraphQLString))
+                                    .build();
                         }
 
                         @Override
                         public GraphQLInputType toGraphQLInputType(AnnotatedType javaType, Set<Class<? extends TypeMapper>> mappersToSkip, TypeMappingEnvironment env) {
-                            return new GraphQLNamedInputType() {
-                                @Override
-                                public String getName() {
-                                    return "OK input type";
-                                }
-
-                                @Override
-                                public String getDescription() {
-                                    return null;
-                                }
-
-                                @Override
-                                public Node getDefinition() {
-                                    return null;
-                                }
-
-                                @Override
-                                public TraversalControl accept(TraverserContext<GraphQLSchemaElement> context, GraphQLTypeVisitor visitor) {
-                                    return TraversalControl.QUIT;
-                                }
-
-                                @Override
-                                public GraphQLSchemaElement copy() {
-                                    throw new UnsupportedOperationException();
-                                }
-                            };
+                            return GraphQLInputObjectType.newInputObject()
+                                    .name("OK_input_type")
+                                    .field(dummy -> dummy.name("dummy").type(Scalars.GraphQLString))
+                                    .build();
                         }
 
                         @Override

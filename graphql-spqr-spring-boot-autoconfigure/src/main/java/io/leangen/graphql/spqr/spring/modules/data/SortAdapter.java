@@ -7,6 +7,7 @@ import io.leangen.graphql.metadata.strategy.value.ValueMapper;
 import org.springframework.data.domain.Sort;
 
 import java.lang.reflect.AnnotatedType;
+import java.util.Collections;
 
 public class SortAdapter extends AbstractTypeAdapter<Sort, Sorting> implements DefaultValueSchemaTransformer {
 
@@ -22,7 +23,7 @@ public class SortAdapter extends AbstractTypeAdapter<Sort, Sorting> implements D
 
     @Override
     public Object getDefaultValue() {
-        return Sort.unsorted();
+        return Collections.singletonMap("orders", Collections.emptyList());
     }
 
     @Override

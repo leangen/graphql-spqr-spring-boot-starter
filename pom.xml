@@ -24,12 +24,6 @@
         <url>https://github.com/leangen/graphql-spqr-spring-boot-starter</url>
         <tag>HEAD</tag>
     </scm>
-    <distributionManagement>
-        <repository>
-            <id>bintray-leangen</id>
-            <url>https://api.bintray.com/maven/leangen/maven/graphql-spqr-spring-boot-starter/</url>
-        </repository>
-    </distributionManagement>
     <issueManagement>
         <system>GitHub Issue Tracking</system>
         <url>https://github.com/leangen/graphql-spqr-spring-boot-starter/issues</url>
@@ -39,7 +33,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
 
-        <spqr.version>0.12.0</spqr.version>
+        <spqr.version>0.12.1</spqr.version>
         <spring-boot.version>2.7.6</spring-boot.version>
     </properties>
 
@@ -85,7 +79,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.10.1</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -116,16 +110,13 @@
                     <plugin>
                         <inherited>true</inherited>
                         <artifactId>maven-deploy-plugin</artifactId>
-                        <version>2.8.2</version>
-                        <configuration>
-                            <updateReleaseInfo>true</updateReleaseInfo>
-                        </configuration>
+                        <version>3.0.0</version>
                     </plugin>
 
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -157,7 +148,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.1.1</version>
+                        <version>3.4.1</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -177,23 +168,16 @@
                             <doclint>none</doclint>
                         </configuration>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
 
-        <profile>
-            <id>central</id>
-            <build>
-                <plugins>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.8</version>
+                        <version>1.6.13</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -203,12 +187,18 @@
 
     <developers>
         <developer>
+            <id>kaqqao</id>
             <name>Bojan Tomic</name>
             <email>veggen@gmail.com</email>
+            <organization>Leangen</organization>
+            <organizationUrl>http://leangen.io</organizationUrl>
         </developer>
         <developer>
+            <id>BaldyLocks</id>
             <name>Milos Stojiljkovic</name>
             <email>smilosh@gmail.com</email>
+            <organization>Leangen</organization>
+            <organizationUrl>http://leangen.io</organizationUrl>
         </developer>
     </developers>
 </project>
