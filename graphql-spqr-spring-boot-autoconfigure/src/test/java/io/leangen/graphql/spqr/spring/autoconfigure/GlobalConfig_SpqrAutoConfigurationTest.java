@@ -82,7 +82,7 @@ import static org.junit.Assert.assertTrue;
 @TestPropertySource(locations = "classpath:application.properties")
 public class GlobalConfig_SpqrAutoConfigurationTest {
 
-    private static final AnnotatedType STRING = GenericTypeReflector.annotate(String.class);
+    private static AnnotatedType STRING = GenericTypeReflector.annotate(String.class);
 
     @Autowired
     private SpqrProperties spqrProperties;
@@ -219,18 +219,18 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void outputConverterExtensionProvider_schemaGeneratorConfigTest() {
         assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GeneratorConfiguration, OutputConverter<?,?>>> outputConverterProviders =
+        List<ExtensionProvider<GeneratorConfiguration, OutputConverter>> outputConverterProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "outputConverterProviders");
 
         assertNotNull(outputConverterProviders);
 
         assertEquals(1, outputConverterProviders.size());
 
-        ExtensionProvider<GeneratorConfiguration, OutputConverter<?, ?>> outputConverterExtensionProvider = outputConverterProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, OutputConverter> outputConverterExtensionProvider = outputConverterProviders.iterator().next();
 
         assertNotNull(outputConverterExtensionProvider);
 
-        List<OutputConverter<?, ?>> outputConverters = outputConverterExtensionProvider.getExtensions(null, null);
+        List<OutputConverter> outputConverters = outputConverterExtensionProvider.getExtensions(null, null);
 
         assertNotNull(outputConverters);
         assertEquals(1, outputConverters.size());
@@ -245,18 +245,18 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
     public void inputConverterExtensionProvider_schemaGeneratorConfigTest() {
         assertNotNull(schemaGenerator);
 
-        List<ExtensionProvider<GeneratorConfiguration, InputConverter<?, ?>>> inputConverterProviders =
+        List<ExtensionProvider<GeneratorConfiguration, InputConverter>> inputConverterProviders =
                 getPrivateFieldValueFromObject(schemaGenerator, "inputConverterProviders");
 
         assertNotNull(inputConverterProviders);
 
         assertEquals(1, inputConverterProviders.size());
 
-        ExtensionProvider<GeneratorConfiguration, InputConverter<?, ?>> inputConverterExtensionProvider = inputConverterProviders.iterator().next();
+        ExtensionProvider<GeneratorConfiguration, InputConverter> inputConverterExtensionProvider = inputConverterProviders.iterator().next();
 
         assertNotNull(inputConverterExtensionProvider);
 
-        List<InputConverter<?, ?>> inputConverters = inputConverterExtensionProvider.getExtensions(null, null);
+        List<InputConverter> inputConverters = inputConverterExtensionProvider.getExtensions(null, null);
 
         assertNotNull(inputConverters);
         assertEquals(1, inputConverters.size());
@@ -452,7 +452,7 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ValueMapperFactory<?> testValueMapperFactory() {
+        public ValueMapperFactory testValueMapperFactory() {
             return (abstractTypes, environment) -> new ValueMapper() {
                 @Override
                 public <T> T fromInput(Object graphQLInput, Type sourceType, AnnotatedType outputType) {
@@ -490,11 +490,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GeneratorConfiguration, OutputConverter<?, ?>> testOutputConverterExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, OutputConverter> testOutputConverterExtensionProvider() {
             return (config, defaults) -> Collections.singletonList(
-                    new OutputConverter<Object, String>() {
+                    new OutputConverter() {
                         @Override
-                        public String convertOutput(Object original, AnnotatedType type, ResolutionEnvironment resolutionEnvironment) {
+                        public Object convertOutput(Object original, AnnotatedType type, ResolutionEnvironment resolutionEnvironment) {
                             return "OK output converter";
                         }
 
@@ -506,11 +506,11 @@ public class GlobalConfig_SpqrAutoConfigurationTest {
         }
 
         @Bean
-        public ExtensionProvider<GeneratorConfiguration, InputConverter<? ,?>> testInputConverterExtensionProvider() {
+        public ExtensionProvider<GeneratorConfiguration, InputConverter> testInputConverterExtensionProvider() {
             return (config, defaults) -> Collections.singletonList(
-                    new InputConverter<String, Object>() {
+                    new InputConverter() {
                         @Override
-                        public String convertInput(Object substitute, AnnotatedType type, GlobalEnvironment environment, ValueMapper valueMapper) {
+                        public Object convertInput(Object substitute, AnnotatedType type, GlobalEnvironment environment, ValueMapper valueMapper) {
                             return "OK input converter";
                         }
 
