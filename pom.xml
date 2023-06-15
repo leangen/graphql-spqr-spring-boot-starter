@@ -7,9 +7,9 @@
     <packaging>pom</packaging>
 
     <inceptionYear>2018</inceptionYear>
-    <name>GraphQL SPQR Spring Boot 2 Starter</name>
+    <name>GraphQL SPQR Spring Boot 3 Starter</name>
     <url>https://github.com/leangen/graphql-spqr-spring-boot-starter</url>
-    <description>Spring Boot 2 starter powered by GraphQL SPQR</description>
+    <description>Spring Boot 3 starter powered by GraphQL SPQR</description>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -34,7 +34,7 @@
         <java.version>1.8</java.version>
 
         <spqr.version>0.12.1</spqr.version>
-        <spring-boot.version>2.7.6</spring-boot.version>
+        <spring-boot.version>3.0.6</spring-boot.version>
     </properties>
 
     <modules>

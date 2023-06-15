@@ -3,7 +3,7 @@ package io.leangen.graphql.spqr.spring.autoconfigure;
 import io.leangen.graphql.util.Utils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @ConfigurationProperties(prefix = "graphql.spqr")
 @SuppressWarnings("WeakerAccess")
