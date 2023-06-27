@@ -26,7 +26,7 @@ To use this starter in a typical Spring Boot project, add the following dependen
   <dependency>
     <groupId>io.leangen.graphql</groupId>
     <artifactId>graphql-spqr-spring-boot-starter</artifactId>
-    <version>0.0.7</version>
+    <version>1.0.0</version>
   </dependency>
   <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -60,19 +60,24 @@ or
 
 ## Choosing which methods get exposed through the API
 
-To deduce which methods of each operation source class should be exposed as GraphQL queries/mutations/subscriptions, SPQR uses the concept of a `ResolverBuilder` (since each exposed method acts as a resolver function for a GraphQL operation).
+To deduce which methods of each operation source class should be exposed as GraphQL queries/mutations/subscriptions,
+SPQR uses the concept of a `ResolverBuilder` (since each exposed method acts as a resolver function for a GraphQL operation).
 To cover the basic approaches `SpqrAutoConfiguration` registers a bean for each of the three built-in `ResolverBuilder` implementations:
 
 * `AnnotatedResolverBuilder` - exposes only the methods annotated by `@GraphQLQuery`, `@GraphQLMutation` or `@GraphQLSubscription`
 * `PublicResolverBuilder` - exposes all `public` methods from the operations source class (methods returning `void` are considered mutations)
 * `BeanResolverBuilder` - exposes all getters as queries and setters as mutations (getters returning `Publisher<T>` are considered subscriptions)
+* `RecordResolverBuilder` - exposes all record component accessors as queries (accessors returning `Publisher<T>` are considered subscriptions)
 
 It is also possible to implement custom resolver builders by implementing the `ResolverBuilder` interface.
 
-Resolver builders can be declared both globally and on the operation source level. If not sticking to the defaults, it is generally safer to explicitly customize on the operation source level, unless the rules are absolutely uniform across all operation sources.
+Resolver builders can be declared both globally and on the operation source level. If not sticking to the defaults, 
+it is generally safer to explicitly customize on the operation source level, unless the rules are absolutely uniform across all operation sources.
 Customizing on both levels simultaneously will work but could prove tricky to control as your API grows.
 
-At the moment SPQR's (v0.10.1) default resolver builder is `AnnotatedResolverBuilder`. This starter follows that convention and will continue to do so if at some point SPQR's default changes.
+Defaults:
+- For *top-level beans*: only `AnnotatedResolverBuilder` is registered, 
+- For *nested beans*: `AnnotatedResolverBuilder`, `BeanResolverBuilder` and `RecordResolverBuilder` (applied to records only) are registered
 
 ### Customizing resolver builders globally
 

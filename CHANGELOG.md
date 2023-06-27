@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2023-06-27
+### Changed
+- [Breaking] Upgrade to Spring Boot v3.1.1 and SPQR v0.12.3 (graphql-java v20.4) [#133](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/133)
+
 ## [0.0.7] - 2022-12-24
 ### Changed
 - [Breaking] Upgrade to Spring Boot v2.7.6 and SPQR v0.12.1 (graphql-java v20.0) [#124](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/124)
