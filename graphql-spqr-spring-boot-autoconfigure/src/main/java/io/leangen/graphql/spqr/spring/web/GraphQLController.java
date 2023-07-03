@@ -96,7 +96,8 @@ public abstract class GraphQLController<R> {
     @GetMapping(
             value = "${graphql.spqr.http.endpoint:/graphql}",
             produces = MediaType.APPLICATION_JSON_VALUE,
-            headers = { "Connection!=Upgrade", "Connection!=keep-alive, Upgrade" }
+            headers = { "Connection!=Upgrade", "Connection!=keep-alive, Upgrade",
+                        "Connection!=upgrade", "Connection!=keep-alive, upgrade"}
     )
     public Object executeGet(GraphQLRequest graphQLRequest, R request) {
         return get(graphQLRequest, request, TransportType.HTTP);
@@ -105,7 +106,8 @@ public abstract class GraphQLController<R> {
     @GetMapping(
             value = "${graphql.spqr.http.endpoint:/graphql}",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE,
-            headers = { "Connection!=Upgrade", "Connection!=keep-alive, Upgrade" }
+            headers = { "Connection!=Upgrade", "Connection!=keep-alive, Upgrade",
+                        "Connection!=upgrade", "Connection!=keep-alive, upgrade"}
     )
     public Object executeGetEventStream(GraphQLRequest graphQLRequest, R request) {
         return get(graphQLRequest, request, TransportType.HTTP_EVENT_STREAM);
