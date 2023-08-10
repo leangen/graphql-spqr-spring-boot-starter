@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - [Breaking] Upgrade to Spring Boot v3.1.1 and SPQR v0.12.3 (graphql-java v20.4) [#133](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/133)
 
+## [0.0.8] - 2023-08-10
+### Changed
+- Upgrade to Spring Boot v2.7.14 and SPQR v0.12.3 (graphql-java v20.4)
+- Better WebSocket configurability [#79](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/79)
+
 ## [0.0.7] - 2022-12-24
 ### Changed
 - [Breaking] Upgrade to Spring Boot v2.7.6 and SPQR v0.12.1 (graphql-java v20.0) [#124](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/124)
