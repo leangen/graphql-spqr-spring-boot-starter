@@ -2,22 +2,17 @@ package io.leangen.graphql.spqr.spring.autoconfigure;
 
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
-import io.leangen.graphql.spqr.spring.web.mvc.websocket.GraphQLWebSocketExecutor;
 import io.leangen.graphql.spqr.spring.web.apollo.PerConnectionApolloHandler;
 import io.leangen.graphql.spqr.spring.web.mvc.websocket.DefaultGraphQLExecutor;
+import io.leangen.graphql.spqr.spring.web.mvc.websocket.GraphQLWebSocketExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 import java.util.Optional;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,7 +30,7 @@ public class WebSocketAutoConfiguration {
     private final DataLoaderRegistryFactory dataLoaderRegistryFactory;
 
     @Autowired
-    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "SpringJavaInjectionPointsAutowiringInspection"})
+    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
     public WebSocketAutoConfiguration(GraphQL graphQL, SpqrProperties config,
                                       Optional<DataLoaderRegistryFactory> dataLoaderRegistryFactory) {
         this.graphQL = graphQL;
@@ -44,15 +39,11 @@ public class WebSocketAutoConfiguration {
     }
 
     @Bean
-    WebSocketConfigurer webSocketConfigurer(GraphQLWebSocketExecutor webSocketExecutor) {
-        return webSocketHandlerRegistry -> {
-            String webSocketEndpoint = config.getWs().getEndpoint();
-            String graphQLEndpoint = config.getHttp().getEndpoint();
-            String endpointUrl = webSocketEndpoint == null ? graphQLEndpoint : webSocketEndpoint;
-            webSocketHandlerRegistry
-                .addHandler(webSocketHandler(webSocketExecutor), endpointUrl)
-                .setAllowedOrigins(config.getWs().getAllowedOrigins());
-        };
+    @ConditionalOnMissingBean(name = "spqrWebSocketConfigurer")
+    public WebSocketConfigurer spqrWebSocketConfigurer(PerConnectionApolloHandler handler) {
+        return webSocketHandlerRegistry -> webSocketHandlerRegistry
+            .addHandler(handler, config.getWs().getEndpoint())
+            .setAllowedOrigins(config.getWs().getAllowedOrigins());
     }
 
     @Bean
