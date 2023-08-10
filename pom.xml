@@ -3,7 +3,7 @@
 
     <groupId>io.leangen.graphql</groupId>
     <artifactId>graphql-spqr-spring-boot-starter-parent</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2018</inceptionYear>
@@ -22,7 +22,7 @@
         <connection>scm:git:git://github.com/leangen/graphql-spqr-spring-boot-starter</connection>
         <developerConnection>scm:git:git://github.com/leangen/graphql-spqr-spring-boot-starter</developerConnection>
         <url>https://github.com/leangen/graphql-spqr-spring-boot-starter</url>
-        <tag>graphql-spqr-spring-boot-starter-v0.0.7</tag>
+        <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>GitHub Issue Tracking</system>
@@ -33,8 +33,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
 
-        <spqr.version>0.12.1</spqr.version>
-        <spring-boot.version>2.7.6</spring-boot.version>
+        <spqr.version>0.12.3</spqr.version>
+        <graphql-java.version>20.4</graphql-java.version>
+        <spring-boot.version>2.7.14</spring-boot.version>
     </properties>
 
     <modules>
@@ -69,6 +70,12 @@
                 <groupId>io.leangen.graphql</groupId>
                 <artifactId>graphql-spqr-spring-boot-autoconfigure</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.graphql-java</groupId>
+                <artifactId>graphql-java</artifactId>
+                <version>${graphql-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

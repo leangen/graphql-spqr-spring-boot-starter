@@ -4,11 +4,7 @@ import graphql.GraphQL;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.schema.GraphQLSchema;
 import io.leangen.geantyref.GenericTypeReflector;
-import io.leangen.graphql.ExtendedGeneratorConfiguration;
-import io.leangen.graphql.ExtensionProvider;
-import io.leangen.graphql.GeneratorConfiguration;
-import io.leangen.graphql.GraphQLRuntime;
-import io.leangen.graphql.GraphQLSchemaGenerator;
+import io.leangen.graphql.*;
 import io.leangen.graphql.execution.ResolverInterceptorFactory;
 import io.leangen.graphql.generator.mapping.ArgumentInjector;
 import io.leangen.graphql.generator.mapping.InputConverter;
@@ -265,13 +261,19 @@ public class BaseAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public GraphQLSchema graphQLSchema(GraphQLSchemaGenerator schemaGenerator) {
-        return schemaGenerator.generate();
+    public ExecutableSchema graphQLExecutableSchema(GraphQLSchemaGenerator schemaGenerator) {
+        return schemaGenerator.generateExecutable();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public GraphQL graphQL(GraphQLSchema schema, SpqrProperties spqrProperties, List<Instrumentation> instrumentations) {
+    public GraphQLSchema graphQLSchema(ExecutableSchema executableSchema) {
+        return executableSchema.getSchema();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public GraphQL graphQL(ExecutableSchema schema, SpqrProperties spqrProperties, List<Instrumentation> instrumentations) {
         GraphQLRuntime.Builder builder = GraphQLRuntime.newGraphQL(schema);
         instrumentations.forEach(builder::instrumentation);
         if (spqrProperties.getMaxComplexity() > 1) {

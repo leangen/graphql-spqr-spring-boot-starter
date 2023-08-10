@@ -84,7 +84,7 @@ public class GraphQLControllerTest {
                         .contentType("application/graphql")
                         .content("{INVALID_QUERY}"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("FieldUndefined: Field 'INVALID_QUERY'")));
+                .andExpect(content().string(containsString("Field 'INVALID_QUERY' in type 'Query' is undefined")));
     }
 
     @Test
@@ -105,7 +105,7 @@ public class GraphQLControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null}"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("FieldUndefined: Field 'INVALID_QUERY'")));
+                .andExpect(content().string(containsString("Field 'INVALID_QUERY' in type 'Query' is undefined")));
     }
 
     @Test
@@ -126,7 +126,7 @@ public class GraphQLControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                         .content("query="+ URLEncoder.encode("{INVALID_QUERY}", StandardCharsets.UTF_8.toString())))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("FieldUndefined: Field 'INVALID_QUERY'")));
+                .andExpect(content().string(containsString("Field 'INVALID_QUERY' in type 'Query' is undefined")));
     }
 
     @Test
