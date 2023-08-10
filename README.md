@@ -26,7 +26,7 @@ To use this starter in a typical Spring Boot project, add the following dependen
   <dependency>
     <groupId>io.leangen.graphql</groupId>
     <artifactId>graphql-spqr-spring-boot-starter</artifactId>
-    <version>0.0.6</version>
+    <version>1.0.0</version>
   </dependency>
   <dependency>
     <groupId>org.springframework.boot</groupId>
