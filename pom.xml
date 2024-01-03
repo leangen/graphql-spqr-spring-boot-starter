@@ -88,6 +88,7 @@
                     <version>3.11.0</version>
                     <configuration>
                         <release>${java.version}</release>
+                        <parameters>true</parameters>
                     </configuration>
                 </plugin>
 
