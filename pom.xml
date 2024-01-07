@@ -24,6 +24,16 @@
         <url>https://github.com/leangen/graphql-spqr-spring-boot-starter</url>
         <tag>HEAD</tag>
     </scm>
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
     <issueManagement>
         <system>GitHub Issue Tracking</system>
         <url>https://github.com/leangen/graphql-spqr-spring-boot-starter/issues</url>
@@ -33,8 +43,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
 
-        <spqr.version>0.12.3</spqr.version>
-        <spring-boot.version>3.1.1</spring-boot.version>
+        <spqr.version>0.12.4</spqr.version>
+        <spring-boot.version>3.2.1</spring-boot.version>
     </properties>
 
     <modules>
@@ -62,7 +72,7 @@
             <dependency>
                 <groupId>com.graphql-java</groupId>
                 <artifactId>graphql-java</artifactId>
-                <version>20.4</version>
+                <version>21.3</version>
             </dependency>
 
             <dependency>
@@ -85,7 +95,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
+                    <version>3.12.1</version>
                     <configuration>
                         <release>${java.version}</release>
                         <parameters>true</parameters>
@@ -154,7 +164,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.5.0</version>
+                        <version>3.6.3</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -164,14 +174,12 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <excludePackageNames>*.classpath.*</excludePackageNames>
+                            <source>17</source>
                             <quiet>true</quiet>
-                            <links>
-                                <link>https://docs.oracle.com/javase/8/docs/api/</link>
-                            </links>
                             <version>true</version>
                             <show>protected</show>
                             <doclint>none</doclint>
+                            <failOnError>false</failOnError>
                         </configuration>
                     </plugin>
 
