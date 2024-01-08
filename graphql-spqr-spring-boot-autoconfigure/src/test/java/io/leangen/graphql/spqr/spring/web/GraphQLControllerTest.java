@@ -1,9 +1,15 @@
 package io.leangen.graphql.spqr.spring.web;
 
-import io.leangen.graphql.spqr.spring.autoconfigure.BaseAutoConfiguration;
-import io.leangen.graphql.spqr.spring.autoconfigure.MvcAutoConfiguration;
-import io.leangen.graphql.spqr.spring.autoconfigure.SpringDataAutoConfiguration;
-import io.leangen.graphql.spqr.spring.test.ResolverBuilder_TestConfig;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +21,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import io.leangen.graphql.spqr.spring.autoconfigure.BaseAutoConfiguration;
+import io.leangen.graphql.spqr.spring.autoconfigure.MvcAutoConfiguration;
+import io.leangen.graphql.spqr.spring.autoconfigure.SpringDataAutoConfiguration;
+import io.leangen.graphql.spqr.spring.test.ResolverBuilder_TestConfig;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -49,11 +50,21 @@ public class GraphQLControllerTest {
     }
 
     @Test
+    public void defaultControllerTest_POST_applicationJson_persistedQuery() throws Exception {
+        mockMvc.perform(
+                post("/"+apiContext)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"variables\":null,\"operationName\":null,\"extensions\":{\"persistedQuery\":{\"version\":1,\"sha256Hash\":\"fcf31818e50ac3e818ca4bdbc433d6ab73176f0b9d5f9d5ad17e200cdab6fba4\"}}}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Invalid Syntax : offending token '<EOF>' at line 1 column 1")));
+    }
+
+    @Test
     public void defaultControllerTest_POST_applicationJson_noQueryParams() throws Exception {
         mockMvc.perform(
                 post("/"+apiContext)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"query\":\"{greetingFromBeanSource_wiredAsComponent_byAnnotation}\",\"variables\":null,\"operationName\":null}"))
+                        .content("{\"query\":\"{greetingFromBeanSource_wiredAsComponent_byAnnotation}\",\"variables\":null,\"operationName\":null,\"extensions\":null}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
     }
@@ -75,6 +86,15 @@ public class GraphQLControllerTest {
                         .param("query","{greetingFromBeanSource_wiredAsComponent_byAnnotation}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
+    }
+
+    @Test
+    public void defaultControllerTest_GET_persistedQuery() throws Exception {
+        mockMvc.perform(
+                get("/"+apiContext)
+                        .param("extensions", "{\"persistedQuery\":{\"version\":1,\"sha256Hash\":\"4b758938f2d00323147290e3b0d041e6a0952e2c694ab2c0ea7212ca08f337b3\"}}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Invalid Syntax : offending token '<EOF>' at line 1 column 1")));
     }
 
     @Test
@@ -103,7 +123,7 @@ public class GraphQLControllerTest {
         mockMvc.perform(
                 post("/"+apiContext)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null}"))
+                        .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null,\"extensions\":null}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Field 'INVALID_QUERY' in type 'Query' is undefined")));
     }
@@ -114,7 +134,7 @@ public class GraphQLControllerTest {
                 post("/"+apiContext)
                         .param("query","{greetingFromBeanSource_wiredAsComponent_byAnnotation}")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null}"))
+                        .content("{\"query\":\"{INVALID_QUERY}\",\"variables\":null,\"operationName\":null,\"extensions\":null}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Hello world")));
     }
