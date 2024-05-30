@@ -13,7 +13,7 @@
 GraphQL SPQR Spring Boot starter aims to make it dead simple to add a GraphQL API to any Spring Boot project.
  * Add `@GraphQLApi` to any Spring managed component, and you're good to go 🚀
  * GraphQL endpoint available at `/graphql` by default
- * GraphQL Playground IDE (if enabled, see the properties below) available at `/ide`
+ * GraphiQL (if enabled, see the properties below) available at `/gui`
  * Fully customizable in seconds by providing simple beans (any SPQR SPI can be exposed as a bean)
 
 ## Project setup / Dependencies
@@ -230,7 +230,7 @@ To do this SPQR uses `TypeInfoGenerator` on a global level. When using this star
 | graphql.spqr.gui.endpoint | /gui |
 | graphql.spqr.gui.target-endpoint | n/a |
 | graphql.spqr.gui.target-ws-endpoint | n/a |
-| graphql.spqr.gui.page-title | GraphQL Playground |
+| graphql.spqr.gui.page-title | GraphiQL |
 
 ### Customize mapping of GraphQL values to Java values
 

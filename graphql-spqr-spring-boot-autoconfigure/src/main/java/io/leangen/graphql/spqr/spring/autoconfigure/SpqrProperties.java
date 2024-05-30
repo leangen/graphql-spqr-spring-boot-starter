@@ -279,7 +279,7 @@ public class SpqrProperties {
         private String endpoint = DEFAULT_GUI_ENDPOINT;
         private String targetEndpoint;
         private String targetWsEndpoint;
-        private String pageTitle = "GraphQL Playground";
+        private String pageTitle = "GraphiQL";
 
         public boolean isEnabled() {
             return enabled;
