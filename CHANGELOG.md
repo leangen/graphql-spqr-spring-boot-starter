@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2024-xx-xx
+### Changed
+- Upgrade to graphql-java v21.5 to resolve CVE-2024-40094
+
 ## [1.0.1] - 2024-01-07
 ### Changed
 - [Breaking] Upgrade to Spring Boot v3.2.1 and SPQR v0.12.4 (graphql-java v21.3) [#140](https://github.com/leangen/graphql-spqr-spring-boot-starter/issues/140)
